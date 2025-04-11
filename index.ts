@@ -45,43 +45,149 @@ const toolFactory = new ToolFactory(defaultClient);
 // OpenAPI specification endpoint
 server.get('/openapi.json', async (req, reply) => {
   return {
-    openapi: '3.0.0',
+    openapi: '3.1.0',
     info: {
       title: 'Captain Data MCP API',
       version: '1.0.0',
-      description: 'API for extracting data from LinkedIn profiles and companies'
+      description: 'API for extracting data from LinkedIn profiles and companies',
+      contact: {
+        name: 'Captain Data Support',
+        url: 'https://captaindata.com'
+      },
+      license: {
+        name: 'Proprietary',
+        identifier: 'Proprietary'
+      }
     },
     servers: [
       {
         url: process.env.NODE_ENV === 'production' 
           ? 'https://captaindata-mcp.vercel.app'
-          : 'http://localhost:3000'
+          : 'http://localhost:3000',
+        description: 'Captain Data MCP Server'
       }
     ],
     paths: {
       '/introspect': {
         get: {
+          operationId: 'get_introspect',
           summary: 'List all available tools',
+          description: 'Returns a list of all available tools with their parameters',
           responses: {
             '200': {
-              description: 'List of available tools'
+              description: 'List of available tools',
+              content: {
+                'application/json': {
+                  schema: {
+                    type: 'object',
+                    properties: {
+                      tools: {
+                        type: 'array',
+                        items: {
+                          type: 'object',
+                          required: ['id', 'name', 'description'],
+                          properties: {
+                            id: { 
+                              type: 'string',
+                              description: 'Unique identifier of the tool'
+                            },
+                            name: { 
+                              type: 'string',
+                              description: 'Display name of the tool'
+                            },
+                            description: { 
+                              type: 'string',
+                              description: 'Detailed description of what the tool does'
+                            },
+                            parameters: { 
+                              type: 'object',
+                              description: 'Parameters required by the tool'
+                            }
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
             }
           }
         }
       },
       '/tools/linkedin_extract_company/run': {
         post: {
+          operationId: 'linkedin_extract_company',
           summary: 'Extract LinkedIn company data',
+          description: 'Extracts detailed information from a LinkedIn company page',
           requestBody: {
             required: true,
             content: {
               'application/json': {
                 schema: {
                   type: 'object',
+                  required: ['linkedin_company_url'],
                   properties: {
                     linkedin_company_url: {
                       type: 'string',
-                      description: 'URL of the LinkedIn company page'
+                      description: 'URL of the LinkedIn company page',
+                      format: 'uri',
+                      pattern: '^https://www\\.linkedin\\.com/company/.*$'
+                    }
+                  }
+                }
+              }
+            }
+          },
+          responses: {
+            '200': {
+              description: 'Company data successfully extracted',
+              content: {
+                'application/json': {
+                  schema: {
+                    type: 'object',
+                    description: 'Company information from LinkedIn'
+                  }
+                }
+              }
+            },
+            '400': {
+              description: 'Invalid request parameters',
+              content: {
+                'application/json': {
+                  schema: {
+                    type: 'object',
+                    required: ['error'],
+                    properties: {
+                      error: { type: 'string' }
+                    }
+                  }
+                }
+              }
+            },
+            '401': {
+              description: 'Unauthorized - Invalid API key',
+              content: {
+                'application/json': {
+                  schema: {
+                    type: 'object',
+                    required: ['error'],
+                    properties: {
+                      error: { type: 'string' }
+                    }
+                  }
+                }
+              }
+            },
+            '500': {
+              description: 'Server error',
+              content: {
+                'application/json': {
+                  schema: {
+                    type: 'object',
+                    required: ['error'],
+                    properties: {
+                      error: { type: 'string' },
+                      message: { type: 'string' }
                     }
                   }
                 }
@@ -93,17 +199,78 @@ server.get('/openapi.json', async (req, reply) => {
       },
       '/tools/linkedin_extract_people/run': {
         post: {
+          operationId: 'linkedin_extract_profile',
           summary: 'Extract LinkedIn profile data',
+          description: 'Extracts detailed information from a LinkedIn profile page',
           requestBody: {
             required: true,
             content: {
               'application/json': {
                 schema: {
                   type: 'object',
+                  required: ['linkedin_profile_url'],
                   properties: {
                     linkedin_profile_url: {
                       type: 'string',
-                      description: 'URL of the LinkedIn profile'
+                      description: 'URL of the LinkedIn profile',
+                      format: 'uri',
+                      pattern: '^https://www\\.linkedin\\.com/in/.*$'
+                    }
+                  }
+                }
+              }
+            }
+          },
+          responses: {
+            '200': {
+              description: 'Profile data successfully extracted',
+              content: {
+                'application/json': {
+                  schema: {
+                    type: 'object',
+                    description: 'Profile information from LinkedIn'
+                  }
+                }
+              }
+            },
+            '400': {
+              description: 'Invalid request parameters',
+              content: {
+                'application/json': {
+                  schema: {
+                    type: 'object',
+                    required: ['error'],
+                    properties: {
+                      error: { type: 'string' }
+                    }
+                  }
+                }
+              }
+            },
+            '401': {
+              description: 'Unauthorized - Invalid API key',
+              content: {
+                'application/json': {
+                  schema: {
+                    type: 'object',
+                    required: ['error'],
+                    properties: {
+                      error: { type: 'string' }
+                    }
+                  }
+                }
+              }
+            },
+            '500': {
+              description: 'Server error',
+              content: {
+                'application/json': {
+                  schema: {
+                    type: 'object',
+                    required: ['error'],
+                    properties: {
+                      error: { type: 'string' },
+                      message: { type: 'string' }
                     }
                   }
                 }
@@ -119,7 +286,8 @@ server.get('/openapi.json', async (req, reply) => {
         ApiKeyAuth: {
           type: 'apiKey',
           in: 'header',
-          name: 'X-API-Key'
+          name: 'X-API-Key',
+          description: 'API key for authentication'
         }
       }
     }
