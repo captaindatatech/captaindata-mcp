@@ -1,0 +1,26 @@
+{
+  "linkedin_extract_company": {
+    "id": "linkedin_extract_company",
+    "name": "Extract LinkedIn Company",
+    "description": "Extract data from a LinkedIn company page URL.",
+    "parameters": {
+      "linkedin_company_url": {
+        "type": "string",
+        "description": "URL of the LinkedIn company page"
+      }
+    },
+    "actionPath": "linkedin-extract-company"
+  },
+  "linkedin_extract_people": {
+    "id": "linkedin_extract_people",
+    "name": "Extract LinkedIn People",
+    "description": "Extract data from a LinkedIn profile URL.",
+    "parameters": {
+      "linkedin_profile_url": {
+        "type": "string",
+        "description": "URL of the LinkedIn profile"
+      }
+    },
+    "actionPath": "linkedin-extract-people"
+  }
+} 
