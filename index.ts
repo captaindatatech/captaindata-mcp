@@ -42,6 +42,90 @@ const defaultClient = new CaptainDataClient({
 // Initialize tool factory
 const toolFactory = new ToolFactory(defaultClient);
 
+// OpenAPI specification endpoint
+server.get('/openapi.json', async (req, reply) => {
+  return {
+    openapi: '3.0.0',
+    info: {
+      title: 'Captain Data MCP API',
+      version: '1.0.0',
+      description: 'API for extracting data from LinkedIn profiles and companies'
+    },
+    servers: [
+      {
+        url: process.env.NODE_ENV === 'production' 
+          ? 'https://captaindata-mcp.vercel.app'
+          : 'http://localhost:3000'
+      }
+    ],
+    paths: {
+      '/introspect': {
+        get: {
+          summary: 'List all available tools',
+          responses: {
+            '200': {
+              description: 'List of available tools'
+            }
+          }
+        }
+      },
+      '/tools/linkedin_extract_company/run': {
+        post: {
+          summary: 'Extract LinkedIn company data',
+          requestBody: {
+            required: true,
+            content: {
+              'application/json': {
+                schema: {
+                  type: 'object',
+                  properties: {
+                    linkedin_company_url: {
+                      type: 'string',
+                      description: 'URL of the LinkedIn company page'
+                    }
+                  }
+                }
+              }
+            }
+          },
+          security: [{ ApiKeyAuth: [] }]
+        }
+      },
+      '/tools/linkedin_extract_people/run': {
+        post: {
+          summary: 'Extract LinkedIn profile data',
+          requestBody: {
+            required: true,
+            content: {
+              'application/json': {
+                schema: {
+                  type: 'object',
+                  properties: {
+                    linkedin_profile_url: {
+                      type: 'string',
+                      description: 'URL of the LinkedIn profile'
+                    }
+                  }
+                }
+              }
+            }
+          },
+          security: [{ ApiKeyAuth: [] }]
+        }
+      }
+    },
+    components: {
+      securitySchemes: {
+        ApiKeyAuth: {
+          type: 'apiKey',
+          in: 'header',
+          name: 'X-API-Key'
+        }
+      }
+    }
+  };
+});
+
 // Health check endpoint
 server.get('/', async (req, reply) => {
   return { status: 'ok', message: 'Captain Data MCP API is running' };
