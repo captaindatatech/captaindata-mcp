@@ -81,7 +81,7 @@ server.post('/tools/:id/run', async (req, reply) => {
   }
 });
 
-// Start the server only if not in Vercel environment
+// For local development
 if (process.env.NODE_ENV !== 'production') {
   const start = async () => {
     try {
@@ -97,9 +97,11 @@ if (process.env.NODE_ENV !== 'production') {
       process.exit(1);
     }
   };
-
   start();
 }
 
-// Export for Vercel
-export default server; 
+// Export for Vercel serverless function
+export default async function handler(req: any, res: any) {
+  await server.ready();
+  server.server.emit('request', req, res);
+} 
