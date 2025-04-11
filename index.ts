@@ -124,16 +124,7 @@ server.get('/openapi.json', async (req, reply) => {
             content: {
               'application/json': {
                 schema: {
-                  type: 'object',
-                  required: ['linkedin_company_url'],
-                  properties: {
-                    linkedin_company_url: {
-                      type: 'string',
-                      description: 'URL of the LinkedIn company page',
-                      format: 'uri',
-                      pattern: '^https://www\\.linkedin\\.com/company/.*$'
-                    }
-                  }
+                  $ref: '#/components/schemas/CompanyRequest'
                 }
               }
             }
@@ -144,8 +135,7 @@ server.get('/openapi.json', async (req, reply) => {
               content: {
                 'application/json': {
                   schema: {
-                    type: 'object',
-                    description: 'Company information from LinkedIn'
+                    $ref: '#/components/schemas/CompanyResponse'
                   }
                 }
               }
@@ -155,11 +145,7 @@ server.get('/openapi.json', async (req, reply) => {
               content: {
                 'application/json': {
                   schema: {
-                    type: 'object',
-                    required: ['error'],
-                    properties: {
-                      error: { type: 'string' }
-                    }
+                    $ref: '#/components/schemas/ErrorResponse'
                   }
                 }
               }
@@ -169,11 +155,7 @@ server.get('/openapi.json', async (req, reply) => {
               content: {
                 'application/json': {
                   schema: {
-                    type: 'object',
-                    required: ['error'],
-                    properties: {
-                      error: { type: 'string' }
-                    }
+                    $ref: '#/components/schemas/ErrorResponse'
                   }
                 }
               }
@@ -183,12 +165,7 @@ server.get('/openapi.json', async (req, reply) => {
               content: {
                 'application/json': {
                   schema: {
-                    type: 'object',
-                    required: ['error'],
-                    properties: {
-                      error: { type: 'string' },
-                      message: { type: 'string' }
-                    }
+                    $ref: '#/components/schemas/ErrorResponse'
                   }
                 }
               }
@@ -207,16 +184,7 @@ server.get('/openapi.json', async (req, reply) => {
             content: {
               'application/json': {
                 schema: {
-                  type: 'object',
-                  required: ['linkedin_profile_url'],
-                  properties: {
-                    linkedin_profile_url: {
-                      type: 'string',
-                      description: 'URL of the LinkedIn profile',
-                      format: 'uri',
-                      pattern: '^https://www\\.linkedin\\.com/in/.*$'
-                    }
-                  }
+                  $ref: '#/components/schemas/ProfileRequest'
                 }
               }
             }
@@ -227,8 +195,7 @@ server.get('/openapi.json', async (req, reply) => {
               content: {
                 'application/json': {
                   schema: {
-                    type: 'object',
-                    description: 'Profile information from LinkedIn'
+                    $ref: '#/components/schemas/ProfileResponse'
                   }
                 }
               }
@@ -238,11 +205,7 @@ server.get('/openapi.json', async (req, reply) => {
               content: {
                 'application/json': {
                   schema: {
-                    type: 'object',
-                    required: ['error'],
-                    properties: {
-                      error: { type: 'string' }
-                    }
+                    $ref: '#/components/schemas/ErrorResponse'
                   }
                 }
               }
@@ -252,11 +215,7 @@ server.get('/openapi.json', async (req, reply) => {
               content: {
                 'application/json': {
                   schema: {
-                    type: 'object',
-                    required: ['error'],
-                    properties: {
-                      error: { type: 'string' }
-                    }
+                    $ref: '#/components/schemas/ErrorResponse'
                   }
                 }
               }
@@ -266,12 +225,7 @@ server.get('/openapi.json', async (req, reply) => {
               content: {
                 'application/json': {
                   schema: {
-                    type: 'object',
-                    required: ['error'],
-                    properties: {
-                      error: { type: 'string' },
-                      message: { type: 'string' }
-                    }
+                    $ref: '#/components/schemas/ErrorResponse'
                   }
                 }
               }
@@ -282,6 +236,111 @@ server.get('/openapi.json', async (req, reply) => {
       }
     },
     components: {
+      schemas: {
+        CompanyRequest: {
+          type: 'object',
+          required: ['linkedin_company_url'],
+          properties: {
+            linkedin_company_url: {
+              type: 'string',
+              description: 'URL of the LinkedIn company page',
+              format: 'uri',
+              pattern: '^https://www\\.linkedin\\.com/company/.*$'
+            }
+          }
+        },
+        CompanyResponse: {
+          type: 'object',
+          required: ['company_name'],
+          properties: {
+            company_name: {
+              type: 'string',
+              description: 'Name of the company'
+            },
+            description: {
+              type: 'string',
+              description: 'Company description'
+            },
+            website: {
+              type: 'string',
+              format: 'uri',
+              description: 'Company website URL'
+            },
+            industry: {
+              type: 'string',
+              description: 'Company industry'
+            },
+            company_size: {
+              type: 'string',
+              description: 'Company size range'
+            },
+            headquarters: {
+              type: 'string',
+              description: 'Company headquarters location'
+            },
+            specialties: {
+              type: 'array',
+              items: {
+                type: 'string'
+              },
+              description: 'Company specialties'
+            }
+          }
+        },
+        ProfileRequest: {
+          type: 'object',
+          required: ['linkedin_profile_url'],
+          properties: {
+            linkedin_profile_url: {
+              type: 'string',
+              description: 'URL of the LinkedIn profile',
+              format: 'uri',
+              pattern: '^https://www\\.linkedin\\.com/in/.*$'
+            }
+          }
+        },
+        ProfileResponse: {
+          type: 'object',
+          required: ['full_name'],
+          properties: {
+            full_name: {
+              type: 'string',
+              description: 'Full name of the person'
+            },
+            headline: {
+              type: 'string',
+              description: 'Professional headline'
+            },
+            location: {
+              type: 'string',
+              description: 'Location of the person'
+            },
+            current_position: {
+              type: 'string',
+              description: 'Current job position'
+            },
+            profile_image_url: {
+              type: 'string',
+              format: 'uri',
+              description: 'URL of the profile picture'
+            }
+          }
+        },
+        ErrorResponse: {
+          type: 'object',
+          required: ['error'],
+          properties: {
+            error: {
+              type: 'string',
+              description: 'Error message'
+            },
+            message: {
+              type: 'string',
+              description: 'Detailed error message'
+            }
+          }
+        }
+      },
       securitySchemes: {
         ApiKeyAuth: {
           type: 'apiKey',
