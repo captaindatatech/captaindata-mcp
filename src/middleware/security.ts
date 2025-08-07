@@ -1,5 +1,5 @@
 import { FastifyRequest, FastifyReply } from 'fastify';
-import { createErrorResponse, ERROR_CODES } from './lib/error';
+import { createErrorResponse, ERROR_CODES } from '../lib/error';
 
 // Routes that don't require authentication
 const PUBLIC_ROUTES = [
@@ -11,7 +11,7 @@ const PUBLIC_ROUTES = [
   '/test-post'   // Test POST endpoint
 ];
 
-export default async function mw(req: FastifyRequest, reply: FastifyReply) {
+export async function securityMiddleware(req: FastifyRequest, reply: FastifyReply) {
   const key = req.headers['x-api-key'];
   
   // Get the pathname from the URL (remove query parameters)
@@ -35,6 +35,4 @@ export default async function mw(req: FastifyRequest, reply: FastifyReply) {
   if (key) {
     req.headers['X-API-Key'] = key as string;
   }
-  
-  // Continue to the next handler (no explicit return needed)
 } 

@@ -11,8 +11,7 @@ import fastifyCors from '@fastify/cors';
 import fastifyRateLimit from '@fastify/rate-limit';
 import fastifySwagger from '@fastify/swagger';
 import fastifySwaggerUi from '@fastify/swagger-ui';
-import middleware from './src/middleware';
-import { requestLoggingMiddleware } from './src/middleware/logging';
+import { requestLoggingMiddleware, securityMiddleware } from './src/middleware';
 import introspectHandler, { introspectSchema } from './src/api/introspect';
 import toolHandler from './src/api/tools/[alias]';
 import { swaggerOptions, swaggerUiOptions, generateToolPaths } from './src/lib/openapi';
@@ -82,7 +81,7 @@ server.addHook('onRequest', async (request, reply) => {
 server.addHook('preHandler', requestLoggingMiddleware);
 
 // Add authentication middleware
-server.addHook('preHandler', middleware);
+server.addHook('preHandler', securityMiddleware);
 
 // Add response logging
 server.addHook('onResponse', (request, reply, done) => {
