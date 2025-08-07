@@ -1,17 +1,61 @@
-import fastify from 'fastify';
+// Load environment variables first
 import dotenv from 'dotenv';
-import { CaptainDataClient } from './src/clients/captainData';
-import { ToolFactory } from './src/tools/toolFactory';
+dotenv.config();
+
+// Import Sentry instrumentation after environment variables are loaded
+import "./instrument";
+
+import fastify from 'fastify';
+import * as Sentry from "@sentry/node";
 import fastifyCors from '@fastify/cors';
 import fastifyRateLimit from '@fastify/rate-limit';
+import fastifySwagger from '@fastify/swagger';
+import fastifySwaggerUi from '@fastify/swagger-ui';
+import middleware from './src/middleware';
+import { requestLoggingMiddleware } from './src/middleware/logging';
+import introspectHandler, { introspectSchema } from './src/api/introspect';
+import toolHandler from './src/api/tools/[alias]';
+import { swaggerOptions, swaggerUiOptions, generateToolPaths } from './src/lib/openapi';
+import { config } from './src/lib/config';
 
-// Load environment variables
-dotenv.config();
+// Validate configuration on startup
+try {
+  console.log('Validating configuration...');
+  console.log(`Environment: ${config.nodeEnv}`);
+  console.log(`Captain Data API Base: ${config.cdApiBase}`);
+  console.log(`Log Level: ${config.logLevel}`);
+} catch (error) {
+  console.error('Configuration validation failed:', error);
+  process.exit(1);
+}
 
 // Create Fastify instance
 const server = fastify({
-  logger: true
+  logger: {
+    level: config.logLevel,
+    serializers: {
+      req: (req) => ({
+        method: req.method,
+        url: req.url,
+        headers: {
+          'user-agent': req.headers['user-agent'],
+          'x-forwarded-for': req.headers['x-forwarded-for'],
+        }
+      }),
+      res: (res) => ({
+        statusCode: res.statusCode,
+        responseTime: res.elapsedTime || 0
+      })
+    }
+  },
+  requestIdHeader: 'x-request-id',
+  genReqId: () => `req-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`
 });
+
+// Set up Sentry error handler for Fastify (only in production if Sentry is initialized)
+if (process.env.NODE_ENV === 'production' && process.env.SENTRY_DSN) {
+  Sentry.setupFastifyErrorHandler(server);
+}
 
 // Register CORS
 server.register(fastifyCors, {
@@ -22,8 +66,8 @@ server.register(fastifyCors, {
 
 // Register rate limiting
 server.register(fastifyRateLimit, {
-  max: 100, // Maximum 100 requests
-  timeWindow: '1 minute' // Per minute
+  max: config.rateLimitMax,
+  timeWindow: config.rateLimitTimeWindow
 });
 
 // Add security headers
@@ -34,374 +78,131 @@ server.addHook('onRequest', async (request, reply) => {
   reply.header('Strict-Transport-Security', 'max-age=31536000; includeSubDomains');
 });
 
-// Initialize Captain Data client with default API key
-const defaultClient = new CaptainDataClient({
-  apiKey: process.env.CAPTAINDATA_API_KEY || ''
+// Add request logging middleware
+server.addHook('preHandler', requestLoggingMiddleware);
+
+// Add authentication middleware
+server.addHook('preHandler', middleware);
+
+// Add response logging
+server.addHook('onResponse', (request, reply, done) => {
+  const startTime = (request as any).startTime;
+  if (startTime) {
+    const responseTime = Date.now() - startTime;
+    request.log.info({
+      requestId: request.id,
+      method: request.method,
+      url: request.url,
+      statusCode: reply.statusCode,
+      responseTime,
+      message: 'Request completed'
+    });
+  }
+  done();
 });
 
-// Initialize tool factory
-const toolFactory = new ToolFactory(defaultClient);
-
-// OpenAPI specification endpoint
-server.get('/openapi.json', async (req, reply) => {
-  return {
-    openapi: '3.1.0',
-    info: {
-      title: 'Captain Data MCP API',
-      version: '1.0.0',
-      description: 'API for extracting data from LinkedIn profiles and companies',
-      contact: {
-        name: 'Captain Data Support',
-        url: 'https://captaindata.com'
-      },
-      license: {
-        name: 'Proprietary',
-        identifier: 'Proprietary'
-      }
-    },
-    servers: [
-      {
-        url: process.env.NODE_ENV === 'production' 
-          ? 'https://captaindata-mcp.vercel.app'
-          : 'http://localhost:3000',
-        description: 'Captain Data MCP Server'
-      }
-    ],
-    paths: {
-      '/introspect': {
-        get: {
-          operationId: 'get_introspect',
-          summary: 'List all available tools',
-          description: 'Returns a list of all available tools with their parameters',
-          responses: {
-            '200': {
-              description: 'List of available tools',
-              content: {
-                'application/json': {
-                  schema: {
-                    type: 'object',
-                    properties: {
-                      tools: {
-                        type: 'array',
-                        items: {
-                          type: 'object',
-                          required: ['id', 'name', 'description'],
-                          properties: {
-                            id: { 
-                              type: 'string',
-                              description: 'Unique identifier of the tool'
-                            },
-                            name: { 
-                              type: 'string',
-                              description: 'Display name of the tool'
-                            },
-                            description: { 
-                              type: 'string',
-                              description: 'Detailed description of what the tool does'
-                            },
-                            parameters: { 
-                              type: 'object',
-                              description: 'Parameters required by the tool'
-                            }
-                          }
-                        }
-                      }
-                    }
-                  }
-                }
-              }
-            }
-          }
-        }
-      },
-      '/tools/linkedin_extract_company/run': {
-        post: {
-          operationId: 'linkedin_extract_company',
-          summary: 'Extract LinkedIn company data',
-          description: 'Extracts detailed information from a LinkedIn company page',
-          requestBody: {
-            required: true,
-            content: {
-              'application/json': {
-                schema: {
-                  $ref: '#/components/schemas/CompanyRequest'
-                }
-              }
-            }
-          },
-          responses: {
-            '200': {
-              description: 'Company data successfully extracted',
-              content: {
-                'application/json': {
-                  schema: {
-                    $ref: '#/components/schemas/CompanyResponse'
-                  }
-                }
-              }
-            },
-            '400': {
-              description: 'Invalid request parameters',
-              content: {
-                'application/json': {
-                  schema: {
-                    $ref: '#/components/schemas/ErrorResponse'
-                  }
-                }
-              }
-            },
-            '401': {
-              description: 'Unauthorized - Invalid API key',
-              content: {
-                'application/json': {
-                  schema: {
-                    $ref: '#/components/schemas/ErrorResponse'
-                  }
-                }
-              }
-            },
-            '500': {
-              description: 'Server error',
-              content: {
-                'application/json': {
-                  schema: {
-                    $ref: '#/components/schemas/ErrorResponse'
-                  }
-                }
-              }
-            }
-          },
-          security: [{ ApiKeyAuth: [] }]
-        }
-      },
-      '/tools/linkedin_extract_people/run': {
-        post: {
-          operationId: 'linkedin_extract_profile',
-          summary: 'Extract LinkedIn profile data',
-          description: 'Extracts detailed information from a LinkedIn profile page',
-          requestBody: {
-            required: true,
-            content: {
-              'application/json': {
-                schema: {
-                  $ref: '#/components/schemas/ProfileRequest'
-                }
-              }
-            }
-          },
-          responses: {
-            '200': {
-              description: 'Profile data successfully extracted',
-              content: {
-                'application/json': {
-                  schema: {
-                    $ref: '#/components/schemas/ProfileResponse'
-                  }
-                }
-              }
-            },
-            '400': {
-              description: 'Invalid request parameters',
-              content: {
-                'application/json': {
-                  schema: {
-                    $ref: '#/components/schemas/ErrorResponse'
-                  }
-                }
-              }
-            },
-            '401': {
-              description: 'Unauthorized - Invalid API key',
-              content: {
-                'application/json': {
-                  schema: {
-                    $ref: '#/components/schemas/ErrorResponse'
-                  }
-                }
-              }
-            },
-            '500': {
-              description: 'Server error',
-              content: {
-                'application/json': {
-                  schema: {
-                    $ref: '#/components/schemas/ErrorResponse'
-                  }
-                }
-              }
-            }
-          },
-          security: [{ ApiKeyAuth: [] }]
-        }
-      }
-    },
-    components: {
-      schemas: {
-        CompanyRequest: {
-          type: 'object',
-          required: ['linkedin_company_url'],
-          properties: {
-            linkedin_company_url: {
-              type: 'string',
-              description: 'URL of the LinkedIn company page',
-              format: 'uri',
-              pattern: '^https://www\\.linkedin\\.com/company/.*$'
-            }
-          }
-        },
-        CompanyResponse: {
-          type: 'object',
-          required: ['company_name'],
-          properties: {
-            company_name: {
-              type: 'string',
-              description: 'Name of the company'
-            },
-            description: {
-              type: 'string',
-              description: 'Company description'
-            },
-            website: {
-              type: 'string',
-              format: 'uri',
-              description: 'Company website URL'
-            },
-            industry: {
-              type: 'string',
-              description: 'Company industry'
-            },
-            company_size: {
-              type: 'string',
-              description: 'Company size range'
-            },
-            headquarters: {
-              type: 'string',
-              description: 'Company headquarters location'
-            },
-            specialties: {
-              type: 'array',
-              items: {
-                type: 'string'
-              },
-              description: 'Company specialties'
-            }
-          }
-        },
-        ProfileRequest: {
-          type: 'object',
-          required: ['linkedin_profile_url'],
-          properties: {
-            linkedin_profile_url: {
-              type: 'string',
-              description: 'URL of the LinkedIn profile',
-              format: 'uri',
-              pattern: '^https://www\\.linkedin\\.com/in/.*$'
-            }
-          }
-        },
-        ProfileResponse: {
-          type: 'object',
-          required: ['full_name'],
-          properties: {
-            full_name: {
-              type: 'string',
-              description: 'Full name of the person'
-            },
-            headline: {
-              type: 'string',
-              description: 'Professional headline'
-            },
-            location: {
-              type: 'string',
-              description: 'Location of the person'
-            },
-            current_position: {
-              type: 'string',
-              description: 'Current job position'
-            },
-            profile_image_url: {
-              type: 'string',
-              format: 'uri',
-              description: 'URL of the profile picture'
-            }
-          }
-        },
-        ErrorResponse: {
-          type: 'object',
-          required: ['error'],
-          properties: {
-            error: {
-              type: 'string',
-              description: 'Error message'
-            },
-            message: {
-              type: 'string',
-              description: 'Detailed error message'
-            }
-          }
-        }
-      },
-      securitySchemes: {
-        ApiKeyAuth: {
-          type: 'apiKey',
-          in: 'header',
-          name: 'X-API-Key',
-          description: 'API key for authentication'
-        }
-      }
-    }
-  };
+// Test endpoint
+server.get('/test', async (req, reply) => {
+  return { message: 'Hello World', timestamp: new Date().toISOString() };
 });
 
 // Health check endpoint
-server.get('/', async (req, reply) => {
-  return { status: 'ok', message: 'Captain Data MCP API is running' };
-});
-
-// Introspect endpoint
-server.get('/introspect', async (req, reply) => {
-  const tools = toolFactory.getAllTools();
-  return {
-    tools: tools.map(t => ({
-      id: t.id,
-      name: t.name,
-      description: t.description,
-      parameters: t.parameters
-    }))
+server.get('/health', {
+  schema: {
+    tags: ['Health'],
+    summary: 'Health check',
+    description: 'Check if the API is running',
+    response: {
+      200: {
+        type: 'object',
+        properties: {
+          status: { type: 'string', example: 'ok' },
+          message: { type: 'string', example: 'Captain Data MCP API is running' },
+          timestamp: { type: 'string', format: 'date-time' },
+          uptime: { type: 'number', description: 'Server uptime in seconds' },
+          version: { type: 'string' },
+          environment: { type: 'string' }
+        }
+      }
+    }
+  }
+}, async (req, reply) => {
+  return { 
+    status: 'ok', 
+    message: 'Captain Data MCP API is running',
+    timestamp: new Date().toISOString(),
+    uptime: process.uptime(),
+    version: process.env.npm_package_version || '1.0.0',
+    environment: config.nodeEnv
   };
 });
 
-// Tool execution endpoint
-server.post('/tools/:id/run', async (req, reply) => {
-  const { id } = req.params as { id: string };
-  const tool = toolFactory.getTool(id);
-  
-  if (!tool) {
-    return reply.status(404).send({ error: `Tool with ID '${id}' not found` });
-  }
-  
-  try {
-    const result = await tool.execute(req.body, req);
-    return result;
-  } catch (error) {
-    server.log.error(error);
-    return reply.status(500).send({ 
-      error: 'Tool execution failed', 
-      message: error instanceof Error ? error.message : 'Unknown error' 
-    });
-  }
-});
+// Introspect endpoint
+server.get('/introspect', {
+  schema: introspectSchema
+}, introspectHandler);
 
-// For local development
-if (process.env.NODE_ENV !== 'production') {
+// Register tool routes
+server.post('/tools/:alias', {
+  schema: {
+    tags: ['Tools'],
+    summary: 'Execute tool',
+    description: 'Execute a Captain Data tool by alias',
+    params: {
+      type: 'object',
+      properties: {
+        alias: { type: 'string', description: 'Tool alias' }
+      },
+      required: ['alias']
+    },
+    body: {
+      type: 'object',
+      description: 'Tool parameters'
+    },
+    response: {
+      200: {
+        type: 'object',
+        description: 'Tool execution result'
+      },
+      401: {
+        type: 'object',
+        properties: {
+          code: { type: 'string' },
+          message: { type: 'string' }
+        }
+      },
+      404: {
+        type: 'object',
+        properties: {
+          code: { type: 'string' },
+          message: { type: 'string' }
+        }
+      }
+    }
+  }
+}, toolHandler);
+
+// Register OpenAPI documentation (only in development) - AFTER all routes are defined
+if (process.env.NODE_ENV !== 'production' && process.env.NODE_ENV !== 'test') {
+  // Register Swagger
+  server.register(fastifySwagger, swaggerOptions);
+
+  // Register Swagger UI
+  server.register(fastifySwaggerUi, swaggerUiOptions);
+}
+
+// For local development (only if not in test environment)
+if (config.nodeEnv !== 'production' && config.nodeEnv !== 'test') {
   const start = async () => {
     try {
-      await server.listen({ port: 3000, host: '0.0.0.0' });
+      await server.listen({ port: config.port, host: '0.0.0.0' });
       const address = server.server.address();
       if (address && typeof address !== 'string') {
-        console.log(`Server is running on port ${address.port}`);
+        console.log(`🚀 Server is running on port ${address.port}`);
+        console.log(`📚 API Documentation: http://localhost:${address.port}/docs`);
+        console.log(`🏥 Health Check: http://localhost:${address.port}/health`);
       } else {
-        console.log('Server is running');
+        console.log('🚀 Server is running');
       }
     } catch (err) {
       server.log.error(err);
