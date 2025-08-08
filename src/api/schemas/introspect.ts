@@ -23,7 +23,7 @@ export const introspectSchema = {
           items: {
             type: 'object',
             properties: {
-              type: { type: 'string', example: 'function' },
+              type: { type: 'string' },
               function: {
                 type: 'object',
                 properties: {

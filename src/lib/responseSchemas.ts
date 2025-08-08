@@ -4,6 +4,10 @@ import { JSONSchema7 } from "json-schema";
 const errorResponse: JSONSchema7 = {
   type: "object",
   properties: {
+    code: {
+      type: "string",
+      description: "Error code for programmatic handling"
+    },
     error_label: {
       type: ["string", "null"]
     },
@@ -20,6 +24,15 @@ const errorResponse: JSONSchema7 = {
     },
     status_code: {
       type: ["integer", "null"]
+    },
+    requestId: {
+      type: "string",
+      description: "Request ID for tracking"
+    },
+    timestamp: {
+      type: "string",
+      format: "date-time",
+      description: "Error timestamp"
     },
     params: {
       type: ["object", "null"],

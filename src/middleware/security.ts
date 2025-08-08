@@ -8,10 +8,12 @@ const PUBLIC_ROUTES = [
   '/docs',       // API documentation
   '/docs/json',  // OpenAPI spec
   '/openapi.json', // OpenAPI spec
+  '/auth',       // Authentication endpoint
 ];
 
 export async function securityMiddleware(req: FastifyRequest, reply: FastifyReply) {
-  const key = req.headers['x-api-key'];
+  const apiKey = req.headers['x-api-key'];
+  const authHeader = req.headers['authorization'];
   
   // Get the pathname from the URL (remove query parameters)
   const pathname = req.url.split('?')[0];
@@ -19,19 +21,23 @@ export async function securityMiddleware(req: FastifyRequest, reply: FastifyRepl
   // Check if the current route is public (doesn't require authentication)
   const isPublicRoute = PUBLIC_ROUTES.some(route => pathname === route || pathname.startsWith(route + '/'));
   
-  // Require API key for non-public routes
-  if (!key && !isPublicRoute) {
-    return reply.status(401).send(
-      createErrorResponse(
-        ERROR_CODES.MISSING_API_KEY,
-        'Provide Captain Data key in x-api-key header',
-        req.id
-      )
-    );
+  // For public routes, no authentication required
+  if (isPublicRoute) {
+    return;
   }
   
-  // Make it available downstream
-  if (key) {
-    req.headers['X-API-Key'] = key as string;
+  // For non-public routes, require either API key or Authorization header
+  if (!apiKey && !authHeader) {
+    const errorResponse = createErrorResponse(
+      ERROR_CODES.MISSING_API_KEY,
+      'Provide Captain Data key in x-api-key header or session token in Authorization header',
+      req.id
+    );
+    return reply.status(401).send(errorResponse);
+  }
+  
+  // Make API key available downstream if present
+  if (apiKey) {
+    req.headers['X-API-Key'] = apiKey as string;
   }
 } 

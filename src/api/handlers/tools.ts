@@ -3,6 +3,7 @@ import { ALIAS_TO_SLUG, ToolAlias } from "../../lib/alias";
 import { toCaptainData } from "../../lib/translate";
 import { createErrorResponse, ERROR_CODES } from "../../lib/error";
 import { config } from "../../lib/config";
+import { extractApiKey, createAuthErrorResponse } from "../../lib/auth";
 
 interface ToolParams {
   alias: string;
@@ -65,8 +66,17 @@ export default async function handler(req: FastifyRequest<{ Params: ToolParams }
       );
     }
     
-    const key = req.headers['x-api-key'] as string;
     const body = req.body as any;
+    
+    // Extract API key from either direct header or session token
+    let key: string;
+    try {
+      key = await extractApiKey(req.headers);
+    } catch (authError) {
+      return reply.status(401).send(
+        createAuthErrorResponse(authError as Error, requestId)
+      );
+    }
     
     // Server-side validation for searchCompanyEmployees
     if (alias === 'search_company_employees') {

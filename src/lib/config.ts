@@ -8,6 +8,8 @@ interface Config {
   apiTimeout: number;
   maxRetries: number;
   retryDelay: number;
+  // Redis configuration for session management
+  redisUrl?: string;
 }
 
 function validateConfig(): Config {
@@ -23,6 +25,8 @@ function validateConfig(): Config {
       apiTimeout: 30000,
       maxRetries: 2,
       retryDelay: 1000,
+      // Redis configuration for test environment
+      redisUrl: process.env.REDIS_URL,
     };
   }
 
@@ -56,6 +60,8 @@ function validateConfig(): Config {
     apiTimeout: parseInt(process.env.API_TIMEOUT || '30000', 10),
     maxRetries: parseInt(process.env.MAX_RETRIES || '2', 10),
     retryDelay: parseInt(process.env.RETRY_DELAY || '1000', 10),
+    // Redis configuration (optional for development)
+    redisUrl: process.env.REDIS_URL,
   };
 }
 

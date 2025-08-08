@@ -11,7 +11,13 @@
         "type": "apiKey",
         "name": "X-API-Key",
         "in": "header",
-        "description": "API key for authentication"
+        "description": "Direct Captain Data API key for authentication"
+      },
+      "bearerAuth": {
+        "type": "http",
+        "scheme": "bearer",
+        "bearerFormat": "JWT",
+        "description": "Session token obtained from /auth endpoint"
       }
     },
     "schemas": {}
@@ -63,6 +69,136 @@
         }
       }
     },
+    "/auth": {
+      "post": {
+        "operationId": "authenticate",
+        "summary": "Authenticate with your Captain Data API key",
+        "tags": [
+          "Authentication"
+        ],
+        "description": "Exchange your Captain Data API key for a session token that can be used for subsequent requests",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "api_key": {
+                    "type": "string",
+                    "description": "Your Captain Data API key"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Authentication successful",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "session_token": {
+                      "type": "string",
+                      "description": "Session token to use in Authorization header for subsequent requests"
+                    },
+                    "expires_in": {
+                      "type": "number",
+                      "description": "Token expiration time in seconds"
+                    },
+                    "_metadata": {
+                      "type": "object",
+                      "properties": {
+                        "requestId": {
+                          "type": "string"
+                        },
+                        "executionTime": {
+                          "type": "number"
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "error": {
+                      "type": "string"
+                    },
+                    "code": {
+                      "type": "string"
+                    },
+                    "message": {
+                      "type": "string"
+                    },
+                    "requestId": {
+                      "type": "string"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "error": {
+                      "type": "string"
+                    },
+                    "code": {
+                      "type": "string"
+                    },
+                    "message": {
+                      "type": "string"
+                    },
+                    "requestId": {
+                      "type": "string"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal Server Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "error": {
+                      "type": "string"
+                    },
+                    "code": {
+                      "type": "string"
+                    },
+                    "message": {
+                      "type": "string"
+                    },
+                    "requestId": {
+                      "type": "string"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/introspect": {
       "get": {
         "operationId": "getIntrospect",
@@ -99,8 +235,7 @@
                         "type": "object",
                         "properties": {
                           "type": {
-                            "type": "string",
-                            "example": "function"
+                            "type": "string"
                           },
                           "function": {
                             "type": "object",
@@ -293,6 +428,10 @@
                 "schema": {
                   "type": "object",
                   "properties": {
+                    "code": {
+                      "type": "string",
+                      "description": "Error code for programmatic handling"
+                    },
                     "error_label": {
                       "type": [
                         "null",
@@ -326,6 +465,15 @@
                         "null",
                         "integer"
                       ]
+                    },
+                    "requestId": {
+                      "type": "string",
+                      "description": "Request ID for tracking"
+                    },
+                    "timestamp": {
+                      "type": "string",
+                      "format": "date-time",
+                      "description": "Error timestamp"
                     },
                     "params": {
                       "type": [
@@ -349,6 +497,10 @@
                 "schema": {
                   "type": "object",
                   "properties": {
+                    "code": {
+                      "type": "string",
+                      "description": "Error code for programmatic handling"
+                    },
                     "error_label": {
                       "type": [
                         "null",
@@ -382,6 +534,15 @@
                         "null",
                         "integer"
                       ]
+                    },
+                    "requestId": {
+                      "type": "string",
+                      "description": "Request ID for tracking"
+                    },
+                    "timestamp": {
+                      "type": "string",
+                      "format": "date-time",
+                      "description": "Error timestamp"
                     },
                     "params": {
                       "type": [
@@ -405,6 +566,10 @@
                 "schema": {
                   "type": "object",
                   "properties": {
+                    "code": {
+                      "type": "string",
+                      "description": "Error code for programmatic handling"
+                    },
                     "error_label": {
                       "type": [
                         "null",
@@ -438,6 +603,15 @@
                         "null",
                         "integer"
                       ]
+                    },
+                    "requestId": {
+                      "type": "string",
+                      "description": "Request ID for tracking"
+                    },
+                    "timestamp": {
+                      "type": "string",
+                      "format": "date-time",
+                      "description": "Error timestamp"
                     },
                     "params": {
                       "type": [
@@ -461,6 +635,10 @@
                 "schema": {
                   "type": "object",
                   "properties": {
+                    "code": {
+                      "type": "string",
+                      "description": "Error code for programmatic handling"
+                    },
                     "error_label": {
                       "type": [
                         "null",
@@ -494,6 +672,15 @@
                         "null",
                         "integer"
                       ]
+                    },
+                    "requestId": {
+                      "type": "string",
+                      "description": "Request ID for tracking"
+                    },
+                    "timestamp": {
+                      "type": "string",
+                      "format": "date-time",
+                      "description": "Error timestamp"
                     },
                     "params": {
                       "type": [
@@ -681,6 +868,10 @@
                 "schema": {
                   "type": "object",
                   "properties": {
+                    "code": {
+                      "type": "string",
+                      "description": "Error code for programmatic handling"
+                    },
                     "error_label": {
                       "type": [
                         "null",
@@ -714,6 +905,15 @@
                         "null",
                         "integer"
                       ]
+                    },
+                    "requestId": {
+                      "type": "string",
+                      "description": "Request ID for tracking"
+                    },
+                    "timestamp": {
+                      "type": "string",
+                      "format": "date-time",
+                      "description": "Error timestamp"
                     },
                     "params": {
                       "type": [
@@ -737,6 +937,10 @@
                 "schema": {
                   "type": "object",
                   "properties": {
+                    "code": {
+                      "type": "string",
+                      "description": "Error code for programmatic handling"
+                    },
                     "error_label": {
                       "type": [
                         "null",
@@ -770,6 +974,15 @@
                         "null",
                         "integer"
                       ]
+                    },
+                    "requestId": {
+                      "type": "string",
+                      "description": "Request ID for tracking"
+                    },
+                    "timestamp": {
+                      "type": "string",
+                      "format": "date-time",
+                      "description": "Error timestamp"
                     },
                     "params": {
                       "type": [
@@ -793,6 +1006,10 @@
                 "schema": {
                   "type": "object",
                   "properties": {
+                    "code": {
+                      "type": "string",
+                      "description": "Error code for programmatic handling"
+                    },
                     "error_label": {
                       "type": [
                         "null",
@@ -826,6 +1043,15 @@
                         "null",
                         "integer"
                       ]
+                    },
+                    "requestId": {
+                      "type": "string",
+                      "description": "Request ID for tracking"
+                    },
+                    "timestamp": {
+                      "type": "string",
+                      "format": "date-time",
+                      "description": "Error timestamp"
                     },
                     "params": {
                       "type": [
@@ -849,6 +1075,10 @@
                 "schema": {
                   "type": "object",
                   "properties": {
+                    "code": {
+                      "type": "string",
+                      "description": "Error code for programmatic handling"
+                    },
                     "error_label": {
                       "type": [
                         "null",
@@ -882,6 +1112,15 @@
                         "null",
                         "integer"
                       ]
+                    },
+                    "requestId": {
+                      "type": "string",
+                      "description": "Request ID for tracking"
+                    },
+                    "timestamp": {
+                      "type": "string",
+                      "format": "date-time",
+                      "description": "Error timestamp"
                     },
                     "params": {
                       "type": [
@@ -1039,6 +1278,10 @@
                 "schema": {
                   "type": "object",
                   "properties": {
+                    "code": {
+                      "type": "string",
+                      "description": "Error code for programmatic handling"
+                    },
                     "error_label": {
                       "type": [
                         "null",
@@ -1072,6 +1315,15 @@
                         "null",
                         "integer"
                       ]
+                    },
+                    "requestId": {
+                      "type": "string",
+                      "description": "Request ID for tracking"
+                    },
+                    "timestamp": {
+                      "type": "string",
+                      "format": "date-time",
+                      "description": "Error timestamp"
                     },
                     "params": {
                       "type": [
@@ -1095,6 +1347,10 @@
                 "schema": {
                   "type": "object",
                   "properties": {
+                    "code": {
+                      "type": "string",
+                      "description": "Error code for programmatic handling"
+                    },
                     "error_label": {
                       "type": [
                         "null",
@@ -1128,6 +1384,15 @@
                         "null",
                         "integer"
                       ]
+                    },
+                    "requestId": {
+                      "type": "string",
+                      "description": "Request ID for tracking"
+                    },
+                    "timestamp": {
+                      "type": "string",
+                      "format": "date-time",
+                      "description": "Error timestamp"
                     },
                     "params": {
                       "type": [
@@ -1151,6 +1416,10 @@
                 "schema": {
                   "type": "object",
                   "properties": {
+                    "code": {
+                      "type": "string",
+                      "description": "Error code for programmatic handling"
+                    },
                     "error_label": {
                       "type": [
                         "null",
@@ -1184,6 +1453,15 @@
                         "null",
                         "integer"
                       ]
+                    },
+                    "requestId": {
+                      "type": "string",
+                      "description": "Request ID for tracking"
+                    },
+                    "timestamp": {
+                      "type": "string",
+                      "format": "date-time",
+                      "description": "Error timestamp"
                     },
                     "params": {
                       "type": [
@@ -1207,6 +1485,10 @@
                 "schema": {
                   "type": "object",
                   "properties": {
+                    "code": {
+                      "type": "string",
+                      "description": "Error code for programmatic handling"
+                    },
                     "error_label": {
                       "type": [
                         "null",
@@ -1240,6 +1522,15 @@
                         "null",
                         "integer"
                       ]
+                    },
+                    "requestId": {
+                      "type": "string",
+                      "description": "Request ID for tracking"
+                    },
+                    "timestamp": {
+                      "type": "string",
+                      "format": "date-time",
+                      "description": "Error timestamp"
                     },
                     "params": {
                       "type": [
@@ -1354,6 +1645,10 @@
                 "schema": {
                   "type": "object",
                   "properties": {
+                    "code": {
+                      "type": "string",
+                      "description": "Error code for programmatic handling"
+                    },
                     "error_label": {
                       "type": [
                         "null",
@@ -1387,6 +1682,15 @@
                         "null",
                         "integer"
                       ]
+                    },
+                    "requestId": {
+                      "type": "string",
+                      "description": "Request ID for tracking"
+                    },
+                    "timestamp": {
+                      "type": "string",
+                      "format": "date-time",
+                      "description": "Error timestamp"
                     },
                     "params": {
                       "type": [
@@ -1410,6 +1714,10 @@
                 "schema": {
                   "type": "object",
                   "properties": {
+                    "code": {
+                      "type": "string",
+                      "description": "Error code for programmatic handling"
+                    },
                     "error_label": {
                       "type": [
                         "null",
@@ -1443,6 +1751,15 @@
                         "null",
                         "integer"
                       ]
+                    },
+                    "requestId": {
+                      "type": "string",
+                      "description": "Request ID for tracking"
+                    },
+                    "timestamp": {
+                      "type": "string",
+                      "format": "date-time",
+                      "description": "Error timestamp"
                     },
                     "params": {
                       "type": [
@@ -1466,6 +1783,10 @@
                 "schema": {
                   "type": "object",
                   "properties": {
+                    "code": {
+                      "type": "string",
+                      "description": "Error code for programmatic handling"
+                    },
                     "error_label": {
                       "type": [
                         "null",
@@ -1499,6 +1820,15 @@
                         "null",
                         "integer"
                       ]
+                    },
+                    "requestId": {
+                      "type": "string",
+                      "description": "Request ID for tracking"
+                    },
+                    "timestamp": {
+                      "type": "string",
+                      "format": "date-time",
+                      "description": "Error timestamp"
                     },
                     "params": {
                       "type": [
@@ -1522,6 +1852,10 @@
                 "schema": {
                   "type": "object",
                   "properties": {
+                    "code": {
+                      "type": "string",
+                      "description": "Error code for programmatic handling"
+                    },
                     "error_label": {
                       "type": [
                         "null",
@@ -1555,6 +1889,15 @@
                         "null",
                         "integer"
                       ]
+                    },
+                    "requestId": {
+                      "type": "string",
+                      "description": "Request ID for tracking"
+                    },
+                    "timestamp": {
+                      "type": "string",
+                      "format": "date-time",
+                      "description": "Error timestamp"
                     },
                     "params": {
                       "type": [
@@ -1705,6 +2048,10 @@
                 "schema": {
                   "type": "object",
                   "properties": {
+                    "code": {
+                      "type": "string",
+                      "description": "Error code for programmatic handling"
+                    },
                     "error_label": {
                       "type": [
                         "null",
@@ -1738,6 +2085,15 @@
                         "null",
                         "integer"
                       ]
+                    },
+                    "requestId": {
+                      "type": "string",
+                      "description": "Request ID for tracking"
+                    },
+                    "timestamp": {
+                      "type": "string",
+                      "format": "date-time",
+                      "description": "Error timestamp"
                     },
                     "params": {
                       "type": [
@@ -1761,6 +2117,10 @@
                 "schema": {
                   "type": "object",
                   "properties": {
+                    "code": {
+                      "type": "string",
+                      "description": "Error code for programmatic handling"
+                    },
                     "error_label": {
                       "type": [
                         "null",
@@ -1794,6 +2154,15 @@
                         "null",
                         "integer"
                       ]
+                    },
+                    "requestId": {
+                      "type": "string",
+                      "description": "Request ID for tracking"
+                    },
+                    "timestamp": {
+                      "type": "string",
+                      "format": "date-time",
+                      "description": "Error timestamp"
                     },
                     "params": {
                       "type": [
@@ -1817,6 +2186,10 @@
                 "schema": {
                   "type": "object",
                   "properties": {
+                    "code": {
+                      "type": "string",
+                      "description": "Error code for programmatic handling"
+                    },
                     "error_label": {
                       "type": [
                         "null",
@@ -1850,6 +2223,15 @@
                         "null",
                         "integer"
                       ]
+                    },
+                    "requestId": {
+                      "type": "string",
+                      "description": "Request ID for tracking"
+                    },
+                    "timestamp": {
+                      "type": "string",
+                      "format": "date-time",
+                      "description": "Error timestamp"
                     },
                     "params": {
                       "type": [
@@ -1873,6 +2255,10 @@
                 "schema": {
                   "type": "object",
                   "properties": {
+                    "code": {
+                      "type": "string",
+                      "description": "Error code for programmatic handling"
+                    },
                     "error_label": {
                       "type": [
                         "null",
@@ -1906,6 +2292,339 @@
                         "null",
                         "integer"
                       ]
+                    },
+                    "requestId": {
+                      "type": "string",
+                      "description": "Request ID for tracking"
+                    },
+                    "timestamp": {
+                      "type": "string",
+                      "format": "date-time",
+                      "description": "Error timestamp"
+                    },
+                    "params": {
+                      "type": [
+                        "null",
+                        "object"
+                      ],
+                      "additionalProperties": {
+                        "type": "string"
+                      }
+                    }
+                  },
+                  "additionalProperties": false
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/tools/{alias}": {
+      "post": {
+        "operationId": "executeGenericTool",
+        "summary": "Execute tool",
+        "tags": [
+          "Tools"
+        ],
+        "description": "Execute a Captain Data tool by alias",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "description": "Tool parameters",
+                "additionalProperties": true
+              }
+            }
+          },
+          "description": "Tool parameters"
+        },
+        "parameters": [
+          {
+            "schema": {
+              "type": "string",
+              "minLength": 1
+            },
+            "in": "path",
+            "name": "alias",
+            "required": true,
+            "description": "Tool alias"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Tool execution result",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "description": "Tool execution result",
+                  "additionalProperties": true
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Default Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "code": {
+                      "type": "string",
+                      "description": "Error code for programmatic handling"
+                    },
+                    "error_label": {
+                      "type": [
+                        "null",
+                        "string"
+                      ]
+                    },
+                    "error_scope": {
+                      "type": [
+                        "null",
+                        "string"
+                      ],
+                      "enum": [
+                        "input",
+                        "integ",
+                        "param",
+                        "config"
+                      ]
+                    },
+                    "error_ref": {
+                      "type": [
+                        "null",
+                        "string"
+                      ],
+                      "example": "ERR-12345"
+                    },
+                    "message": {
+                      "type": "string"
+                    },
+                    "status_code": {
+                      "type": [
+                        "null",
+                        "integer"
+                      ]
+                    },
+                    "requestId": {
+                      "type": "string",
+                      "description": "Request ID for tracking"
+                    },
+                    "timestamp": {
+                      "type": "string",
+                      "format": "date-time",
+                      "description": "Error timestamp"
+                    },
+                    "params": {
+                      "type": [
+                        "null",
+                        "object"
+                      ],
+                      "additionalProperties": {
+                        "type": "string"
+                      }
+                    }
+                  },
+                  "additionalProperties": false
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Default Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "code": {
+                      "type": "string",
+                      "description": "Error code for programmatic handling"
+                    },
+                    "error_label": {
+                      "type": [
+                        "null",
+                        "string"
+                      ]
+                    },
+                    "error_scope": {
+                      "type": [
+                        "null",
+                        "string"
+                      ],
+                      "enum": [
+                        "input",
+                        "integ",
+                        "param",
+                        "config"
+                      ]
+                    },
+                    "error_ref": {
+                      "type": [
+                        "null",
+                        "string"
+                      ],
+                      "example": "ERR-12345"
+                    },
+                    "message": {
+                      "type": "string"
+                    },
+                    "status_code": {
+                      "type": [
+                        "null",
+                        "integer"
+                      ]
+                    },
+                    "requestId": {
+                      "type": "string",
+                      "description": "Request ID for tracking"
+                    },
+                    "timestamp": {
+                      "type": "string",
+                      "format": "date-time",
+                      "description": "Error timestamp"
+                    },
+                    "params": {
+                      "type": [
+                        "null",
+                        "object"
+                      ],
+                      "additionalProperties": {
+                        "type": "string"
+                      }
+                    }
+                  },
+                  "additionalProperties": false
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Default Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "code": {
+                      "type": "string",
+                      "description": "Error code for programmatic handling"
+                    },
+                    "error_label": {
+                      "type": [
+                        "null",
+                        "string"
+                      ]
+                    },
+                    "error_scope": {
+                      "type": [
+                        "null",
+                        "string"
+                      ],
+                      "enum": [
+                        "input",
+                        "integ",
+                        "param",
+                        "config"
+                      ]
+                    },
+                    "error_ref": {
+                      "type": [
+                        "null",
+                        "string"
+                      ],
+                      "example": "ERR-12345"
+                    },
+                    "message": {
+                      "type": "string"
+                    },
+                    "status_code": {
+                      "type": [
+                        "null",
+                        "integer"
+                      ]
+                    },
+                    "requestId": {
+                      "type": "string",
+                      "description": "Request ID for tracking"
+                    },
+                    "timestamp": {
+                      "type": "string",
+                      "format": "date-time",
+                      "description": "Error timestamp"
+                    },
+                    "params": {
+                      "type": [
+                        "null",
+                        "object"
+                      ],
+                      "additionalProperties": {
+                        "type": "string"
+                      }
+                    }
+                  },
+                  "additionalProperties": false
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Default Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "code": {
+                      "type": "string",
+                      "description": "Error code for programmatic handling"
+                    },
+                    "error_label": {
+                      "type": [
+                        "null",
+                        "string"
+                      ]
+                    },
+                    "error_scope": {
+                      "type": [
+                        "null",
+                        "string"
+                      ],
+                      "enum": [
+                        "input",
+                        "integ",
+                        "param",
+                        "config"
+                      ]
+                    },
+                    "error_ref": {
+                      "type": [
+                        "null",
+                        "string"
+                      ],
+                      "example": "ERR-12345"
+                    },
+                    "message": {
+                      "type": "string"
+                    },
+                    "status_code": {
+                      "type": [
+                        "null",
+                        "integer"
+                      ]
+                    },
+                    "requestId": {
+                      "type": "string",
+                      "description": "Request ID for tracking"
+                    },
+                    "timestamp": {
+                      "type": "string",
+                      "format": "date-time",
+                      "description": "Error timestamp"
                     },
                     "params": {
                       "type": [
@@ -1935,6 +2654,9 @@
   "security": [
     {
       "apiKey": []
+    },
+    {
+      "bearerAuth": []
     }
   ]
 }

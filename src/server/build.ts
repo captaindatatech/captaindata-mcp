@@ -42,7 +42,7 @@ export async function buildServer(): Promise<FastifyInstance> {
   await app.register(fastifyCors, {
     origin: true,
     methods: ['GET', 'POST'],
-    allowedHeaders: ['Content-Type', 'X-API-Key'],
+    allowedHeaders: ['Content-Type', 'X-API-Key', 'Authorization'],
   });
 
   await app.register(fastifyRateLimit, {

@@ -2,7 +2,8 @@ import { FastifyInstance } from 'fastify';
 import fp from 'fastify-plugin';
 import introspectHandler from './handlers/introspect';
 import toolHandler from './handlers/tools';
-import { introspectSchema, toolSchema } from './schemas';
+import authHandler from './handlers/auth';
+import { introspectSchema, toolSchema, authSchema } from './schemas';
 import { healthSchema } from './schemas/health';
 import { readFileSync } from 'fs';
 import { join } from 'path';
@@ -53,6 +54,11 @@ async function routes(app: FastifyInstance) {
     return cachedOpenApiSpec;
   });
 
+  // Authentication endpoint
+  app.post('/auth', {
+    schema: authSchema
+  }, authHandler);
+
   // Introspect endpoint
   app.get('/introspect', {
     schema: introspectSchema
@@ -90,10 +96,42 @@ async function routes(app: FastifyInstance) {
     });
   });
 
-  // Generic tool execution endpoint removed - use specific endpoints instead
-  // app.post('/tools/:alias', {
-  //   schema: toolSchema
-  // }, toolHandler);
+  // Generic tool execution endpoint for unknown tools
+  app.post('/tools/:alias', {
+    schema: {
+      operationId: 'executeGenericTool',
+      tags: ['Tools'],
+      summary: 'Execute tool',
+      description: 'Execute a Captain Data tool by alias',
+      params: {
+        type: 'object',
+        properties: {
+          alias: { 
+            type: 'string', 
+            description: 'Tool alias',
+            minLength: 1
+          }
+        },
+        required: ['alias']
+      },
+      body: {
+        type: 'object',
+        description: 'Tool parameters',
+        additionalProperties: true
+      },
+      response: {
+        200: {
+          type: 'object',
+          description: 'Tool execution result',
+          additionalProperties: true
+        },
+        400: ERROR_RESPONSES[400],
+        401: ERROR_RESPONSES[401],
+        404: ERROR_RESPONSES[404],
+        500: ERROR_RESPONSES[500]
+      }
+    }
+  }, toolHandler);
 }
 
 export const registerRoutes = fp(routes); 

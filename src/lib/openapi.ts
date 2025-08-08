@@ -24,13 +24,22 @@ export const swaggerOptions = {
           type: 'apiKey' as const,
           name: 'X-API-Key',
           in: 'header' as const,
-          description: 'API key for authentication'
+          description: 'Direct Captain Data API key for authentication'
+        },
+        bearerAuth: {
+          type: 'http' as const,
+          scheme: 'bearer' as const,
+          bearerFormat: 'JWT',
+          description: 'Session token obtained from /auth endpoint'
         }
       }
     },
     security: [
       {
         apiKey: []
+      },
+      {
+        bearerAuth: []
       }
     ]
   }
