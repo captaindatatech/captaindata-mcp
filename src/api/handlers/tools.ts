@@ -180,7 +180,16 @@ export default async function handler(req: FastifyRequest<{ Params: ToolParams }
       );
     }
 
-    // Add request metadata to response
+    // Check if it's an error response from Captain Data
+    if (!cdRes.ok) {
+      // Return error response as-is without metadata
+      reply.header('Content-Type', 'application/json');
+      reply.raw.writeHead(cdRes.status, { 'Content-Type': 'application/json' });
+      reply.raw.end(JSON.stringify(responseData));
+      return;
+    }
+
+    // Add request metadata to successful responses only
     const responseWithMetadata = {
       ...responseData,
       _metadata: {
