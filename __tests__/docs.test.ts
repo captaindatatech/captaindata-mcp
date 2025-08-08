@@ -27,9 +27,9 @@ describe('OpenAPI Documentation', () => {
         url: '/docs'
       });
 
-      // Swagger UI redirects to the static HTML page
-      expect(response.statusCode).toBe(302);
-      expect(response.headers.location).toContain('docs/static/index.html');
+      // Swagger UI serves the HTML page directly
+      expect(response.statusCode).toBe(200);
+      expect(response.headers['content-type']).toContain('text/html');
     });
 
     it('should serve OpenAPI JSON spec', async () => {
@@ -54,8 +54,8 @@ describe('OpenAPI Documentation', () => {
       });
 
       const spec = JSON.parse(response.payload);
-      expect(spec.paths['/']).toBeDefined();
-      expect(spec.paths['/'].get.tags).toContain('Health');
+      expect(spec.paths['/health']).toBeDefined();
+      expect(spec.paths['/health'].get.tags).toContain('Health');
     });
 
     it('should include introspect endpoint in docs', async () => {

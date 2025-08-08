@@ -7,8 +7,7 @@ const PUBLIC_ROUTES = [
   '/introspect', // Tool introspection
   '/docs',       // API documentation
   '/docs/json',  // OpenAPI spec
-  '/test',       // Test endpoint
-  '/test-post'   // Test POST endpoint
+  '/openapi.json', // OpenAPI spec
 ];
 
 export async function securityMiddleware(req: FastifyRequest, reply: FastifyReply) {

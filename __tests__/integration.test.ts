@@ -22,7 +22,7 @@ describe('Integration Tests', () => {
       // Step 1: Check health
       const healthResponse = await server.inject({
         method: 'GET',
-        url: '/'
+        url: '/health'
       });
       expect(healthResponse.statusCode).toBe(200);
 

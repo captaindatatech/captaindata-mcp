@@ -40,7 +40,8 @@ describe('Tool Execution', () => {
       expect(response.statusCode).toBe(404);
       const data = JSON.parse(response.payload);
       expect(data.code).toBe('unknown_tool');
-      expect(data.message).toBe('unknown_tool not supported');
+      expect(data.message).toBe("Tool 'unknown_tool' not supported");
+      expect(data.requestId).toBeDefined();
     });
 
     it('should handle enrich_company tool', async () => {

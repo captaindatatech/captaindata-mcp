@@ -11,6 +11,21 @@ interface Config {
 }
 
 function validateConfig(): Config {
+  // Skip validation in test environment
+  if (process.env.NODE_ENV === 'test') {
+    return {
+      cdApiBase: process.env.CD_API_BASE || 'https://api.captaindata.com',
+      nodeEnv: 'test',
+      port: 3000,
+      logLevel: 'error',
+      rateLimitMax: 100,
+      rateLimitTimeWindow: '1 minute',
+      apiTimeout: 30000,
+      maxRetries: 2,
+      retryDelay: 1000,
+    };
+  }
+
   const requiredEnvVars = {
     CD_API_BASE: process.env.CD_API_BASE,
   };

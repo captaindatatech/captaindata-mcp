@@ -2,6 +2,7 @@ export function mockFetchResponse(data: any, status: number = 200) {
   const originalFetch = global.fetch;
   global.fetch = jest.fn().mockResolvedValue({
     status,
+    json: () => Promise.resolve(data),
     text: () => Promise.resolve(JSON.stringify(data))
   });
   return originalFetch;

@@ -45,7 +45,7 @@ describe('Authentication', () => {
     it('should allow health check without API key', async () => {
       const response = await server.inject({
         method: 'GET',
-        url: '/'
+        url: '/health'
       });
 
       expect(response.statusCode).toBe(200);

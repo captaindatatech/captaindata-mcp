@@ -16,11 +16,11 @@ describe('Health Check Endpoint', () => {
     await server.close();
   });
 
-  describe('GET /', () => {
+  describe('GET /health', () => {
     it('should return health status', async () => {
       const response = await server.inject({
         method: 'GET',
-        url: '/'
+        url: '/health'
       });
 
       expect(response.statusCode).toBe(200);

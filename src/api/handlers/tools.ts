@@ -185,7 +185,7 @@ export default async function handler(req: FastifyRequest<{ Params: ToolParams }
     };
     
     reply.header('Content-Type', 'application/json');
-    reply.raw.writeHead(200, { 'Content-Type': 'application/json' });
+    reply.raw.writeHead(cdRes.status, { 'Content-Type': 'application/json' });
     reply.raw.end(JSON.stringify(finalResponse));
     return;
 
