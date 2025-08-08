@@ -23,26 +23,30 @@
         "tags": [
           "Health"
         ],
+        "description": "Check if the API is running",
         "responses": {
           "200": {
-            "description": "OK",
+            "description": "Default Response",
             "content": {
               "application/json": {
                 "schema": {
-                  "description": "OK",
                   "type": "object",
                   "properties": {
                     "status": {
-                      "type": "string"
+                      "type": "string",
+                      "example": "ok"
                     },
                     "message": {
-                      "type": "string"
+                      "type": "string",
+                      "example": "Captain Data MCP API is running"
                     },
                     "timestamp": {
-                      "type": "string"
+                      "type": "string",
+                      "format": "date-time"
                     },
                     "uptime": {
-                      "type": "number"
+                      "type": "number",
+                      "description": "Server uptime in seconds"
                     },
                     "version": {
                       "type": "string"

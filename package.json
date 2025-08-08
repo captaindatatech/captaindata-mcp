@@ -6,7 +6,7 @@
   "scripts": {
     "start": "ts-node index.ts",
     "dev": "ts-node-dev --respawn index.ts",
-    "build": "tsc",
+    "build": "npm run generate-openapi && tsc",
     "clean": "rm -rf dist",
     "prebuild": "npm run clean",
     "test": "jest",

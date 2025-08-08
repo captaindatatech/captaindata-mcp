@@ -11,6 +11,12 @@ import { resolve } from 'path';
   await app.ready();
   const spec = (app as any).swagger?.();
   if (!spec) throw new Error('Swagger not registered; set ENABLE_SWAGGER=true');
+  
+  // Remove /openapi.json from the spec to avoid meta-circular reference
+  if (spec.paths && spec.paths['/openapi.json']) {
+    delete spec.paths['/openapi.json'];
+  }
+  
   const out = resolve(process.cwd(), 'openapi.json');
   writeFileSync(out, JSON.stringify(spec, null, 2));
   console.log('Wrote', out);
