@@ -41,11 +41,7 @@
                   "properties": {
                     "status": {
                       "type": "string",
-                      "example": "ok"
-                    },
-                    "message": {
-                      "type": "string",
-                      "example": "Captain Data MCP API is running"
+                      "example": "healthy"
                     },
                     "timestamp": {
                       "type": "string",
@@ -55,11 +51,73 @@
                       "type": "number",
                       "description": "Server uptime in seconds"
                     },
-                    "version": {
+                    "redis": {
+                      "type": "object",
+                      "properties": {
+                        "available": {
+                          "type": "boolean",
+                          "description": "Whether Redis is available"
+                        },
+                        "connected": {
+                          "type": "boolean",
+                          "description": "Whether Redis is connected"
+                        },
+                        "healthy": {
+                          "type": "boolean",
+                          "description": "Whether Redis is healthy"
+                        },
+                        "connectionAttempts": {
+                          "type": "number",
+                          "description": "Number of connection attempts"
+                        },
+                        "ping": {
+                          "type": [
+                            "null",
+                            "string"
+                          ],
+                          "description": "Redis ping response"
+                        }
+                      }
+                    },
+                    "_metadata": {
+                      "type": "object",
+                      "properties": {
+                        "requestId": {
+                          "type": "string"
+                        },
+                        "executionTime": {
+                          "type": "number"
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Default Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "status": {
+                      "type": "string",
+                      "example": "unhealthy"
+                    },
+                    "error": {
                       "type": "string"
                     },
-                    "environment": {
+                    "requestId": {
                       "type": "string"
+                    },
+                    "timestamp": {
+                      "type": "string",
+                      "format": "date-time"
+                    },
+                    "executionTime": {
+                      "type": "number"
                     }
                   }
                 }

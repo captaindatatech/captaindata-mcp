@@ -4,6 +4,7 @@ import { toCaptainData } from "../../lib/translate";
 import { createErrorResponse, ERROR_CODES } from "../../lib/error";
 import { config } from "../../lib/config";
 import { extractApiKey, createAuthErrorResponse } from "../../lib/auth";
+import { logError, logInfo } from "../../middleware";
 
 interface ToolParams {
   alias: string;
@@ -51,8 +52,13 @@ export default async function handler(req: FastifyRequest<{ Params: ToolParams }
   const startTime = Date.now();
   const requestId = req.id || `req-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
   
+  // Declare variables outside try block for access in catch
+  let alias: ToolAlias | undefined;
+  let body: any = {};
+  let cdBody: any = {};
+  
   try {
-    const alias = req.params.alias as ToolAlias;
+    alias = req.params.alias as ToolAlias;
     
     const slug = ALIAS_TO_SLUG[alias];
     
@@ -66,7 +72,7 @@ export default async function handler(req: FastifyRequest<{ Params: ToolParams }
       );
     }
     
-    const body = req.body as any;
+    body = req.body as any;
     
     // Extract API key from either direct header or session token
     let key: string;
@@ -91,19 +97,18 @@ export default async function handler(req: FastifyRequest<{ Params: ToolParams }
       }
     }
     
-    const cdBody = toCaptainData(alias, body);
+    cdBody = toCaptainData(alias, body);
     const apiUrl = `${config.cdApiBase}/v4/actions/${slug}/run/live`;
 
     // Log the request (without sensitive data)
-    req.log.info({
-      requestId,
-      alias,
+    logInfo('Executing Captain Data tool', req, {
+      endpoint: 'tools',
+      tool: alias,
       slug,
       hasApiKey: !!key,
       bodyKeys: Object.keys(body),
       cdBody: JSON.stringify(cdBody),
-      apiUrl,
-      message: 'Executing Captain Data tool'
+      apiUrl
     });
 
     const cdRes = await makeCaptainDataRequest(apiUrl, {
@@ -120,17 +125,16 @@ export default async function handler(req: FastifyRequest<{ Params: ToolParams }
     try {
       responseData = await cdRes.json();
       
-      req.log.info({
-        requestId,
+      logInfo('Parsed response data', req, {
+        endpoint: 'tools',
+        tool: alias,
         responseDataKeys: Object.keys(responseData),
-        responseData: JSON.stringify(responseData),
-        message: 'Parsed response data'
+        responseData: JSON.stringify(responseData)
       });
     } catch (parseError) {
-      req.log.error({
-        requestId,
-        error: parseError,
-        message: 'Failed to parse Captain Data response'
+      logError('Failed to parse Captain Data response', parseError, req, {
+        endpoint: 'tools',
+        tool: alias
       });
       return reply.status(500).send(
         createErrorResponse(
@@ -151,39 +155,19 @@ export default async function handler(req: FastifyRequest<{ Params: ToolParams }
       }
     };
     
-    // Ensure we're not accidentally modifying the response
-    req.log.info({
-      requestId,
+    // Log response details for debugging
+    logInfo('Tool execution completed', req, {
+      endpoint: 'tools',
+      tool: alias,
+      status: cdRes.status,
       responseDataType: typeof responseData,
       responseDataIsObject: typeof responseData === 'object',
-      responseWithMetadataType: typeof responseWithMetadata,
-      message: 'Response object types'
-    });
-
-    req.log.info({
-      requestId,
-      alias,
-      status: cdRes.status,
-      executionTime: Date.now() - startTime,
-      finalResponse: JSON.stringify(responseWithMetadata),
-      message: 'Tool execution completed'
+      finalResponseLength: JSON.stringify(responseWithMetadata).length,
+      finalResponseKeys: Object.keys(responseWithMetadata)
     });
 
     // Set proper content type
     reply.header('Content-Type', 'application/json');
-    
-    req.log.info({
-      requestId,
-      finalResponseLength: JSON.stringify(responseWithMetadata).length,
-      finalResponseKeys: Object.keys(responseWithMetadata),
-      message: 'About to send response'
-    });
-    
-    // Send response using raw to avoid Fastify serialization issues
-    req.log.info({
-      requestId,
-      message: 'Sending response via raw'
-    });
     
     const finalResponse = {
       ...responseData,
@@ -200,14 +184,11 @@ export default async function handler(req: FastifyRequest<{ Params: ToolParams }
     return;
 
   } catch (error) {
-    const executionTime = Date.now() - startTime;
-    
-    req.log.error({
-      requestId,
-      error: error instanceof Error ? error.message : 'Unknown error',
-      stack: error instanceof Error ? error.stack : undefined,
-      executionTime,
-      message: 'Tool execution failed'
+    logError('Tool execution failed', error, req, {
+      endpoint: 'tools',
+      tool: alias || 'unknown',
+      requestBody: body || {},
+      cdBody: cdBody || {}
     });
 
     // Handle specific error types

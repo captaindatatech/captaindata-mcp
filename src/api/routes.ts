@@ -3,13 +3,15 @@ import fp from 'fastify-plugin';
 import introspectHandler from './handlers/introspect';
 import toolHandler from './handlers/tools';
 import authHandler from './handlers/auth';
-import { introspectSchema, toolSchema, authSchema } from './schemas';
+import healthHandler from './handlers/health';
+import { introspectSchema, authSchema } from './schemas';
 import { healthSchema } from './schemas/health';
 import { readFileSync } from 'fs';
 import { join } from 'path';
 import { TOOL_SCHEMAS } from '../lib/schemas';
 import { ToolAlias } from '../lib/alias';
 import { RESPONSE_SCHEMAS, ERROR_RESPONSES } from '../lib/responseSchemas';
+import { logError } from '../middleware';
 
 // Cache the OpenAPI spec at module load time for better serverless performance
 let cachedOpenApiSpec: any = null;
@@ -28,21 +30,13 @@ async function routes(app: FastifyInstance) {
   // Health check endpoint
   app.get('/health', {
     schema: healthSchema
-  }, async () => ({ 
-    status: 'ok', 
-    message: 'Captain Data MCP API is running',
-    timestamp: new Date().toISOString(),
-    uptime: process.uptime(),
-    version: process.env.npm_package_version || '1.0.0',
-    environment: process.env.NODE_ENV || 'development'
-  }));
+  }, healthHandler);
 
   // OpenAPI specification endpoint
   app.get('/openapi.json', async (request, reply) => {
     if (openApiSpecError) {
-      request.log.error({
-        error: openApiSpecError,
-        message: 'OpenAPI specification not available'
+      logError('OpenAPI specification not available', new Error(openApiSpecError), request, {
+        endpoint: 'openapi'
       });
       return reply.status(500).send({ 
         error: 'OpenAPI specification not available',

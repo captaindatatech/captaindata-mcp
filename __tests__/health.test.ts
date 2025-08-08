@@ -25,8 +25,15 @@ describe('Health Check Endpoint', () => {
 
       expect(response.statusCode).toBe(200);
       const data = JSON.parse(response.payload);
-      expect(data.status).toBe('ok');
-      expect(data.message).toBe('Captain Data MCP API is running');
+      expect(data.status).toBe('healthy');
+      expect(data.uptime).toBeDefined();
+      expect(data.timestamp).toBeDefined();
+      expect(data.redis).toBeDefined();
+      expect(data.redis.available).toBeDefined();
+      expect(data.redis.connected).toBeDefined();
+      expect(data.redis.healthy).toBeDefined();
+      expect(data.redis.connectionAttempts).toBeDefined();
+      expect(data.redis.ping).toBeDefined();
     });
   });
 }); 

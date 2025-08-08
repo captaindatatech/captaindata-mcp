@@ -1,12 +1,9 @@
 import { FastifyRequest, FastifyReply } from 'fastify';
-import Redis from 'ioredis';
 import { randomUUID } from 'crypto';
 import { createErrorResponse, ERROR_CODES } from '../../lib/error';
 import { config } from '../../lib/config';
 import { storeSessionToken } from '../../lib/auth';
-
-// Initialize Redis client (only if URL is provided)
-const redis = config.redisUrl ? new Redis(config.redisUrl) : null;
+import { logError, logInfo } from '../../middleware';
 
 interface AuthRequestBody {
   api_key: string;
@@ -15,8 +12,6 @@ interface AuthRequestBody {
 export default async function handler(req: FastifyRequest<{ Body: AuthRequestBody }>, reply: FastifyReply) {
   const startTime = Date.now();
   const requestId = req.id || `req-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
-  
-
   
   try {
     const { api_key } = req.body;
@@ -53,13 +48,14 @@ export default async function handler(req: FastifyRequest<{ Body: AuthRequestBod
           );
         }
       } catch (validationError) {
-        req.log.warn({
-          requestId,
-          error: validationError instanceof Error ? validationError.message : 'Unknown error',
-          message: 'API key validation failed, but proceeding with token generation'
-        });
-        // Continue with token generation even if validation fails
+        // Log warning but continue with token generation
         // This allows for offline development and testing
+        if (process.env.NODE_ENV !== 'production') {
+          console.warn('API key validation failed, but proceeding with token generation', {
+            requestId,
+            error: validationError instanceof Error ? validationError.message : 'Unknown error'
+          });
+        }
       }
     }
 
@@ -67,22 +63,11 @@ export default async function handler(req: FastifyRequest<{ Body: AuthRequestBod
     const token = randomUUID();
     
     // Store the API key in Redis with 24-hour expiration, or in-memory store if Redis is not available
-    if (redis) {
-      try {
-        await redis.setex(`session:${token}`, 86400, api_key);
-      } catch (redisError) {
-        // If Redis fails, fall back to in-memory store
-        storeSessionToken(token, api_key, 86400);
-      }
-    } else {
-      // Use in-memory store when Redis is not available
-      storeSessionToken(token, api_key, 86400);
-    }
+    await storeSessionToken(token, api_key, 86400);
 
-    req.log.info({
-      requestId,
-      tokenGenerated: !!token,
-      message: 'Session token generated successfully'
+    logInfo('Session token generated successfully', req, {
+      endpoint: 'auth',
+      tokenGenerated: !!token
     });
 
     const response = {
@@ -98,14 +83,8 @@ export default async function handler(req: FastifyRequest<{ Body: AuthRequestBod
     return reply.status(200).send(response);
 
   } catch (error) {
-    const executionTime = Date.now() - startTime;
-    
-    req.log.error({
-      requestId,
-      error: error instanceof Error ? error.message : 'Unknown error',
-      stack: error instanceof Error ? error.stack : undefined,
-      executionTime,
-      message: 'Authentication failed'
+    logError('Authentication failed', error, req, {
+      endpoint: 'auth'
     });
 
     return reply.status(500).send(

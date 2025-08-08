@@ -1,5 +1,6 @@
 import { FastifyRequest, FastifyReply } from 'fastify';
 import { TOOL_SCHEMAS } from "../../lib/schemas";
+import { logError } from "../../middleware";
 
 interface IntrospectQuery {
   v?: string;
@@ -24,7 +25,9 @@ export default async function handler(req: FastifyRequest<{ Querystring: Introsp
     
     return reply.send({ tools });
   } catch (error) {
-    console.error('Error in introspect handler:', error);
+    logError('Failed to generate tool introspection', error, req, {
+      endpoint: 'introspect'
+    });
     return reply.status(500).send({
       code: 'introspect_error',
       message: 'Failed to generate tool introspection'

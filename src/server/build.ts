@@ -36,6 +36,33 @@ export async function buildServer(): Promise<FastifyInstance> {
   // Sentry error handler (prod only)
   if (config.nodeEnv === 'production' && process.env.SENTRY_DSN) {
     Sentry.setupFastifyErrorHandler(app);
+    
+    // Add custom error handler for better Sentry integration
+    app.setErrorHandler((error, request, reply) => {
+      // Capture error in Sentry with additional context
+      Sentry.withScope((scope) => {
+        scope.setTag('requestId', request.id);
+        scope.setTag('method', request.method);
+        scope.setTag('url', request.url);
+        scope.setUser({
+          ip: request.ip,
+          userAgent: request.headers['user-agent'] as string,
+        });
+        scope.setExtra('headers', {
+          ...request.headers,
+          authorization: '[REDACTED]',
+          'x-api-key': '[REDACTED]',
+        });
+        Sentry.captureException(error);
+      });
+      
+      // Continue with default error handling
+      reply.status(500).send({
+        error: 'Internal Server Error',
+        message: 'An unexpected error occurred',
+        requestId: request.id,
+      });
+    });
   }
 
   // Core plugins
@@ -80,14 +107,32 @@ export async function buildServer(): Promise<FastifyInstance> {
     const startTime = (request as any).startTime;
     if (startTime) {
       const responseTime = Date.now() - startTime;
-      request.log.info({
-        requestId: request.id,
-        method: request.method,
-        url: request.url,
-        statusCode: reply.statusCode,
-        responseTime,
-        message: 'Request completed'
-      });
+      // Use the existing logging middleware for consistency
+      if (process.env.NODE_ENV === 'production' && process.env.SENTRY_DSN) {
+        const Sentry = require('@sentry/node');
+        Sentry.addBreadcrumb({
+          message: 'Request completed',
+          category: 'http',
+          data: {
+            method: request.method,
+            url: request.url,
+            statusCode: reply.statusCode,
+            responseTime,
+            requestId: request.id,
+          },
+          level: 'info',
+        });
+      }
+      // Keep console logging for development
+      if (process.env.NODE_ENV !== 'production') {
+        console.log('Request completed', {
+          requestId: request.id,
+          method: request.method,
+          url: request.url,
+          statusCode: reply.statusCode,
+          responseTime,
+        });
+      }
     }
     done();
   });
