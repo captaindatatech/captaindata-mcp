@@ -92,11 +92,9 @@ export async function buildServer(): Promise<FastifyInstance> {
     done();
   });
 
-  // Swagger only in dev (or behind a flag)
-  if (config.nodeEnv !== 'production' || process.env.ENABLE_SWAGGER === 'true') {
-    await app.register(fastifySwagger, { ...swaggerOptions, mode: 'dynamic', hideUntagged: false });
-    await app.register(fastifySwaggerUi, swaggerUiOptions);
-  }
+  // Swagger documentation (available in all environments)
+  await app.register(fastifySwagger, { ...swaggerOptions, mode: 'dynamic', hideUntagged: false });
+  await app.register(fastifySwaggerUi, swaggerUiOptions);
 
   // Routes (works for dev & prod)
   // If registerRoutes is async, await it

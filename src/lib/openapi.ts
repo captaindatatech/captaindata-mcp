@@ -9,7 +9,7 @@ export const swaggerOptions = {
     openapi: '3.1.0',
     info: {
       title: 'Captain Data MCP API',
-      description: 'API for managing Captain Data actions and flows',
+      description: 'MCP API for managing Captain Data actions.',
       version: '1.0.0',
     },
     servers: [
@@ -37,6 +37,9 @@ export const swaggerOptions = {
     security: [
       {
         bearerAuth: []
+      },
+      {
+        apiKey: []
       }
     ]
   }

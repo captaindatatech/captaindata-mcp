@@ -22,7 +22,7 @@
     "lint:fix": "eslint src/**/*.ts --fix",
     "type-check": "tsc --noEmit",
     "prestart": "npm run type-check",
-    "generate-openapi": "ts-node scripts/generate-openapi.ts"
+    "generate:openapi": "ts-node scripts/generate-openapi.ts"
   },
   "keywords": [
     "mcp",

@@ -91,8 +91,8 @@ vercel
 - `GET /introspect`: List available tools (basic mode)
 - `GET /introspect?v=full`: List all available tools (full mode)
 - `POST /tools/:alias`: Execute a specific tool
-- `GET /docs`: Interactive API documentation (development only)
-- `GET /docs/json`: OpenAPI specification (development only)
+- `GET /docs`: Interactive API documentation
+- `GET /docs/json`: OpenAPI specification
 
 ## Available Tools
 
@@ -117,7 +117,7 @@ To use this API with ChatGPT:
 - Flat schema design with ≤1 nesting level
 - Automatic translation layer for Captain Data API
 - Support for both basic (5 tools) and full (future) introspection modes
-- Interactive OpenAPI documentation (development environment)
+- Interactive OpenAPI documentation
 
 ## Getting Started
 
@@ -139,7 +139,7 @@ The server will be available at http://localhost:3000.
 
 #### API Documentation
 
-When running in development mode, you can access interactive API documentation:
+You can access interactive API documentation:
 
 - **Interactive Docs**: http://localhost:3000/docs
 - **OpenAPI Spec**: http://localhost:3000/docs/json
