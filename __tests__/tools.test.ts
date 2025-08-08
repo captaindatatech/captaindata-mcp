@@ -65,7 +65,7 @@ describe('Tool Execution', () => {
       const originalFetch = mockFetchResponse(mockData);
 
       const response = await server.inject(createTestPayload('search_people', {
-        sales_navigator_profile_search_url: 'https://www.linkedin.com/sales/search/people'
+        search_url: 'https://www.linkedin.com/sales/search/people'
       }));
 
       expect(response.statusCode).toBe(200);
@@ -80,7 +80,7 @@ describe('Tool Execution', () => {
       const originalFetch = mockFetchResponse(mockData);
 
       const response = await server.inject(createTestPayload('search_companies', {
-        sales_navigator_company_search_url: 'https://www.linkedin.com/sales/search/company'
+        search_url: 'https://www.linkedin.com/sales/search/company'
       }));
 
       expect(response.statusCode).toBe(200);

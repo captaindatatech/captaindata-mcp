@@ -126,12 +126,916 @@
         }
       }
     },
+    "/tools/enrich_people": {
+      "post": {
+        "summary": "Execute enrich_people tool",
+        "description": "Extract detailed information from a LinkedIn profile. Use this when you need comprehensive data about a person including their work history, education, skills, and achievements. Perfect for lead research, candidate evaluation, or networking preparation.",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": [
+                  "linkedin_profile_url"
+                ],
+                "additionalProperties": false,
+                "properties": {
+                  "linkedin_profile_url": {
+                    "type": "string",
+                    "format": "uri",
+                    "pattern": "^https://www\\.linkedin\\.com/(sales/people|in|pub|sales/lead)/",
+                    "description": "The LinkedIn profile URL to extract data from. Must be a valid LinkedIn URL starting with 'https://www.linkedin.com/sales/people/', 'https://www.linkedin.com/sales/lead/', 'https://www.linkedin.com/pub/' or 'https://www.linkedin.com/in/'",
+                    "example": "https://www.linkedin.com/in/john-doe"
+                  },
+                  "sections": {
+                    "type": "boolean",
+                    "default": false,
+                    "description": "Include education, certifications, and other profile sections in the results"
+                  },
+                  "experiences": {
+                    "type": "boolean",
+                    "default": false,
+                    "description": "Include detailed work experience and employment history"
+                  },
+                  "skills": {
+                    "type": "boolean",
+                    "default": false,
+                    "description": "Include skills, endorsements, and expertise areas"
+                  },
+                  "highlights": {
+                    "type": "boolean",
+                    "default": false,
+                    "description": "Include highlights, achievements, and notable accomplishments"
+                  }
+                }
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Tool execution result",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "description": "Tool execution result",
+                  "additionalProperties": true
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Default Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "code": {
+                      "type": "string"
+                    },
+                    "message": {
+                      "type": "string"
+                    },
+                    "requestId": {
+                      "type": "string"
+                    },
+                    "timestamp": {
+                      "type": "string",
+                      "format": "date-time"
+                    },
+                    "details": {
+                      "type": "object",
+                      "additionalProperties": true
+                    }
+                  },
+                  "required": [
+                    "code",
+                    "message"
+                  ]
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Default Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "code": {
+                      "type": "string"
+                    },
+                    "message": {
+                      "type": "string"
+                    },
+                    "requestId": {
+                      "type": "string"
+                    },
+                    "timestamp": {
+                      "type": "string",
+                      "format": "date-time"
+                    },
+                    "details": {
+                      "type": "object",
+                      "additionalProperties": true
+                    }
+                  },
+                  "required": [
+                    "code",
+                    "message"
+                  ]
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Default Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "code": {
+                      "type": "string"
+                    },
+                    "message": {
+                      "type": "string"
+                    },
+                    "requestId": {
+                      "type": "string"
+                    },
+                    "timestamp": {
+                      "type": "string",
+                      "format": "date-time"
+                    },
+                    "details": {
+                      "type": "object",
+                      "additionalProperties": true
+                    }
+                  },
+                  "required": [
+                    "code",
+                    "message"
+                  ]
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Default Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "code": {
+                      "type": "string"
+                    },
+                    "message": {
+                      "type": "string"
+                    },
+                    "requestId": {
+                      "type": "string"
+                    },
+                    "timestamp": {
+                      "type": "string",
+                      "format": "date-time"
+                    },
+                    "details": {
+                      "type": "object",
+                      "additionalProperties": true
+                    }
+                  },
+                  "required": [
+                    "code",
+                    "message"
+                  ]
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/tools/enrich_company": {
+      "post": {
+        "summary": "Execute enrich_company tool",
+        "description": "Extract comprehensive company information from LinkedIn. Use this when you need detailed data about a company including size, industry, location, and key insights. Ideal for market research, competitive analysis, or B2B prospecting.",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": [
+                  "linkedin_company_url"
+                ],
+                "additionalProperties": false,
+                "properties": {
+                  "linkedin_company_url": {
+                    "type": "string",
+                    "format": "uri",
+                    "pattern": "^https://www\\.linkedin\\.com/(sales/company|showcase|company|school)/",
+                    "description": "The LinkedIn company page URL to extract data from. Must be a valid LinkedIn URL starting with 'https://www.linkedin.com/sales/company', 'https://www.linkedin.com/showcase', 'https://www.linkedin.com/company' or 'https://www.linkedin.com/school'",
+                    "example": "https://www.linkedin.com/company/microsoft"
+                  }
+                }
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Tool execution result",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "description": "Tool execution result",
+                  "additionalProperties": true
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Default Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "code": {
+                      "type": "string"
+                    },
+                    "message": {
+                      "type": "string"
+                    },
+                    "requestId": {
+                      "type": "string"
+                    },
+                    "timestamp": {
+                      "type": "string",
+                      "format": "date-time"
+                    },
+                    "details": {
+                      "type": "object",
+                      "additionalProperties": true
+                    }
+                  },
+                  "required": [
+                    "code",
+                    "message"
+                  ]
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Default Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "code": {
+                      "type": "string"
+                    },
+                    "message": {
+                      "type": "string"
+                    },
+                    "requestId": {
+                      "type": "string"
+                    },
+                    "timestamp": {
+                      "type": "string",
+                      "format": "date-time"
+                    },
+                    "details": {
+                      "type": "object",
+                      "additionalProperties": true
+                    }
+                  },
+                  "required": [
+                    "code",
+                    "message"
+                  ]
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Default Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "code": {
+                      "type": "string"
+                    },
+                    "message": {
+                      "type": "string"
+                    },
+                    "requestId": {
+                      "type": "string"
+                    },
+                    "timestamp": {
+                      "type": "string",
+                      "format": "date-time"
+                    },
+                    "details": {
+                      "type": "object",
+                      "additionalProperties": true
+                    }
+                  },
+                  "required": [
+                    "code",
+                    "message"
+                  ]
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Default Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "code": {
+                      "type": "string"
+                    },
+                    "message": {
+                      "type": "string"
+                    },
+                    "requestId": {
+                      "type": "string"
+                    },
+                    "timestamp": {
+                      "type": "string",
+                      "format": "date-time"
+                    },
+                    "details": {
+                      "type": "object",
+                      "additionalProperties": true
+                    }
+                  },
+                  "required": [
+                    "code",
+                    "message"
+                  ]
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/tools/search_people": {
+      "post": {
+        "summary": "Execute search_people tool",
+        "description": "Search for people using LinkedIn Sales Navigator. Use this when you need to find potential leads, candidates, or contacts based on specific criteria like job title, company, location, or skills. Great for building prospect lists or finding experts in a particular field.",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": [
+                  "search_url"
+                ],
+                "additionalProperties": false,
+                "properties": {
+                  "search_url": {
+                    "type": "string",
+                    "format": "uri",
+                    "pattern": "^https://www.linkedin.com/sales/search/people",
+                    "description": "The Sales Navigator search URL with your desired filters and criteria. Must start with 'https://www.linkedin.com/sales/search/people'",
+                    "example": "https://www.linkedin.com/sales/search/people?keywords=software%20engineer"
+                  },
+                  "page": {
+                    "type": "integer",
+                    "default": 1,
+                    "description": "Page number for pagination, starting at 1"
+                  }
+                }
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Tool execution result",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "description": "Tool execution result",
+                  "additionalProperties": true
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Default Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "code": {
+                      "type": "string"
+                    },
+                    "message": {
+                      "type": "string"
+                    },
+                    "requestId": {
+                      "type": "string"
+                    },
+                    "timestamp": {
+                      "type": "string",
+                      "format": "date-time"
+                    },
+                    "details": {
+                      "type": "object",
+                      "additionalProperties": true
+                    }
+                  },
+                  "required": [
+                    "code",
+                    "message"
+                  ]
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Default Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "code": {
+                      "type": "string"
+                    },
+                    "message": {
+                      "type": "string"
+                    },
+                    "requestId": {
+                      "type": "string"
+                    },
+                    "timestamp": {
+                      "type": "string",
+                      "format": "date-time"
+                    },
+                    "details": {
+                      "type": "object",
+                      "additionalProperties": true
+                    }
+                  },
+                  "required": [
+                    "code",
+                    "message"
+                  ]
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Default Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "code": {
+                      "type": "string"
+                    },
+                    "message": {
+                      "type": "string"
+                    },
+                    "requestId": {
+                      "type": "string"
+                    },
+                    "timestamp": {
+                      "type": "string",
+                      "format": "date-time"
+                    },
+                    "details": {
+                      "type": "object",
+                      "additionalProperties": true
+                    }
+                  },
+                  "required": [
+                    "code",
+                    "message"
+                  ]
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Default Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "code": {
+                      "type": "string"
+                    },
+                    "message": {
+                      "type": "string"
+                    },
+                    "requestId": {
+                      "type": "string"
+                    },
+                    "timestamp": {
+                      "type": "string",
+                      "format": "date-time"
+                    },
+                    "details": {
+                      "type": "object",
+                      "additionalProperties": true
+                    }
+                  },
+                  "required": [
+                    "code",
+                    "message"
+                  ]
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/tools/search_companies": {
+      "post": {
+        "summary": "Execute search_companies tool",
+        "description": "Search for companies using LinkedIn Sales Navigator. Use this when you need to find target companies based on industry, size, location, or other criteria. Perfect for market research, competitive analysis, or identifying potential business partners.",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": [
+                  "search_url"
+                ],
+                "additionalProperties": false,
+                "properties": {
+                  "search_url": {
+                    "type": "string",
+                    "format": "uri",
+                    "pattern": "^https://www\\.linkedin\\.com/sales/search/company",
+                    "description": "The Sales Navigator company search URL with your desired filters and criteria. Must start with 'https://www.linkedin.com/sales/search/company'",
+                    "example": "https://www.linkedin.com/sales/search/company?keywords=technology"
+                  },
+                  "page": {
+                    "type": "integer",
+                    "default": 1,
+                    "description": "Page number for pagination, starting at 1"
+                  }
+                }
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Tool execution result",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "description": "Tool execution result",
+                  "additionalProperties": true
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Default Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "code": {
+                      "type": "string"
+                    },
+                    "message": {
+                      "type": "string"
+                    },
+                    "requestId": {
+                      "type": "string"
+                    },
+                    "timestamp": {
+                      "type": "string",
+                      "format": "date-time"
+                    },
+                    "details": {
+                      "type": "object",
+                      "additionalProperties": true
+                    }
+                  },
+                  "required": [
+                    "code",
+                    "message"
+                  ]
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Default Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "code": {
+                      "type": "string"
+                    },
+                    "message": {
+                      "type": "string"
+                    },
+                    "requestId": {
+                      "type": "string"
+                    },
+                    "timestamp": {
+                      "type": "string",
+                      "format": "date-time"
+                    },
+                    "details": {
+                      "type": "object",
+                      "additionalProperties": true
+                    }
+                  },
+                  "required": [
+                    "code",
+                    "message"
+                  ]
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Default Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "code": {
+                      "type": "string"
+                    },
+                    "message": {
+                      "type": "string"
+                    },
+                    "requestId": {
+                      "type": "string"
+                    },
+                    "timestamp": {
+                      "type": "string",
+                      "format": "date-time"
+                    },
+                    "details": {
+                      "type": "object",
+                      "additionalProperties": true
+                    }
+                  },
+                  "required": [
+                    "code",
+                    "message"
+                  ]
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Default Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "code": {
+                      "type": "string"
+                    },
+                    "message": {
+                      "type": "string"
+                    },
+                    "requestId": {
+                      "type": "string"
+                    },
+                    "timestamp": {
+                      "type": "string",
+                      "format": "date-time"
+                    },
+                    "details": {
+                      "type": "object",
+                      "additionalProperties": true
+                    }
+                  },
+                  "required": [
+                    "code",
+                    "message"
+                  ]
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/tools/search_company_employees": {
+      "post": {
+        "summary": "Execute search_company_employees tool",
+        "description": "Find employees of a specific company using LinkedIn Sales Navigator. Use this when you need to identify key decision makers, potential contacts, or understand the organizational structure of a target company. Ideal for account-based marketing or sales prospecting.",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": [],
+                "additionalProperties": false,
+                "properties": {
+                  "sales_navigator_company_url": {
+                    "type": "string",
+                    "format": "uri",
+                    "pattern": "^https://www\\.linkedin\\.com/sales/company/",
+                    "description": "The Sales Navigator company page URL. Must start with 'https://www.linkedin.com/sales/company/'. Provide either this URL or the company ID.",
+                    "example": "https://www.linkedin.com/sales/company/microsoft"
+                  },
+                  "linkedin_company_id": {
+                    "type": "string",
+                    "description": "The LinkedIn company ID (alternative to providing the company URL). Provide either this ID or the company URL.",
+                    "example": "12345"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Tool execution result",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "description": "Tool execution result",
+                  "additionalProperties": true
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Default Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "code": {
+                      "type": "string"
+                    },
+                    "message": {
+                      "type": "string"
+                    },
+                    "requestId": {
+                      "type": "string"
+                    },
+                    "timestamp": {
+                      "type": "string",
+                      "format": "date-time"
+                    },
+                    "details": {
+                      "type": "object",
+                      "additionalProperties": true
+                    }
+                  },
+                  "required": [
+                    "code",
+                    "message"
+                  ]
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Default Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "code": {
+                      "type": "string"
+                    },
+                    "message": {
+                      "type": "string"
+                    },
+                    "requestId": {
+                      "type": "string"
+                    },
+                    "timestamp": {
+                      "type": "string",
+                      "format": "date-time"
+                    },
+                    "details": {
+                      "type": "object",
+                      "additionalProperties": true
+                    }
+                  },
+                  "required": [
+                    "code",
+                    "message"
+                  ]
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Default Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "code": {
+                      "type": "string"
+                    },
+                    "message": {
+                      "type": "string"
+                    },
+                    "requestId": {
+                      "type": "string"
+                    },
+                    "timestamp": {
+                      "type": "string",
+                      "format": "date-time"
+                    },
+                    "details": {
+                      "type": "object",
+                      "additionalProperties": true
+                    }
+                  },
+                  "required": [
+                    "code",
+                    "message"
+                  ]
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Default Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "code": {
+                      "type": "string"
+                    },
+                    "message": {
+                      "type": "string"
+                    },
+                    "requestId": {
+                      "type": "string"
+                    },
+                    "timestamp": {
+                      "type": "string",
+                      "format": "date-time"
+                    },
+                    "details": {
+                      "type": "object",
+                      "additionalProperties": true
+                    }
+                  },
+                  "required": [
+                    "code",
+                    "message"
+                  ]
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/tools/{alias}": {
       "post": {
         "summary": "Execute tool",
-        "tags": [
-          "Tools"
-        ],
         "description": "Execute a Captain Data tool by alias",
         "requestBody": {
           "content": {
@@ -185,8 +1089,20 @@
                     },
                     "requestId": {
                       "type": "string"
+                    },
+                    "timestamp": {
+                      "type": "string",
+                      "format": "date-time"
+                    },
+                    "details": {
+                      "type": "object",
+                      "additionalProperties": true
                     }
-                  }
+                  },
+                  "required": [
+                    "code",
+                    "message"
+                  ]
                 }
               }
             }
@@ -206,8 +1122,20 @@
                     },
                     "requestId": {
                       "type": "string"
+                    },
+                    "timestamp": {
+                      "type": "string",
+                      "format": "date-time"
+                    },
+                    "details": {
+                      "type": "object",
+                      "additionalProperties": true
                     }
-                  }
+                  },
+                  "required": [
+                    "code",
+                    "message"
+                  ]
                 }
               }
             }
@@ -227,8 +1155,20 @@
                     },
                     "requestId": {
                       "type": "string"
+                    },
+                    "timestamp": {
+                      "type": "string",
+                      "format": "date-time"
+                    },
+                    "details": {
+                      "type": "object",
+                      "additionalProperties": true
                     }
-                  }
+                  },
+                  "required": [
+                    "code",
+                    "message"
+                  ]
                 }
               }
             }
@@ -248,8 +1188,20 @@
                     },
                     "requestId": {
                       "type": "string"
+                    },
+                    "timestamp": {
+                      "type": "string",
+                      "format": "date-time"
+                    },
+                    "details": {
+                      "type": "object",
+                      "additionalProperties": true
                     }
-                  }
+                  },
+                  "required": [
+                    "code",
+                    "message"
+                  ]
                 }
               }
             }
@@ -269,8 +1221,20 @@
                     },
                     "requestId": {
                       "type": "string"
+                    },
+                    "timestamp": {
+                      "type": "string",
+                      "format": "date-time"
+                    },
+                    "details": {
+                      "type": "object",
+                      "additionalProperties": true
                     }
-                  }
+                  },
+                  "required": [
+                    "code",
+                    "message"
+                  ]
                 }
               }
             }
@@ -290,8 +1254,20 @@
                     },
                     "requestId": {
                       "type": "string"
+                    },
+                    "timestamp": {
+                      "type": "string",
+                      "format": "date-time"
+                    },
+                    "details": {
+                      "type": "object",
+                      "additionalProperties": true
                     }
-                  }
+                  },
+                  "required": [
+                    "code",
+                    "message"
+                  ]
                 }
               }
             }

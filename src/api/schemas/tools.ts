@@ -32,48 +32,66 @@ export const toolSchema: FastifySchema = {
       properties: {
         code: { type: 'string' },
         message: { type: 'string' },
-        requestId: { type: 'string' }
-      }
+        requestId: { type: 'string' },
+        timestamp: { type: 'string', format: 'date-time' },
+        details: { type: 'object', additionalProperties: true }
+      },
+      required: ['code', 'message']
     },
     401: {
       type: 'object',
       properties: {
         code: { type: 'string' },
         message: { type: 'string' },
-        requestId: { type: 'string' }
-      }
+        requestId: { type: 'string' },
+        timestamp: { type: 'string', format: 'date-time' },
+        details: { type: 'object', additionalProperties: true }
+      },
+      required: ['code', 'message']
     },
     404: {
       type: 'object',
       properties: {
         code: { type: 'string' },
         message: { type: 'string' },
-        requestId: { type: 'string' }
-      }
+        requestId: { type: 'string' },
+        timestamp: { type: 'string', format: 'date-time' },
+        details: { type: 'object', additionalProperties: true }
+      },
+      required: ['code', 'message']
     },
     408: {
       type: 'object',
       properties: {
         code: { type: 'string' },
         message: { type: 'string' },
-        requestId: { type: 'string' }
-      }
+        requestId: { type: 'string' },
+        timestamp: { type: 'string', format: 'date-time' },
+        details: { type: 'object', additionalProperties: true }
+      },
+      required: ['code', 'message']
     },
     500: {
       type: 'object',
       properties: {
         code: { type: 'string' },
         message: { type: 'string' },
-        requestId: { type: 'string' }
-      }
+        requestId: { type: 'string' },
+        timestamp: { type: 'string', format: 'date-time' },
+        details: { type: 'object', additionalProperties: true }
+      },
+      required: ['code', 'message']
     },
     503: {
       type: 'object',
       properties: {
         code: { type: 'string' },
         message: { type: 'string' },
-        requestId: { type: 'string' }
-      }
+        requestId: { type: 'string' },
+        timestamp: { type: 'string', format: 'date-time' },
+        details: { type: 'object', additionalProperties: true }
+      },
+      required: ['code', 'message']
     }
   }
 }; 

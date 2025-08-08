@@ -6,6 +6,8 @@ import { introspectSchema, toolSchema } from './schemas';
 import { healthSchema } from './schemas/health';
 import { readFileSync } from 'fs';
 import { join } from 'path';
+import { TOOL_SCHEMAS } from '../lib/schemas';
+import { ToolAlias } from '../lib/alias';
 
 // Cache the OpenAPI spec at module load time for better serverless performance
 let cachedOpenApiSpec: any = null;
@@ -55,7 +57,82 @@ async function routes(app: FastifyInstance) {
     schema: introspectSchema
   }, introspectHandler);
 
-  // Tool execution endpoint
+  // Dynamic tool endpoints for ChatGPT Actions
+  Object.keys(TOOL_SCHEMAS).forEach((toolAlias) => {
+    const alias = toolAlias as ToolAlias;
+    const schema = TOOL_SCHEMAS[alias];
+    
+    // Register specific endpoint for each tool with dynamic schema
+    app.post(`/tools/${alias}`, {
+      schema: {
+        summary: `Execute ${alias} tool`,
+        tags: ['Tools'],
+        description: schema.description,
+        body: schema.parameters,
+        response: {
+          200: {
+            type: 'object',
+            description: 'Tool execution result',
+            additionalProperties: true
+          },
+          400: {
+            type: 'object',
+            properties: {
+              code: { type: 'string' },
+              message: { type: 'string' },
+              requestId: { type: 'string' },
+              timestamp: { type: 'string', format: 'date-time' },
+              details: { type: 'object', additionalProperties: true }
+            },
+            required: ['code', 'message']
+          },
+          401: {
+            type: 'object',
+            properties: {
+              code: { type: 'string' },
+              message: { type: 'string' },
+              requestId: { type: 'string' },
+              timestamp: { type: 'string', format: 'date-time' },
+              details: { type: 'object', additionalProperties: true }
+            },
+            required: ['code', 'message']
+          },
+          404: {
+            type: 'object',
+            properties: {
+              code: { type: 'string' },
+              message: { type: 'string' },
+              requestId: { type: 'string' },
+              timestamp: { type: 'string', format: 'date-time' },
+              details: { type: 'object', additionalProperties: true }
+            },
+            required: ['code', 'message']
+          },
+          500: {
+            type: 'object',
+            properties: {
+              code: { type: 'string' },
+              message: { type: 'string' },
+              requestId: { type: 'string' },
+              timestamp: { type: 'string', format: 'date-time' },
+              details: { type: 'object', additionalProperties: true }
+            },
+            required: ['code', 'message']
+          }
+        }
+      }
+    }, async (request, reply) => {
+      // Create a properly typed request object for the tool handler
+      const typedRequest = {
+        ...request,
+        params: { alias },
+        headers: request.headers
+      } as any;
+      return toolHandler(typedRequest, reply);
+    });
+  });
+
+  // Generic tool execution endpoint (for backward compatibility)
   app.post('/tools/:alias', {
     schema: toolSchema
   }, toolHandler);
