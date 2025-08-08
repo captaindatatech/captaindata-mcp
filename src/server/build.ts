@@ -37,7 +37,7 @@ export async function buildServer(): Promise<FastifyInstance> {
   if (config.nodeEnv === 'production' && process.env.SENTRY_DSN) {
     Sentry.setupFastifyErrorHandler(app);
     
-    // Add custom error handler for better Sentry integration
+    // Add Sentry error capture without interfering with status codes
     app.setErrorHandler((error, request, reply) => {
       // Capture error in Sentry with additional context
       Sentry.withScope((scope) => {
@@ -56,12 +56,8 @@ export async function buildServer(): Promise<FastifyInstance> {
         Sentry.captureException(error);
       });
       
-      // Continue with default error handling
-      reply.status(500).send({
-        error: 'Internal Server Error',
-        message: 'An unexpected error occurred',
-        requestId: request.id,
-      });
+      // Let Fastify handle the error response naturally
+      reply.send(error);
     });
   }
 

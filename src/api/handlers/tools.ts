@@ -209,9 +209,6 @@ export default async function handler(req: FastifyRequest<{ Params: ToolParams }
       finalResponseLength: JSON.stringify(responseWithMetadata).length,
       finalResponseKeys: Object.keys(responseWithMetadata)
     });
-
-    // Set proper content type
-    reply.header('Content-Type', 'application/json');
     
     const finalResponse = {
       ...responseData,
