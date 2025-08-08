@@ -36,9 +36,6 @@ export const swaggerOptions = {
     },
     security: [
       {
-        apiKey: []
-      },
-      {
         bearerAuth: []
       }
     ]

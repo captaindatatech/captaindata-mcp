@@ -7,12 +7,6 @@
   },
   "components": {
     "securitySchemes": {
-      "apiKey": {
-        "type": "apiKey",
-        "name": "X-API-Key",
-        "in": "header",
-        "description": "Direct Captain Data API key for authentication"
-      },
       "bearerAuth": {
         "type": "http",
         "scheme": "bearer",
@@ -2334,6 +2328,13 @@
               "schema": {
                 "type": "object",
                 "description": "Tool parameters",
+                "properties": {
+                  "parameters": {
+                    "type": "object",
+                    "description": "Tool-specific parameters",
+                    "additionalProperties": true
+                  }
+                },
                 "additionalProperties": true
               }
             }
@@ -2360,6 +2361,17 @@
                 "schema": {
                   "type": "object",
                   "description": "Tool execution result",
+                  "properties": {
+                    "result": {
+                      "type": "object",
+                      "description": "Tool execution result data",
+                      "additionalProperties": true
+                    },
+                    "success": {
+                      "type": "boolean",
+                      "description": "Whether the tool execution was successful"
+                    }
+                  },
                   "additionalProperties": true
                 }
               }
@@ -2652,9 +2664,6 @@
     }
   ],
   "security": [
-    {
-      "apiKey": []
-    },
     {
       "bearerAuth": []
     }

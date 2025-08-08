@@ -117,12 +117,30 @@ async function routes(app: FastifyInstance) {
       body: {
         type: 'object',
         description: 'Tool parameters',
+        properties: {
+          parameters: {
+            type: 'object',
+            description: 'Tool-specific parameters',
+            additionalProperties: true
+          }
+        },
         additionalProperties: true
       },
       response: {
         200: {
           type: 'object',
           description: 'Tool execution result',
+          properties: {
+            result: {
+              type: 'object',
+              description: 'Tool execution result data',
+              additionalProperties: true
+            },
+            success: {
+              type: 'boolean',
+              description: 'Whether the tool execution was successful'
+            }
+          },
           additionalProperties: true
         },
         400: ERROR_RESPONSES[400],
