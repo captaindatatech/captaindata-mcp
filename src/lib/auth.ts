@@ -131,16 +131,26 @@ export async function extractApiKey(headers: Record<string, string | string[] | 
   // If no direct API key, try to get it from the session token
   const authHeader = headers['authorization'];
   if (!authHeader || typeof authHeader !== 'string') {
-    throw new Error('Missing authentication: either X-API-Key header or Authorization header required');
+    // Enhanced error message for debugging MCP issues
+    const availableHeaders = Object.keys(headers).filter(key => 
+      key.toLowerCase().includes('auth') || 
+      key.toLowerCase().includes('api') || 
+      key.toLowerCase().includes('key')
+    );
+    
+    throw new Error(`Missing authentication: either X-API-Key header or Authorization header required. Available auth-related headers: ${availableHeaders.join(', ') || 'none'}`);
   }
 
   // Extract token from Authorization header (Bearer token)
   if (!authHeader.match(/^Bearer\s+/i)) {
-    throw new Error('Invalid Authorization header format: expected "Bearer <token>"');
+    // Enhanced error message for debugging MCP protocol issues
+    const headerValue = authHeader.length > 50 ? authHeader.substring(0, 50) + '...' : authHeader;
+    throw new Error(`Invalid Authorization header format: expected "Bearer <token>" but got "${headerValue}"`);
   }
+  
   const token = authHeader.replace(/^Bearer\s+/i, '');
   if (!token) {
-    throw new Error('Invalid Authorization header format: expected "Bearer <token>"');
+    throw new Error('Invalid Authorization header format: expected "Bearer <token>" but token is empty');
   }
 
   // Look up the API key in Redis storage or in-memory store
@@ -148,14 +158,14 @@ export async function extractApiKey(headers: Record<string, string | string[] | 
     try {
       const apiKey = await redisService.get(`session:${token}`);
       if (!apiKey) {
-        throw new Error('Invalid or expired session token');
+        throw new Error(`Invalid or expired session token: ${token.substring(0, 8)}...`);
       }
       return apiKey;
     } catch (redisError) {
       // If Redis fails, fall back to in-memory store
       const apiKey = await getSessionToken(token);
       if (!apiKey) {
-        throw new Error('Invalid or expired session token');
+        throw new Error(`Invalid or expired session token: ${token.substring(0, 8)}...`);
       }
       return apiKey;
     }
@@ -163,7 +173,7 @@ export async function extractApiKey(headers: Record<string, string | string[] | 
     // Use in-memory store when Redis is not available
     const apiKey = await getSessionToken(token);
     if (!apiKey) {
-      throw new Error('Invalid or expired session token');
+      throw new Error(`Invalid or expired session token: ${token.substring(0, 8)}...`);
     }
     return apiKey;
   }
@@ -175,25 +185,39 @@ export async function extractApiKey(headers: Record<string, string | string[] | 
 export function createAuthErrorResponse(error: Error, requestId: string) {
   if (error.message.includes('Missing authentication')) {
     return createErrorResponse(
-      ERROR_CODES.MISSING_API_KEY,
-      'Provide Captain Data key in x-api-key header or session token in Authorization header',
-      requestId
+      ERROR_CODES.MCP_AUTH_ERROR,
+      error.message,
+      requestId,
+      {
+        suggestion: 'For MCP clients, ensure the session token is properly stored and the Authorization header is being sent',
+        availableMethods: ['X-API-Key header', 'Authorization: Bearer <session_token>'],
+        mcpNote: 'MCP protocol should automatically inject Authorization header with session token'
+      }
     );
   }
 
   if (error.message.includes('Invalid Authorization header')) {
     return createErrorResponse(
-      ERROR_CODES.INVALID_API_KEY,
-      'Invalid Authorization header format: expected "Bearer <token>"',
-      requestId
+      ERROR_CODES.MCP_AUTH_ERROR,
+      error.message,
+      requestId,
+      {
+        suggestion: 'Check that the MCP client is properly formatting the Authorization header',
+        expectedFormat: 'Authorization: Bearer <session_token>',
+        mcpNote: 'This may indicate an MCP protocol implementation issue'
+      }
     );
   }
 
   if (error.message.includes('Invalid or expired session token')) {
     return createErrorResponse(
-      ERROR_CODES.INVALID_API_KEY,
-      'Invalid or expired session token',
-      requestId
+      ERROR_CODES.SESSION_TOKEN_EXPIRED,
+      error.message,
+      requestId,
+      {
+        suggestion: 'Re-authenticate to get a fresh session token',
+        tokenInfo: error.message.includes('...') ? 'Token preview shown in error' : 'No token preview available'
+      }
     );
   }
 
@@ -201,13 +225,21 @@ export function createAuthErrorResponse(error: Error, requestId: string) {
     return createErrorResponse(
       ERROR_CODES.INVALID_API_KEY,
       'Session tokens not available. Please use X-API-Key header for authentication',
-      requestId
+      requestId,
+      {
+        suggestion: 'Use X-API-Key header instead of session tokens',
+        reason: 'Redis is not configured for session storage'
+      }
     );
   }
 
   return createErrorResponse(
     ERROR_CODES.INTERNAL_ERROR,
     'Authentication error',
-    requestId
+    requestId,
+    {
+      originalError: error.message,
+      suggestion: 'Check authentication configuration and try again'
+    }
   );
 } 

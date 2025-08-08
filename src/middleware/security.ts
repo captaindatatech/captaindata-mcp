@@ -31,7 +31,11 @@ export async function securityMiddleware(req: FastifyRequest, reply: FastifyRepl
     const errorResponse = createErrorResponse(
       ERROR_CODES.MISSING_API_KEY,
       'Provide Captain Data key in x-api-key header or session token in Authorization header',
-      req.id
+      req.id,
+      {
+        suggestion: 'For MCP clients, ensure authentication is properly configured',
+        mcpNote: 'MCP protocol should automatically inject Authorization header with session token'
+      }
     );
     return reply.status(401).send(errorResponse);
   }

@@ -32,6 +32,8 @@ export function json(msg: string, code: string = "mcp_error", status: number = 5
 export const ERROR_CODES = {
   MISSING_API_KEY: 'missing_api_key',
   INVALID_API_KEY: 'invalid_api_key',
+  MCP_AUTH_ERROR: 'mcp_auth_error',
+  SESSION_TOKEN_EXPIRED: 'session_token_expired',
   UNKNOWN_TOOL: 'unknown_tool',
   MISSING_INPUT: 'missing_input',
   INVALID_INPUT: 'invalid_input',

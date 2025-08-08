@@ -2,7 +2,7 @@ import { FastifyRequest, FastifyReply } from 'fastify';
 import { randomUUID } from 'crypto';
 import { createErrorResponse, ERROR_CODES } from '../../lib/error';
 import { config } from '../../lib/config';
-import { storeSessionToken } from '../../lib/auth';
+import { storeSessionToken, getSessionToken } from '../../lib/auth';
 import { logError, logInfo } from '../../middleware';
 
 interface AuthRequestBody {

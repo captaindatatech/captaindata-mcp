@@ -77,8 +77,43 @@ export default async function handler(req: FastifyRequest<{ Params: ToolParams }
     // Extract API key from either direct header or session token
     let key: string;
     try {
+      // Debug logging for authentication
+      const authHeaders = Object.keys(req.headers).filter(key => 
+        key.toLowerCase().includes('auth') || 
+        key.toLowerCase().includes('api') || 
+        key.toLowerCase().includes('key')
+      );
+      
+      console.log(`[TOOLS DEBUG] Extracting API key for ${alias}:`, {
+        hasXApiKey: !!req.headers['x-api-key'],
+        hasAuthHeader: !!req.headers['authorization'],
+        authHeaderLength: req.headers['authorization'] ? (req.headers['authorization'] as string).length : 0,
+        authHeaderPreview: req.headers['authorization'] ? 
+          ((req.headers['authorization'] as string).length > 50 ? 
+            (req.headers['authorization'] as string).substring(0, 50) + '...' : 
+            req.headers['authorization']) : null,
+        allAuthHeaders: authHeaders,
+        requestId
+      });
+      
       key = await extractApiKey(req.headers);
+      
+      console.log(`[TOOLS DEBUG] API key extraction successful for ${alias}:`, {
+        keyLength: key.length,
+        keyPreview: key.substring(0, 8) + '...',
+        requestId
+      });
     } catch (authError) {
+      console.error(`[TOOLS DEBUG] API key extraction failed for ${alias}:`, {
+        error: authError instanceof Error ? authError.message : 'Unknown error',
+        requestId,
+        headers: Object.keys(req.headers).filter(key => 
+          key.toLowerCase().includes('auth') || 
+          key.toLowerCase().includes('api') || 
+          key.toLowerCase().includes('key')
+        )
+      });
+      
       return reply.status(401).send(
         createAuthErrorResponse(authError as Error, requestId)
       );
