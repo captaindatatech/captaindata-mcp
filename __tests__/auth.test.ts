@@ -106,7 +106,7 @@ describe('Authentication System', () => {
 
       expect(response.statusCode).toBe(401);
       const data = JSON.parse(response.payload);
-      expect(data.code).toBe('invalid_api_key');
+      expect(data.code).toBe('session_token_expired');
       expect(data.message).toContain('Invalid or expired session token');
     });
 
@@ -124,7 +124,7 @@ describe('Authentication System', () => {
 
       expect(response.statusCode).toBe(401);
       const data = JSON.parse(response.payload);
-      expect(data.code).toBe('invalid_api_key');
+      expect(data.code).toBe('mcp_auth_error');
       expect(data.message).toContain('Invalid Authorization header format');
     });
   });

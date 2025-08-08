@@ -30,7 +30,7 @@ describe('Authentication', () => {
       expect(response.statusCode).toBe(401);
       const data = JSON.parse(response.payload);
       expect(data.code).toBe('missing_api_key');
-      expect(data.message).toBe('Provide Captain Data key in x-api-key header or session token in Authorization header');
+      expect(data.message).toBe('Provide Captain Data key in x-api-key header, session token in Authorization header, or session_token query parameter');
     });
 
     it('should allow GET requests without API key', async () => {

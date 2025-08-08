@@ -17,6 +17,10 @@ import { logError } from '../middleware';
 let cachedOpenApiSpec: any = null;
 let openApiSpecError: string | null = null;
 
+// Cache the GPT-compatible OpenAPI spec at module load time
+let cachedGptOpenApiSpec: any = null;
+let gptOpenApiSpecError: string | null = null;
+
 try {
   const openapiPath = join(process.cwd(), 'openapi.json');
   const openapiContent = readFileSync(openapiPath, 'utf8');
@@ -24,6 +28,15 @@ try {
 } catch (error) {
   openApiSpecError = error instanceof Error ? error.message : 'Unknown error';
   console.error('Failed to load OpenAPI specification at startup:', error);
+}
+
+try {
+  const gptOpenapiPath = join(process.cwd(), 'openapi.gpt.json');
+  const gptOpenapiContent = readFileSync(gptOpenapiPath, 'utf8');
+  cachedGptOpenApiSpec = JSON.parse(gptOpenapiContent);
+} catch (error) {
+  gptOpenApiSpecError = error instanceof Error ? error.message : 'Unknown error';
+  console.error('Failed to load GPT-compatible OpenAPI specification at startup:', error);
 }
 
 async function routes(app: FastifyInstance) {
@@ -46,6 +59,22 @@ async function routes(app: FastifyInstance) {
     
     reply.header('Content-Type', 'application/json');
     return cachedOpenApiSpec;
+  });
+
+  // GPT-compatible OpenAPI specification endpoint
+  app.get('/openapi.gpt.json', async (request, reply) => {
+    if (gptOpenApiSpecError) {
+      logError('GPT-compatible OpenAPI specification not available', new Error(gptOpenApiSpecError), request, {
+        endpoint: 'openapi.gpt'
+      });
+      return reply.status(500).send({ 
+        error: 'GPT-compatible OpenAPI specification not available',
+        message: 'Internal server error'
+      });
+    }
+    
+    reply.header('Content-Type', 'application/json');
+    return cachedGptOpenApiSpec;
   });
 
   // Authentication endpoint

@@ -6,20 +6,7 @@
     "version": "1.0.0"
   },
   "components": {
-    "securitySchemes": {
-      "apiKey": {
-        "type": "apiKey",
-        "name": "X-API-Key",
-        "in": "header",
-        "description": "Direct Captain Data API key for authentication"
-      },
-      "bearerAuth": {
-        "type": "http",
-        "scheme": "bearer",
-        "bearerFormat": "JWT",
-        "description": "Session token obtained from /auth endpoint"
-      }
-    },
+    "securitySchemes": {},
     "schemas": {}
   },
   "paths": {
@@ -123,15 +110,6 @@
                 }
               }
             }
-          }
-        }
-      }
-    },
-    "/openapi.gpt.json": {
-      "get": {
-        "responses": {
-          "200": {
-            "description": "Default Response"
           }
         }
       }
@@ -764,7 +742,18 @@
               }
             }
           }
-        }
+        },
+        "parameters": [
+          {
+            "name": "session_token",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "description": "Token from /auth endpoint"
+          }
+        ]
       }
     },
     "/tools/enrich_company": {
@@ -1204,7 +1193,18 @@
               }
             }
           }
-        }
+        },
+        "parameters": [
+          {
+            "name": "session_token",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "description": "Token from /auth endpoint"
+          }
+        ]
       }
     },
     "/tools/search_people": {
@@ -1614,7 +1614,18 @@
               }
             }
           }
-        }
+        },
+        "parameters": [
+          {
+            "name": "session_token",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "description": "Token from /auth endpoint"
+          }
+        ]
       }
     },
     "/tools/search_companies": {
@@ -1981,7 +1992,18 @@
               }
             }
           }
-        }
+        },
+        "parameters": [
+          {
+            "name": "session_token",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "description": "Token from /auth endpoint"
+          }
+        ]
       }
     },
     "/tools/search_company_employees": {
@@ -2384,7 +2406,18 @@
               }
             }
           }
-        }
+        },
+        "parameters": [
+          {
+            "name": "session_token",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "description": "Token from /auth endpoint"
+          }
+        ]
       }
     },
     "/tools/{alias}": {
@@ -2424,6 +2457,15 @@
             "name": "alias",
             "required": true,
             "description": "Tool alias"
+          },
+          {
+            "name": "session_token",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "description": "Token from /auth endpoint"
           }
         ],
         "responses": {
@@ -2734,14 +2776,6 @@
     {
       "url": "https://mcp.captaindata.com",
       "description": "Production server"
-    }
-  ],
-  "security": [
-    {
-      "bearerAuth": []
-    },
-    {
-      "apiKey": []
     }
   ]
 }

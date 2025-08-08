@@ -6,7 +6,7 @@
   "scripts": {
     "start": "ts-node index.ts",
     "dev": "ts-node-dev --respawn index.ts",
-    "build": "npm run generate:openapi && tsc",
+    "build": "npm run generate:openapi && npm run generate:openapi:gpt && tsc",
     "clean": "rm -rf dist",
     "prebuild": "npm run clean",
     "test": "jest",
@@ -22,7 +22,8 @@
     "lint:fix": "eslint src/**/*.ts --fix",
     "type-check": "tsc --noEmit",
     "prestart": "npm run type-check",
-    "generate:openapi": "ts-node scripts/generate-openapi.ts"
+    "generate:openapi": "ts-node scripts/generate-openapi.ts",
+    "generate:openapi:gpt": "ts-node scripts/generate-openapi-gpt.ts"
   },
   "keywords": [
     "mcp",
