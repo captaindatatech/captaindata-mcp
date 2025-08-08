@@ -1,5 +1,5 @@
 {
-  "openapi": "3.0.0",
+  "openapi": "3.1.0",
   "info": {
     "title": "Captain Data MCP API",
     "description": "API for managing Captain Data actions and flows",
@@ -19,6 +19,7 @@
   "paths": {
     "/health": {
       "get": {
+        "operationId": "getHealth",
         "summary": "Health check",
         "tags": [
           "Health"
@@ -64,6 +65,7 @@
     },
     "/introspect": {
       "get": {
+        "operationId": "getIntrospect",
         "summary": "List available tools",
         "tags": [
           "Introspection"
@@ -128,7 +130,11 @@
     },
     "/tools/enrich_people": {
       "post": {
+        "operationId": "enrichPeople",
         "summary": "Execute enrich_people tool",
+        "tags": [
+          "Tools"
+        ],
         "description": "Extract detailed information from a LinkedIn profile. Use this when you need comprehensive data about a person including their work history, education, skills, and achievements. Perfect for lead research, candidate evaluation, or networking preparation.",
         "requestBody": {
           "content": {
@@ -175,12 +181,106 @@
         },
         "responses": {
           "200": {
-            "description": "Tool execution result",
+            "description": "Default Response",
             "content": {
               "application/json": {
                 "schema": {
                   "type": "object",
-                  "description": "Tool execution result",
+                  "properties": {
+                    "linkedin_profile_handle": {
+                      "type": "string"
+                    },
+                    "first_name": {
+                      "type": "string"
+                    },
+                    "last_name": {
+                      "type": "string"
+                    },
+                    "full_name": {
+                      "type": "string"
+                    },
+                    "birth_date": {
+                      "type": "string"
+                    },
+                    "headline": {
+                      "type": "string"
+                    },
+                    "summary": {
+                      "type": "string"
+                    },
+                    "languages": {
+                      "type": "array",
+                      "items": {
+                        "type": "string"
+                      }
+                    },
+                    "skills": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "name": {
+                            "type": "string"
+                          }
+                        },
+                        "additionalProperties": false
+                      }
+                    },
+                    "sales_navigator_profile_id": {
+                      "type": "string"
+                    },
+                    "linkedin_profile_id": {
+                      "type": "integer"
+                    },
+                    "linkedin_profile_url": {
+                      "type": "string",
+                      "format": "uri"
+                    },
+                    "profile_country": {
+                      "type": "string"
+                    },
+                    "profile_language": {
+                      "type": "string"
+                    },
+                    "location": {
+                      "type": "string"
+                    },
+                    "profile_image_url": {
+                      "type": "string",
+                      "format": "uri"
+                    },
+                    "job_title": {
+                      "type": "string"
+                    },
+                    "education": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "additionalProperties": true
+                      }
+                    },
+                    "experiences": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "additionalProperties": true
+                      }
+                    },
+                    "sections": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "additionalProperties": true
+                      }
+                    },
+                    "highlights": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "additionalProperties": true
+                      }
+                    }
+                  },
                   "additionalProperties": true
                 }
               }
@@ -193,28 +293,51 @@
                 "schema": {
                   "type": "object",
                   "properties": {
-                    "code": {
-                      "type": "string"
+                    "error_label": {
+                      "type": [
+                        "null",
+                        "string"
+                      ]
+                    },
+                    "error_scope": {
+                      "type": [
+                        "null",
+                        "string"
+                      ],
+                      "enum": [
+                        "input",
+                        "integ",
+                        "param",
+                        "config"
+                      ]
+                    },
+                    "error_ref": {
+                      "type": [
+                        "null",
+                        "string"
+                      ],
+                      "example": "ERR-12345"
                     },
                     "message": {
                       "type": "string"
                     },
-                    "requestId": {
-                      "type": "string"
+                    "status_code": {
+                      "type": [
+                        "null",
+                        "integer"
+                      ]
                     },
-                    "timestamp": {
-                      "type": "string",
-                      "format": "date-time"
-                    },
-                    "details": {
-                      "type": "object",
-                      "additionalProperties": true
+                    "params": {
+                      "type": [
+                        "null",
+                        "object"
+                      ],
+                      "additionalProperties": {
+                        "type": "string"
+                      }
                     }
                   },
-                  "required": [
-                    "code",
-                    "message"
-                  ]
+                  "additionalProperties": false
                 }
               }
             }
@@ -226,28 +349,51 @@
                 "schema": {
                   "type": "object",
                   "properties": {
-                    "code": {
-                      "type": "string"
+                    "error_label": {
+                      "type": [
+                        "null",
+                        "string"
+                      ]
+                    },
+                    "error_scope": {
+                      "type": [
+                        "null",
+                        "string"
+                      ],
+                      "enum": [
+                        "input",
+                        "integ",
+                        "param",
+                        "config"
+                      ]
+                    },
+                    "error_ref": {
+                      "type": [
+                        "null",
+                        "string"
+                      ],
+                      "example": "ERR-12345"
                     },
                     "message": {
                       "type": "string"
                     },
-                    "requestId": {
-                      "type": "string"
+                    "status_code": {
+                      "type": [
+                        "null",
+                        "integer"
+                      ]
                     },
-                    "timestamp": {
-                      "type": "string",
-                      "format": "date-time"
-                    },
-                    "details": {
-                      "type": "object",
-                      "additionalProperties": true
+                    "params": {
+                      "type": [
+                        "null",
+                        "object"
+                      ],
+                      "additionalProperties": {
+                        "type": "string"
+                      }
                     }
                   },
-                  "required": [
-                    "code",
-                    "message"
-                  ]
+                  "additionalProperties": false
                 }
               }
             }
@@ -259,28 +405,51 @@
                 "schema": {
                   "type": "object",
                   "properties": {
-                    "code": {
-                      "type": "string"
+                    "error_label": {
+                      "type": [
+                        "null",
+                        "string"
+                      ]
+                    },
+                    "error_scope": {
+                      "type": [
+                        "null",
+                        "string"
+                      ],
+                      "enum": [
+                        "input",
+                        "integ",
+                        "param",
+                        "config"
+                      ]
+                    },
+                    "error_ref": {
+                      "type": [
+                        "null",
+                        "string"
+                      ],
+                      "example": "ERR-12345"
                     },
                     "message": {
                       "type": "string"
                     },
-                    "requestId": {
-                      "type": "string"
+                    "status_code": {
+                      "type": [
+                        "null",
+                        "integer"
+                      ]
                     },
-                    "timestamp": {
-                      "type": "string",
-                      "format": "date-time"
-                    },
-                    "details": {
-                      "type": "object",
-                      "additionalProperties": true
+                    "params": {
+                      "type": [
+                        "null",
+                        "object"
+                      ],
+                      "additionalProperties": {
+                        "type": "string"
+                      }
                     }
                   },
-                  "required": [
-                    "code",
-                    "message"
-                  ]
+                  "additionalProperties": false
                 }
               }
             }
@@ -292,28 +461,51 @@
                 "schema": {
                   "type": "object",
                   "properties": {
-                    "code": {
-                      "type": "string"
+                    "error_label": {
+                      "type": [
+                        "null",
+                        "string"
+                      ]
+                    },
+                    "error_scope": {
+                      "type": [
+                        "null",
+                        "string"
+                      ],
+                      "enum": [
+                        "input",
+                        "integ",
+                        "param",
+                        "config"
+                      ]
+                    },
+                    "error_ref": {
+                      "type": [
+                        "null",
+                        "string"
+                      ],
+                      "example": "ERR-12345"
                     },
                     "message": {
                       "type": "string"
                     },
-                    "requestId": {
-                      "type": "string"
+                    "status_code": {
+                      "type": [
+                        "null",
+                        "integer"
+                      ]
                     },
-                    "timestamp": {
-                      "type": "string",
-                      "format": "date-time"
-                    },
-                    "details": {
-                      "type": "object",
-                      "additionalProperties": true
+                    "params": {
+                      "type": [
+                        "null",
+                        "object"
+                      ],
+                      "additionalProperties": {
+                        "type": "string"
+                      }
                     }
                   },
-                  "required": [
-                    "code",
-                    "message"
-                  ]
+                  "additionalProperties": false
                 }
               }
             }
@@ -323,7 +515,11 @@
     },
     "/tools/enrich_company": {
       "post": {
+        "operationId": "enrichCompany",
         "summary": "Execute enrich_company tool",
+        "tags": [
+          "Tools"
+        ],
         "description": "Extract comprehensive company information from LinkedIn. Use this when you need detailed data about a company including size, industry, location, and key insights. Ideal for market research, competitive analysis, or B2B prospecting.",
         "requestBody": {
           "content": {
@@ -350,12 +546,129 @@
         },
         "responses": {
           "200": {
-            "description": "Tool execution result",
+            "description": "Default Response",
             "content": {
               "application/json": {
                 "schema": {
                   "type": "object",
-                  "description": "Tool execution result",
+                  "properties": {
+                    "company_name": {
+                      "type": "string"
+                    },
+                    "specialties": {
+                      "type": "array",
+                      "items": {
+                        "type": "string"
+                      }
+                    },
+                    "tagline": {
+                      "type": "string"
+                    },
+                    "linkedin_company_id": {
+                      "type": "number"
+                    },
+                    "description": {
+                      "type": "string"
+                    },
+                    "type": {
+                      "type": "string"
+                    },
+                    "founded_on": {
+                      "type": "number"
+                    },
+                    "linkedin_company_url": {
+                      "type": "string",
+                      "format": "uri"
+                    },
+                    "website": {
+                      "type": "string",
+                      "format": "uri"
+                    },
+                    "linkedin_company_phone": {
+                      "type": "string"
+                    },
+                    "sales_navigator_company_url": {
+                      "type": "string",
+                      "format": "uri"
+                    },
+                    "industries": {
+                      "type": "array",
+                      "description": "Industries taxonomy (v2)",
+                      "items": {
+                        "type": "string"
+                      }
+                    },
+                    "industries_v1": {
+                      "type": "array",
+                      "description": "Industries (v1)",
+                      "items": {
+                        "type": "string"
+                      }
+                    },
+                    "industry": {
+                      "type": "string"
+                    },
+                    "linkedin_job_search_url": {
+                      "type": "string",
+                      "format": "uri"
+                    },
+                    "followers_count": {
+                      "type": "integer"
+                    },
+                    "number_employees": {
+                      "type": "number"
+                    },
+                    "employees_range": {
+                      "type": "string"
+                    },
+                    "linkedin_employees_url": {
+                      "type": "string",
+                      "format": "uri"
+                    },
+                    "sales_navigator_employees_url": {
+                      "type": "string",
+                      "format": "uri"
+                    },
+                    "country": {
+                      "type": "string"
+                    },
+                    "geographic_area": {
+                      "type": "string"
+                    },
+                    "city": {
+                      "type": "string"
+                    },
+                    "postal_code": {
+                      "type": "string"
+                    },
+                    "headquarters": {
+                      "type": "string"
+                    },
+                    "locations": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "additionalProperties": true,
+                        "properties": {
+                          "address": {
+                            "type": "string"
+                          },
+                          "geographic_area": {
+                            "type": "string"
+                          },
+                          "street": {
+                            "type": "string"
+                          },
+                          "postal_code": {
+                            "type": "string"
+                          },
+                          "city": {
+                            "type": "string"
+                          }
+                        }
+                      }
+                    }
+                  },
                   "additionalProperties": true
                 }
               }
@@ -368,28 +681,51 @@
                 "schema": {
                   "type": "object",
                   "properties": {
-                    "code": {
-                      "type": "string"
+                    "error_label": {
+                      "type": [
+                        "null",
+                        "string"
+                      ]
+                    },
+                    "error_scope": {
+                      "type": [
+                        "null",
+                        "string"
+                      ],
+                      "enum": [
+                        "input",
+                        "integ",
+                        "param",
+                        "config"
+                      ]
+                    },
+                    "error_ref": {
+                      "type": [
+                        "null",
+                        "string"
+                      ],
+                      "example": "ERR-12345"
                     },
                     "message": {
                       "type": "string"
                     },
-                    "requestId": {
-                      "type": "string"
+                    "status_code": {
+                      "type": [
+                        "null",
+                        "integer"
+                      ]
                     },
-                    "timestamp": {
-                      "type": "string",
-                      "format": "date-time"
-                    },
-                    "details": {
-                      "type": "object",
-                      "additionalProperties": true
+                    "params": {
+                      "type": [
+                        "null",
+                        "object"
+                      ],
+                      "additionalProperties": {
+                        "type": "string"
+                      }
                     }
                   },
-                  "required": [
-                    "code",
-                    "message"
-                  ]
+                  "additionalProperties": false
                 }
               }
             }
@@ -401,28 +737,51 @@
                 "schema": {
                   "type": "object",
                   "properties": {
-                    "code": {
-                      "type": "string"
+                    "error_label": {
+                      "type": [
+                        "null",
+                        "string"
+                      ]
+                    },
+                    "error_scope": {
+                      "type": [
+                        "null",
+                        "string"
+                      ],
+                      "enum": [
+                        "input",
+                        "integ",
+                        "param",
+                        "config"
+                      ]
+                    },
+                    "error_ref": {
+                      "type": [
+                        "null",
+                        "string"
+                      ],
+                      "example": "ERR-12345"
                     },
                     "message": {
                       "type": "string"
                     },
-                    "requestId": {
-                      "type": "string"
+                    "status_code": {
+                      "type": [
+                        "null",
+                        "integer"
+                      ]
                     },
-                    "timestamp": {
-                      "type": "string",
-                      "format": "date-time"
-                    },
-                    "details": {
-                      "type": "object",
-                      "additionalProperties": true
+                    "params": {
+                      "type": [
+                        "null",
+                        "object"
+                      ],
+                      "additionalProperties": {
+                        "type": "string"
+                      }
                     }
                   },
-                  "required": [
-                    "code",
-                    "message"
-                  ]
+                  "additionalProperties": false
                 }
               }
             }
@@ -434,28 +793,51 @@
                 "schema": {
                   "type": "object",
                   "properties": {
-                    "code": {
-                      "type": "string"
+                    "error_label": {
+                      "type": [
+                        "null",
+                        "string"
+                      ]
+                    },
+                    "error_scope": {
+                      "type": [
+                        "null",
+                        "string"
+                      ],
+                      "enum": [
+                        "input",
+                        "integ",
+                        "param",
+                        "config"
+                      ]
+                    },
+                    "error_ref": {
+                      "type": [
+                        "null",
+                        "string"
+                      ],
+                      "example": "ERR-12345"
                     },
                     "message": {
                       "type": "string"
                     },
-                    "requestId": {
-                      "type": "string"
+                    "status_code": {
+                      "type": [
+                        "null",
+                        "integer"
+                      ]
                     },
-                    "timestamp": {
-                      "type": "string",
-                      "format": "date-time"
-                    },
-                    "details": {
-                      "type": "object",
-                      "additionalProperties": true
+                    "params": {
+                      "type": [
+                        "null",
+                        "object"
+                      ],
+                      "additionalProperties": {
+                        "type": "string"
+                      }
                     }
                   },
-                  "required": [
-                    "code",
-                    "message"
-                  ]
+                  "additionalProperties": false
                 }
               }
             }
@@ -467,28 +849,51 @@
                 "schema": {
                   "type": "object",
                   "properties": {
-                    "code": {
-                      "type": "string"
+                    "error_label": {
+                      "type": [
+                        "null",
+                        "string"
+                      ]
+                    },
+                    "error_scope": {
+                      "type": [
+                        "null",
+                        "string"
+                      ],
+                      "enum": [
+                        "input",
+                        "integ",
+                        "param",
+                        "config"
+                      ]
+                    },
+                    "error_ref": {
+                      "type": [
+                        "null",
+                        "string"
+                      ],
+                      "example": "ERR-12345"
                     },
                     "message": {
                       "type": "string"
                     },
-                    "requestId": {
-                      "type": "string"
+                    "status_code": {
+                      "type": [
+                        "null",
+                        "integer"
+                      ]
                     },
-                    "timestamp": {
-                      "type": "string",
-                      "format": "date-time"
-                    },
-                    "details": {
-                      "type": "object",
-                      "additionalProperties": true
+                    "params": {
+                      "type": [
+                        "null",
+                        "object"
+                      ],
+                      "additionalProperties": {
+                        "type": "string"
+                      }
                     }
                   },
-                  "required": [
-                    "code",
-                    "message"
-                  ]
+                  "additionalProperties": false
                 }
               }
             }
@@ -498,7 +903,11 @@
     },
     "/tools/search_people": {
       "post": {
+        "operationId": "searchPeople",
         "summary": "Execute search_people tool",
+        "tags": [
+          "Tools"
+        ],
         "description": "Search for people using LinkedIn Sales Navigator. Use this when you need to find potential leads, candidates, or contacts based on specific criteria like job title, company, location, or skills. Great for building prospect lists or finding experts in a particular field.",
         "requestBody": {
           "content": {
@@ -530,13 +939,95 @@
         },
         "responses": {
           "200": {
-            "description": "Tool execution result",
+            "description": "Default Response",
             "content": {
               "application/json": {
                 "schema": {
-                  "type": "object",
-                  "description": "Tool execution result",
-                  "additionalProperties": true
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "full_name": {
+                        "type": "string"
+                      },
+                      "first_name": {
+                        "type": "string"
+                      },
+                      "last_name": {
+                        "type": "string"
+                      },
+                      "company_name": {
+                        "type": "string"
+                      },
+                      "sales_navigator_company_id": {
+                        "type": "string"
+                      },
+                      "linkedin_profile_id": {
+                        "type": "integer"
+                      },
+                      "connection_degree": {
+                        "type": "integer"
+                      },
+                      "job_title": {
+                        "type": "string"
+                      },
+                      "headline": {
+                        "type": "string"
+                      },
+                      "profile_image_url": {
+                        "type": "string",
+                        "format": "string"
+                      },
+                      "sales_navigator_search_url": {
+                        "type": "string",
+                        "format": "string"
+                      },
+                      "sales_navigator_profile_url": {
+                        "type": "string",
+                        "format": "string"
+                      },
+                      "linkedin_profile_url": {
+                        "type": "string",
+                        "format": "string"
+                      },
+                      "sales_navigator_profile_id": {
+                        "type": "string"
+                      },
+                      "sales_navigator_company_url": {
+                        "type": "string",
+                        "format": "string"
+                      },
+                      "location": {
+                        "type": "string"
+                      },
+                      "linkedin_people_post_search_url": {
+                        "type": "string",
+                        "format": "string"
+                      },
+                      "viewed": {
+                        "type": "boolean"
+                      },
+                      "tenure_start": {
+                        "type": "string"
+                      },
+                      "tenure_end": {
+                        "type": "string"
+                      },
+                      "tenure_length": {
+                        "type": "string"
+                      },
+                      "recently_hired": {
+                        "type": "boolean"
+                      },
+                      "recently_promoted": {
+                        "type": "boolean"
+                      },
+                      "current_company": {
+                        "type": "string"
+                      }
+                    },
+                    "additionalProperties": true
+                  }
                 }
               }
             }
@@ -548,28 +1039,51 @@
                 "schema": {
                   "type": "object",
                   "properties": {
-                    "code": {
-                      "type": "string"
+                    "error_label": {
+                      "type": [
+                        "null",
+                        "string"
+                      ]
+                    },
+                    "error_scope": {
+                      "type": [
+                        "null",
+                        "string"
+                      ],
+                      "enum": [
+                        "input",
+                        "integ",
+                        "param",
+                        "config"
+                      ]
+                    },
+                    "error_ref": {
+                      "type": [
+                        "null",
+                        "string"
+                      ],
+                      "example": "ERR-12345"
                     },
                     "message": {
                       "type": "string"
                     },
-                    "requestId": {
-                      "type": "string"
+                    "status_code": {
+                      "type": [
+                        "null",
+                        "integer"
+                      ]
                     },
-                    "timestamp": {
-                      "type": "string",
-                      "format": "date-time"
-                    },
-                    "details": {
-                      "type": "object",
-                      "additionalProperties": true
+                    "params": {
+                      "type": [
+                        "null",
+                        "object"
+                      ],
+                      "additionalProperties": {
+                        "type": "string"
+                      }
                     }
                   },
-                  "required": [
-                    "code",
-                    "message"
-                  ]
+                  "additionalProperties": false
                 }
               }
             }
@@ -581,28 +1095,51 @@
                 "schema": {
                   "type": "object",
                   "properties": {
-                    "code": {
-                      "type": "string"
+                    "error_label": {
+                      "type": [
+                        "null",
+                        "string"
+                      ]
+                    },
+                    "error_scope": {
+                      "type": [
+                        "null",
+                        "string"
+                      ],
+                      "enum": [
+                        "input",
+                        "integ",
+                        "param",
+                        "config"
+                      ]
+                    },
+                    "error_ref": {
+                      "type": [
+                        "null",
+                        "string"
+                      ],
+                      "example": "ERR-12345"
                     },
                     "message": {
                       "type": "string"
                     },
-                    "requestId": {
-                      "type": "string"
+                    "status_code": {
+                      "type": [
+                        "null",
+                        "integer"
+                      ]
                     },
-                    "timestamp": {
-                      "type": "string",
-                      "format": "date-time"
-                    },
-                    "details": {
-                      "type": "object",
-                      "additionalProperties": true
+                    "params": {
+                      "type": [
+                        "null",
+                        "object"
+                      ],
+                      "additionalProperties": {
+                        "type": "string"
+                      }
                     }
                   },
-                  "required": [
-                    "code",
-                    "message"
-                  ]
+                  "additionalProperties": false
                 }
               }
             }
@@ -614,28 +1151,51 @@
                 "schema": {
                   "type": "object",
                   "properties": {
-                    "code": {
-                      "type": "string"
+                    "error_label": {
+                      "type": [
+                        "null",
+                        "string"
+                      ]
+                    },
+                    "error_scope": {
+                      "type": [
+                        "null",
+                        "string"
+                      ],
+                      "enum": [
+                        "input",
+                        "integ",
+                        "param",
+                        "config"
+                      ]
+                    },
+                    "error_ref": {
+                      "type": [
+                        "null",
+                        "string"
+                      ],
+                      "example": "ERR-12345"
                     },
                     "message": {
                       "type": "string"
                     },
-                    "requestId": {
-                      "type": "string"
+                    "status_code": {
+                      "type": [
+                        "null",
+                        "integer"
+                      ]
                     },
-                    "timestamp": {
-                      "type": "string",
-                      "format": "date-time"
-                    },
-                    "details": {
-                      "type": "object",
-                      "additionalProperties": true
+                    "params": {
+                      "type": [
+                        "null",
+                        "object"
+                      ],
+                      "additionalProperties": {
+                        "type": "string"
+                      }
                     }
                   },
-                  "required": [
-                    "code",
-                    "message"
-                  ]
+                  "additionalProperties": false
                 }
               }
             }
@@ -647,28 +1207,51 @@
                 "schema": {
                   "type": "object",
                   "properties": {
-                    "code": {
-                      "type": "string"
+                    "error_label": {
+                      "type": [
+                        "null",
+                        "string"
+                      ]
+                    },
+                    "error_scope": {
+                      "type": [
+                        "null",
+                        "string"
+                      ],
+                      "enum": [
+                        "input",
+                        "integ",
+                        "param",
+                        "config"
+                      ]
+                    },
+                    "error_ref": {
+                      "type": [
+                        "null",
+                        "string"
+                      ],
+                      "example": "ERR-12345"
                     },
                     "message": {
                       "type": "string"
                     },
-                    "requestId": {
-                      "type": "string"
+                    "status_code": {
+                      "type": [
+                        "null",
+                        "integer"
+                      ]
                     },
-                    "timestamp": {
-                      "type": "string",
-                      "format": "date-time"
-                    },
-                    "details": {
-                      "type": "object",
-                      "additionalProperties": true
+                    "params": {
+                      "type": [
+                        "null",
+                        "object"
+                      ],
+                      "additionalProperties": {
+                        "type": "string"
+                      }
                     }
                   },
-                  "required": [
-                    "code",
-                    "message"
-                  ]
+                  "additionalProperties": false
                 }
               }
             }
@@ -678,7 +1261,11 @@
     },
     "/tools/search_companies": {
       "post": {
+        "operationId": "searchCompanies",
         "summary": "Execute search_companies tool",
+        "tags": [
+          "Tools"
+        ],
         "description": "Search for companies using LinkedIn Sales Navigator. Use this when you need to find target companies based on industry, size, location, or other criteria. Perfect for market research, competitive analysis, or identifying potential business partners.",
         "requestBody": {
           "content": {
@@ -710,13 +1297,52 @@
         },
         "responses": {
           "200": {
-            "description": "Tool execution result",
+            "description": "Default Response",
             "content": {
               "application/json": {
                 "schema": {
-                  "type": "object",
-                  "description": "Tool execution result",
-                  "additionalProperties": true
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "company_name": {
+                        "type": "string"
+                      },
+                      "sales_navigator_company_id": {
+                        "type": "string"
+                      },
+                      "linkedin_company_id": {
+                        "type": "integer"
+                      },
+                      "industry": {
+                        "type": "string"
+                      },
+                      "company_size": {
+                        "type": "string"
+                      },
+                      "location": {
+                        "type": "string"
+                      },
+                      "description": {
+                        "type": "string"
+                      },
+                      "sales_navigator_company_url": {
+                        "type": "string",
+                        "format": "string"
+                      },
+                      "linkedin_company_url": {
+                        "type": "string",
+                        "format": "string"
+                      },
+                      "followers_count": {
+                        "type": "integer"
+                      },
+                      "employee_count": {
+                        "type": "integer"
+                      }
+                    },
+                    "additionalProperties": true
+                  }
                 }
               }
             }
@@ -728,28 +1354,51 @@
                 "schema": {
                   "type": "object",
                   "properties": {
-                    "code": {
-                      "type": "string"
+                    "error_label": {
+                      "type": [
+                        "null",
+                        "string"
+                      ]
+                    },
+                    "error_scope": {
+                      "type": [
+                        "null",
+                        "string"
+                      ],
+                      "enum": [
+                        "input",
+                        "integ",
+                        "param",
+                        "config"
+                      ]
+                    },
+                    "error_ref": {
+                      "type": [
+                        "null",
+                        "string"
+                      ],
+                      "example": "ERR-12345"
                     },
                     "message": {
                       "type": "string"
                     },
-                    "requestId": {
-                      "type": "string"
+                    "status_code": {
+                      "type": [
+                        "null",
+                        "integer"
+                      ]
                     },
-                    "timestamp": {
-                      "type": "string",
-                      "format": "date-time"
-                    },
-                    "details": {
-                      "type": "object",
-                      "additionalProperties": true
+                    "params": {
+                      "type": [
+                        "null",
+                        "object"
+                      ],
+                      "additionalProperties": {
+                        "type": "string"
+                      }
                     }
                   },
-                  "required": [
-                    "code",
-                    "message"
-                  ]
+                  "additionalProperties": false
                 }
               }
             }
@@ -761,28 +1410,51 @@
                 "schema": {
                   "type": "object",
                   "properties": {
-                    "code": {
-                      "type": "string"
+                    "error_label": {
+                      "type": [
+                        "null",
+                        "string"
+                      ]
+                    },
+                    "error_scope": {
+                      "type": [
+                        "null",
+                        "string"
+                      ],
+                      "enum": [
+                        "input",
+                        "integ",
+                        "param",
+                        "config"
+                      ]
+                    },
+                    "error_ref": {
+                      "type": [
+                        "null",
+                        "string"
+                      ],
+                      "example": "ERR-12345"
                     },
                     "message": {
                       "type": "string"
                     },
-                    "requestId": {
-                      "type": "string"
+                    "status_code": {
+                      "type": [
+                        "null",
+                        "integer"
+                      ]
                     },
-                    "timestamp": {
-                      "type": "string",
-                      "format": "date-time"
-                    },
-                    "details": {
-                      "type": "object",
-                      "additionalProperties": true
+                    "params": {
+                      "type": [
+                        "null",
+                        "object"
+                      ],
+                      "additionalProperties": {
+                        "type": "string"
+                      }
                     }
                   },
-                  "required": [
-                    "code",
-                    "message"
-                  ]
+                  "additionalProperties": false
                 }
               }
             }
@@ -794,28 +1466,51 @@
                 "schema": {
                   "type": "object",
                   "properties": {
-                    "code": {
-                      "type": "string"
+                    "error_label": {
+                      "type": [
+                        "null",
+                        "string"
+                      ]
+                    },
+                    "error_scope": {
+                      "type": [
+                        "null",
+                        "string"
+                      ],
+                      "enum": [
+                        "input",
+                        "integ",
+                        "param",
+                        "config"
+                      ]
+                    },
+                    "error_ref": {
+                      "type": [
+                        "null",
+                        "string"
+                      ],
+                      "example": "ERR-12345"
                     },
                     "message": {
                       "type": "string"
                     },
-                    "requestId": {
-                      "type": "string"
+                    "status_code": {
+                      "type": [
+                        "null",
+                        "integer"
+                      ]
                     },
-                    "timestamp": {
-                      "type": "string",
-                      "format": "date-time"
-                    },
-                    "details": {
-                      "type": "object",
-                      "additionalProperties": true
+                    "params": {
+                      "type": [
+                        "null",
+                        "object"
+                      ],
+                      "additionalProperties": {
+                        "type": "string"
+                      }
                     }
                   },
-                  "required": [
-                    "code",
-                    "message"
-                  ]
+                  "additionalProperties": false
                 }
               }
             }
@@ -827,28 +1522,51 @@
                 "schema": {
                   "type": "object",
                   "properties": {
-                    "code": {
-                      "type": "string"
+                    "error_label": {
+                      "type": [
+                        "null",
+                        "string"
+                      ]
+                    },
+                    "error_scope": {
+                      "type": [
+                        "null",
+                        "string"
+                      ],
+                      "enum": [
+                        "input",
+                        "integ",
+                        "param",
+                        "config"
+                      ]
+                    },
+                    "error_ref": {
+                      "type": [
+                        "null",
+                        "string"
+                      ],
+                      "example": "ERR-12345"
                     },
                     "message": {
                       "type": "string"
                     },
-                    "requestId": {
-                      "type": "string"
+                    "status_code": {
+                      "type": [
+                        "null",
+                        "integer"
+                      ]
                     },
-                    "timestamp": {
-                      "type": "string",
-                      "format": "date-time"
-                    },
-                    "details": {
-                      "type": "object",
-                      "additionalProperties": true
+                    "params": {
+                      "type": [
+                        "null",
+                        "object"
+                      ],
+                      "additionalProperties": {
+                        "type": "string"
+                      }
                     }
                   },
-                  "required": [
-                    "code",
-                    "message"
-                  ]
+                  "additionalProperties": false
                 }
               }
             }
@@ -858,7 +1576,11 @@
     },
     "/tools/search_company_employees": {
       "post": {
+        "operationId": "searchCompanyEmployees",
         "summary": "Execute search_company_employees tool",
+        "tags": [
+          "Tools"
+        ],
         "description": "Find employees of a specific company using LinkedIn Sales Navigator. Use this when you need to identify key decision makers, potential contacts, or understand the organizational structure of a target company. Ideal for account-based marketing or sales prospecting.",
         "requestBody": {
           "content": {
@@ -887,13 +1609,91 @@
         },
         "responses": {
           "200": {
-            "description": "Tool execution result",
+            "description": "Default Response",
             "content": {
               "application/json": {
                 "schema": {
-                  "type": "object",
-                  "description": "Tool execution result",
-                  "additionalProperties": true
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "full_name": {
+                        "type": "string"
+                      },
+                      "first_name": {
+                        "type": "string"
+                      },
+                      "last_name": {
+                        "type": "string"
+                      },
+                      "company_name": {
+                        "type": "string"
+                      },
+                      "sales_navigator_company_id": {
+                        "type": "string"
+                      },
+                      "linkedin_profile_id": {
+                        "type": "integer"
+                      },
+                      "connection_degree": {
+                        "type": "integer"
+                      },
+                      "job_title": {
+                        "type": "string"
+                      },
+                      "headline": {
+                        "type": "string"
+                      },
+                      "profile_image_url": {
+                        "type": "string",
+                        "format": "string"
+                      },
+                      "sales_navigator_profile_url": {
+                        "type": "string",
+                        "format": "string"
+                      },
+                      "linkedin_profile_url": {
+                        "type": "string",
+                        "format": "string"
+                      },
+                      "sales_navigator_profile_id": {
+                        "type": "string"
+                      },
+                      "sales_navigator_company_url": {
+                        "type": "string",
+                        "format": "string"
+                      },
+                      "linkedin_company_url": {
+                        "type": "string",
+                        "format": "string"
+                      },
+                      "location": {
+                        "type": "string"
+                      },
+                      "viewed": {
+                        "type": "boolean"
+                      },
+                      "tenure_start": {
+                        "type": "string"
+                      },
+                      "tenure_end": {
+                        "type": "string"
+                      },
+                      "tenure_length": {
+                        "type": "string"
+                      },
+                      "recently_hired": {
+                        "type": "boolean"
+                      },
+                      "recently_promoted": {
+                        "type": "boolean"
+                      },
+                      "current_company": {
+                        "type": "string"
+                      }
+                    },
+                    "additionalProperties": true
+                  }
                 }
               }
             }
@@ -905,28 +1705,51 @@
                 "schema": {
                   "type": "object",
                   "properties": {
-                    "code": {
-                      "type": "string"
+                    "error_label": {
+                      "type": [
+                        "null",
+                        "string"
+                      ]
+                    },
+                    "error_scope": {
+                      "type": [
+                        "null",
+                        "string"
+                      ],
+                      "enum": [
+                        "input",
+                        "integ",
+                        "param",
+                        "config"
+                      ]
+                    },
+                    "error_ref": {
+                      "type": [
+                        "null",
+                        "string"
+                      ],
+                      "example": "ERR-12345"
                     },
                     "message": {
                       "type": "string"
                     },
-                    "requestId": {
-                      "type": "string"
+                    "status_code": {
+                      "type": [
+                        "null",
+                        "integer"
+                      ]
                     },
-                    "timestamp": {
-                      "type": "string",
-                      "format": "date-time"
-                    },
-                    "details": {
-                      "type": "object",
-                      "additionalProperties": true
+                    "params": {
+                      "type": [
+                        "null",
+                        "object"
+                      ],
+                      "additionalProperties": {
+                        "type": "string"
+                      }
                     }
                   },
-                  "required": [
-                    "code",
-                    "message"
-                  ]
+                  "additionalProperties": false
                 }
               }
             }
@@ -938,28 +1761,51 @@
                 "schema": {
                   "type": "object",
                   "properties": {
-                    "code": {
-                      "type": "string"
+                    "error_label": {
+                      "type": [
+                        "null",
+                        "string"
+                      ]
+                    },
+                    "error_scope": {
+                      "type": [
+                        "null",
+                        "string"
+                      ],
+                      "enum": [
+                        "input",
+                        "integ",
+                        "param",
+                        "config"
+                      ]
+                    },
+                    "error_ref": {
+                      "type": [
+                        "null",
+                        "string"
+                      ],
+                      "example": "ERR-12345"
                     },
                     "message": {
                       "type": "string"
                     },
-                    "requestId": {
-                      "type": "string"
+                    "status_code": {
+                      "type": [
+                        "null",
+                        "integer"
+                      ]
                     },
-                    "timestamp": {
-                      "type": "string",
-                      "format": "date-time"
-                    },
-                    "details": {
-                      "type": "object",
-                      "additionalProperties": true
+                    "params": {
+                      "type": [
+                        "null",
+                        "object"
+                      ],
+                      "additionalProperties": {
+                        "type": "string"
+                      }
                     }
                   },
-                  "required": [
-                    "code",
-                    "message"
-                  ]
+                  "additionalProperties": false
                 }
               }
             }
@@ -971,28 +1817,51 @@
                 "schema": {
                   "type": "object",
                   "properties": {
-                    "code": {
-                      "type": "string"
+                    "error_label": {
+                      "type": [
+                        "null",
+                        "string"
+                      ]
+                    },
+                    "error_scope": {
+                      "type": [
+                        "null",
+                        "string"
+                      ],
+                      "enum": [
+                        "input",
+                        "integ",
+                        "param",
+                        "config"
+                      ]
+                    },
+                    "error_ref": {
+                      "type": [
+                        "null",
+                        "string"
+                      ],
+                      "example": "ERR-12345"
                     },
                     "message": {
                       "type": "string"
                     },
-                    "requestId": {
-                      "type": "string"
+                    "status_code": {
+                      "type": [
+                        "null",
+                        "integer"
+                      ]
                     },
-                    "timestamp": {
-                      "type": "string",
-                      "format": "date-time"
-                    },
-                    "details": {
-                      "type": "object",
-                      "additionalProperties": true
+                    "params": {
+                      "type": [
+                        "null",
+                        "object"
+                      ],
+                      "additionalProperties": {
+                        "type": "string"
+                      }
                     }
                   },
-                  "required": [
-                    "code",
-                    "message"
-                  ]
+                  "additionalProperties": false
                 }
               }
             }
@@ -1004,270 +1873,51 @@
                 "schema": {
                   "type": "object",
                   "properties": {
-                    "code": {
-                      "type": "string"
+                    "error_label": {
+                      "type": [
+                        "null",
+                        "string"
+                      ]
+                    },
+                    "error_scope": {
+                      "type": [
+                        "null",
+                        "string"
+                      ],
+                      "enum": [
+                        "input",
+                        "integ",
+                        "param",
+                        "config"
+                      ]
+                    },
+                    "error_ref": {
+                      "type": [
+                        "null",
+                        "string"
+                      ],
+                      "example": "ERR-12345"
                     },
                     "message": {
                       "type": "string"
                     },
-                    "requestId": {
-                      "type": "string"
+                    "status_code": {
+                      "type": [
+                        "null",
+                        "integer"
+                      ]
                     },
-                    "timestamp": {
-                      "type": "string",
-                      "format": "date-time"
-                    },
-                    "details": {
-                      "type": "object",
-                      "additionalProperties": true
+                    "params": {
+                      "type": [
+                        "null",
+                        "object"
+                      ],
+                      "additionalProperties": {
+                        "type": "string"
+                      }
                     }
                   },
-                  "required": [
-                    "code",
-                    "message"
-                  ]
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    "/tools/{alias}": {
-      "post": {
-        "summary": "Execute tool",
-        "description": "Execute a Captain Data tool by alias",
-        "requestBody": {
-          "content": {
-            "application/json": {
-              "schema": {
-                "type": "object",
-                "description": "Tool parameters",
-                "additionalProperties": true
-              }
-            }
-          },
-          "description": "Tool parameters"
-        },
-        "parameters": [
-          {
-            "schema": {
-              "type": "string",
-              "minLength": 1
-            },
-            "in": "path",
-            "name": "alias",
-            "required": true,
-            "description": "Tool alias"
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "Tool execution result",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "type": "object",
-                  "description": "Tool execution result",
-                  "additionalProperties": true
-                }
-              }
-            }
-          },
-          "400": {
-            "description": "Default Response",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "type": "object",
-                  "properties": {
-                    "code": {
-                      "type": "string"
-                    },
-                    "message": {
-                      "type": "string"
-                    },
-                    "requestId": {
-                      "type": "string"
-                    },
-                    "timestamp": {
-                      "type": "string",
-                      "format": "date-time"
-                    },
-                    "details": {
-                      "type": "object",
-                      "additionalProperties": true
-                    }
-                  },
-                  "required": [
-                    "code",
-                    "message"
-                  ]
-                }
-              }
-            }
-          },
-          "401": {
-            "description": "Default Response",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "type": "object",
-                  "properties": {
-                    "code": {
-                      "type": "string"
-                    },
-                    "message": {
-                      "type": "string"
-                    },
-                    "requestId": {
-                      "type": "string"
-                    },
-                    "timestamp": {
-                      "type": "string",
-                      "format": "date-time"
-                    },
-                    "details": {
-                      "type": "object",
-                      "additionalProperties": true
-                    }
-                  },
-                  "required": [
-                    "code",
-                    "message"
-                  ]
-                }
-              }
-            }
-          },
-          "404": {
-            "description": "Default Response",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "type": "object",
-                  "properties": {
-                    "code": {
-                      "type": "string"
-                    },
-                    "message": {
-                      "type": "string"
-                    },
-                    "requestId": {
-                      "type": "string"
-                    },
-                    "timestamp": {
-                      "type": "string",
-                      "format": "date-time"
-                    },
-                    "details": {
-                      "type": "object",
-                      "additionalProperties": true
-                    }
-                  },
-                  "required": [
-                    "code",
-                    "message"
-                  ]
-                }
-              }
-            }
-          },
-          "408": {
-            "description": "Default Response",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "type": "object",
-                  "properties": {
-                    "code": {
-                      "type": "string"
-                    },
-                    "message": {
-                      "type": "string"
-                    },
-                    "requestId": {
-                      "type": "string"
-                    },
-                    "timestamp": {
-                      "type": "string",
-                      "format": "date-time"
-                    },
-                    "details": {
-                      "type": "object",
-                      "additionalProperties": true
-                    }
-                  },
-                  "required": [
-                    "code",
-                    "message"
-                  ]
-                }
-              }
-            }
-          },
-          "500": {
-            "description": "Default Response",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "type": "object",
-                  "properties": {
-                    "code": {
-                      "type": "string"
-                    },
-                    "message": {
-                      "type": "string"
-                    },
-                    "requestId": {
-                      "type": "string"
-                    },
-                    "timestamp": {
-                      "type": "string",
-                      "format": "date-time"
-                    },
-                    "details": {
-                      "type": "object",
-                      "additionalProperties": true
-                    }
-                  },
-                  "required": [
-                    "code",
-                    "message"
-                  ]
-                }
-              }
-            }
-          },
-          "503": {
-            "description": "Default Response",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "type": "object",
-                  "properties": {
-                    "code": {
-                      "type": "string"
-                    },
-                    "message": {
-                      "type": "string"
-                    },
-                    "requestId": {
-                      "type": "string"
-                    },
-                    "timestamp": {
-                      "type": "string",
-                      "format": "date-time"
-                    },
-                    "details": {
-                      "type": "object",
-                      "additionalProperties": true
-                    }
-                  },
-                  "required": [
-                    "code",
-                    "message"
-                  ]
+                  "additionalProperties": false
                 }
               }
             }
@@ -1277,10 +1927,6 @@
     }
   },
   "servers": [
-    {
-      "url": "http://localhost:3000",
-      "description": "Development server"
-    },
     {
       "url": "https://mcp.captaindata.com",
       "description": "Production server"

@@ -6,17 +6,13 @@ export const swaggerOptions = {
   mode: 'dynamic',
   hideUntagged: false,
   openapi: {
-    openapi: '3.0.0',
+    openapi: '3.1.0',
     info: {
       title: 'Captain Data MCP API',
       description: 'API for managing Captain Data actions and flows',
       version: '1.0.0',
     },
     servers: [
-      {
-        url: 'http://localhost:3000',
-        description: 'Development server'
-      },
       {
         url: 'https://mcp.captaindata.com',
         description: 'Production server'

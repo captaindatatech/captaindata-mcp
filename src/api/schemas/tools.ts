@@ -2,6 +2,7 @@ import { FastifySchema } from 'fastify';
 
 // Base tool schema with validation
 export const toolSchema: FastifySchema = {
+  operationId: 'executeGenericTool',
   tags: ['Tools'],
   summary: 'Execute tool',
   description: 'Execute a Captain Data tool by alias',

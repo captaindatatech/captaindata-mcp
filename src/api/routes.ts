@@ -8,6 +8,7 @@ import { readFileSync } from 'fs';
 import { join } from 'path';
 import { TOOL_SCHEMAS } from '../lib/schemas';
 import { ToolAlias } from '../lib/alias';
+import { RESPONSE_SCHEMAS, ERROR_RESPONSES } from '../lib/responseSchemas';
 
 // Cache the OpenAPI spec at module load time for better serverless performance
 let cachedOpenApiSpec: any = null;
@@ -65,60 +66,17 @@ async function routes(app: FastifyInstance) {
     // Register specific endpoint for each tool with dynamic schema
     app.post(`/tools/${alias}`, {
       schema: {
+        operationId: alias.replace(/_([a-z])/g, (_, letter) => letter.toUpperCase()),
         summary: `Execute ${alias} tool`,
         tags: ['Tools'],
         description: schema.description,
         body: schema.parameters,
         response: {
-          200: {
-            type: 'object',
-            description: 'Tool execution result',
-            additionalProperties: true
-          },
-          400: {
-            type: 'object',
-            properties: {
-              code: { type: 'string' },
-              message: { type: 'string' },
-              requestId: { type: 'string' },
-              timestamp: { type: 'string', format: 'date-time' },
-              details: { type: 'object', additionalProperties: true }
-            },
-            required: ['code', 'message']
-          },
-          401: {
-            type: 'object',
-            properties: {
-              code: { type: 'string' },
-              message: { type: 'string' },
-              requestId: { type: 'string' },
-              timestamp: { type: 'string', format: 'date-time' },
-              details: { type: 'object', additionalProperties: true }
-            },
-            required: ['code', 'message']
-          },
-          404: {
-            type: 'object',
-            properties: {
-              code: { type: 'string' },
-              message: { type: 'string' },
-              requestId: { type: 'string' },
-              timestamp: { type: 'string', format: 'date-time' },
-              details: { type: 'object', additionalProperties: true }
-            },
-            required: ['code', 'message']
-          },
-          500: {
-            type: 'object',
-            properties: {
-              code: { type: 'string' },
-              message: { type: 'string' },
-              requestId: { type: 'string' },
-              timestamp: { type: 'string', format: 'date-time' },
-              details: { type: 'object', additionalProperties: true }
-            },
-            required: ['code', 'message']
-          }
+          200: RESPONSE_SCHEMAS[alias],
+          400: ERROR_RESPONSES[400],
+          401: ERROR_RESPONSES[401],
+          404: ERROR_RESPONSES[404],
+          500: ERROR_RESPONSES[500]
         }
       }
     }, async (request, reply) => {
@@ -132,10 +90,10 @@ async function routes(app: FastifyInstance) {
     });
   });
 
-  // Generic tool execution endpoint (for backward compatibility)
-  app.post('/tools/:alias', {
-    schema: toolSchema
-  }, toolHandler);
+  // Generic tool execution endpoint removed - use specific endpoints instead
+  // app.post('/tools/:alias', {
+  //   schema: toolSchema
+  // }, toolHandler);
 }
 
 export const registerRoutes = fp(routes); 

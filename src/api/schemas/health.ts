@@ -1,5 +1,6 @@
 // Schema for health check endpoint
 export const healthSchema = {
+  operationId: 'getHealth',
   tags: ['Health'],
   summary: 'Health check',
   description: 'Check if the API is running',

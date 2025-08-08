@@ -1,5 +1,6 @@
 // Schema for OpenAPI documentation
 export const introspectSchema = {
+  operationId: 'getIntrospect',
   tags: ['Introspection'],
   summary: 'List available tools',
   description: 'Get metadata about available tools (MCP introspection)',
