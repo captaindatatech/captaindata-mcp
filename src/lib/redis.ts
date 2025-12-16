@@ -1,5 +1,9 @@
 import Redis from 'ioredis';
 import { config } from './config';
+import { logger } from './logger';
+
+// Create a Redis-specific logger
+const redisLogger = logger.child({ component: 'redis' });
 
 interface RedisConfig {
   url: string;
@@ -37,7 +41,7 @@ class RedisService {
 
   private initialize(): void {
     if (!this.config.url) {
-      console.log('Redis URL not provided, using in-memory storage');
+      redisLogger.info('Redis URL not provided, using in-memory storage');
       return;
     }
 
@@ -67,14 +71,14 @@ class RedisService {
         family: this.config.family,
         retryStrategy: (times) => {
           if (times > this.maxConnectionAttempts) {
-            console.warn('Max Redis reconnection attempts reached');
+            redisLogger.warn('Max Redis reconnection attempts reached', { attempts: times });
             return null; // Stop retrying
           }
           return Math.min(times * this.reconnectDelay, 30000);
         },
       });
     } catch (error) {
-      console.warn('Failed to create Redis client:', error);
+      redisLogger.warn('Failed to create Redis client', { error });
       this.client = null;
     }
   }
@@ -83,38 +87,37 @@ class RedisService {
     if (!this.client) return;
 
     this.client.on('error', (error) => {
-      console.warn('Redis connection error:', {
-        error: error.message,
-        stack: error.stack,
+      redisLogger.warn('Redis connection error', {
+        errorMessage: error.message,
       });
       this.isConnected = false;
       this.isHealthy = false;
     });
 
     this.client.on('connect', () => {
-      console.log('Redis connected successfully');
+      redisLogger.info('Redis connected successfully');
       this.isConnected = true;
       this.connectionAttempts = 0;
     });
 
     this.client.on('close', () => {
-      console.warn('Redis connection closed');
+      redisLogger.warn('Redis connection closed');
       this.isConnected = false;
       this.isHealthy = false;
     });
 
     this.client.on('ready', () => {
-      console.log('Redis is ready');
+      redisLogger.info('Redis is ready');
       this.isConnected = true;
       this.isHealthy = true;
     });
 
     this.client.on('reconnecting', (delay: number) => {
-      console.log(`Redis reconnecting in ${delay}ms`);
+      redisLogger.info('Redis reconnecting', { delayMs: delay });
     });
 
     this.client.on('end', () => {
-      console.warn('Redis connection ended');
+      redisLogger.warn('Redis connection ended');
       this.isConnected = false;
       this.isHealthy = false;
     });
@@ -127,13 +130,13 @@ class RedisService {
       this.connectionAttempts++;
       await this.client.connect();
     } catch (error) {
-      console.warn('Failed to connect to Redis:', {
+      redisLogger.warn('Failed to connect to Redis', {
         attempt: this.connectionAttempts,
         error: error instanceof Error ? error.message : 'Unknown error',
       });
       
       if (this.connectionAttempts >= this.maxConnectionAttempts) {
-        console.error('Max connection attempts reached, falling back to in-memory storage');
+        redisLogger.error('Max connection attempts reached, falling back to in-memory storage', error);
         this.client = null;
       }
     }
@@ -148,11 +151,14 @@ class RedisService {
           await this.client.ping();
           this.isHealthy = true;
         } catch (error) {
-          console.warn('Redis health check failed:', error);
+          redisLogger.warn('Redis health check failed', { error });
           this.isHealthy = false;
         }
       }
     }, 30000); // Check every 30 seconds
+    
+    // Allow process to exit even if health check is active
+    this.healthCheckInterval.unref();
   }
 
   private stopHealthCheck(): void {
@@ -174,7 +180,7 @@ class RedisService {
         await this.client.set(key, value);
       }
     } catch (error) {
-      console.warn('Redis SET operation failed:', {
+      redisLogger.warn('Redis SET operation failed', {
         key,
         error: error instanceof Error ? error.message : 'Unknown error',
       });
@@ -190,7 +196,7 @@ class RedisService {
     try {
       return await this.client.get(key);
     } catch (error) {
-      console.warn('Redis GET operation failed:', {
+      redisLogger.warn('Redis GET operation failed', {
         key,
         error: error instanceof Error ? error.message : 'Unknown error',
       });
@@ -206,7 +212,7 @@ class RedisService {
     try {
       await this.client.del(key);
     } catch (error) {
-      console.warn('Redis DEL operation failed:', {
+      redisLogger.warn('Redis DEL operation failed', {
         key,
         error: error instanceof Error ? error.message : 'Unknown error',
       });
@@ -222,7 +228,7 @@ class RedisService {
     try {
       return await this.client.ping();
     } catch (error) {
-      console.warn('Redis PING failed:', error);
+      redisLogger.warn('Redis PING failed', { error });
       return null;
     }
   }
@@ -260,11 +266,11 @@ export const redisService = new RedisService();
 
 // Graceful shutdown handlers
 process.on('SIGINT', () => {
-  console.log('Received SIGINT, shutting down Redis...');
+  redisLogger.info('Received SIGINT, shutting down Redis...');
   redisService.disconnect();
 });
 
 process.on('SIGTERM', () => {
-  console.log('Received SIGTERM, shutting down Redis...');
+  redisLogger.info('Received SIGTERM, shutting down Redis...');
   redisService.disconnect();
-}); 
+});

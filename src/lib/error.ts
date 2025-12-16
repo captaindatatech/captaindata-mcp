@@ -1,45 +1,16 @@
-export interface ErrorResponse {
-  code: string;
-  message: string;
-  requestId?: string;
-  timestamp?: string;
-  details?: any;
-}
+/**
+ * Error handling utilities
+ * 
+ * This module re-exports error types and utilities from the centralized types module.
+ * For new code, import directly from '../../types' instead.
+ */
 
-export function createErrorResponse(
-  code: string, 
-  message: string, 
-  requestId?: string, 
-  details?: any
-): ErrorResponse {
-  return {
-    code,
-    message,
-    requestId,
-    timestamp: new Date().toISOString(),
-    ...(details && { details })
-  };
-}
-
-export function json(msg: string, code: string = "mcp_error", status: number = 500) {
-  return new Response(JSON.stringify({code, message: msg}), {
-    status, 
-    headers: {'Content-Type': 'application/json'}
-  });
-}
-
-// Common error codes
-export const ERROR_CODES = {
-  MISSING_API_KEY: 'missing_api_key',
-  INVALID_API_KEY: 'invalid_api_key',
-  MCP_AUTH_ERROR: 'mcp_auth_error',
-  SESSION_TOKEN_EXPIRED: 'session_token_expired',
-  UNKNOWN_TOOL: 'unknown_tool',
-  MISSING_INPUT: 'missing_input',
-  INVALID_INPUT: 'invalid_input',
-  TIMEOUT: 'timeout',
-  SERVICE_UNAVAILABLE: 'service_unavailable',
-  INVALID_RESPONSE: 'invalid_response',
-  INTERNAL_ERROR: 'internal_error',
-  RATE_LIMITED: 'rate_limited'
-} as const; 
+export { 
+  ErrorResponseSchema,
+  ERROR_CODES,
+  createErrorResponse,
+  jsonErrorResponse as json,
+  type ErrorResponse,
+  type ErrorCode,
+  type ErrorScope
+} from '../types';

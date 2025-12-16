@@ -1,8 +1,7 @@
-import { FastifySwaggerOptions } from '@fastify/swagger';
 import { FastifySwaggerUiOptions } from '@fastify/swagger-ui';
-import { TOOL_SCHEMAS } from './schemas';
+import { FastifyDynamicSwaggerOptions } from '@fastify/swagger';
 
-export const swaggerOptions = {
+export const swaggerOptions: FastifyDynamicSwaggerOptions = {
   mode: 'dynamic',
   hideUntagged: false,
   openapi: {
@@ -21,50 +20,44 @@ export const swaggerOptions = {
     components: {
       securitySchemes: {
         apiKey: {
-          type: 'apiKey' as const,
+          type: 'apiKey',
           name: 'X-API-Key',
-          in: 'header' as const,
+          in: 'header',
           description: 'Direct Captain Data API key for authentication'
         },
         bearerAuth: {
-          type: 'http' as const,
-          scheme: 'bearer' as const,
+          type: 'http',
+          scheme: 'bearer',
           bearerFormat: 'JWT',
           description: 'Session token obtained from /auth endpoint'
         }
       }
     },
     security: [
-      {
-        bearerAuth: []
-      },
-      {
-        apiKey: []
-      }
+      { bearerAuth: [] },
+      { apiKey: [] }
     ]
   }
-} as any;
+};
 
 export const swaggerUiOptions: FastifySwaggerUiOptions = {
   routePrefix: '/docs',
   uiConfig: {
-    docExpansion: 'full' as const,
+    docExpansion: 'full',
     deepLinking: false,
   },
   uiHooks: {
-    onRequest: function (request: any, reply: any, next: any) {
+    onRequest: function (request, reply, next) {
       next()
     },
-    preHandler: function (request: any, reply: any, next: any) {
+    preHandler: function (request, reply, next) {
       next()
     },
   },
   staticCSP: true,
-  transformStaticCSP: (header: any) => header,
-  transformSpecification: (swaggerObject: any, request: any, reply: any) => {
+  transformStaticCSP: (header) => header,
+  transformSpecification: (swaggerObject) => {
     return swaggerObject
   },
   transformSpecificationClone: true,
 };
-
- 

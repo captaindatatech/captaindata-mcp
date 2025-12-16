@@ -4,11 +4,44 @@ import fastifyCors from '@fastify/cors';
 import fastifyRateLimit from '@fastify/rate-limit';
 import fastifySwagger from '@fastify/swagger';
 import fastifySwaggerUi from '@fastify/swagger-ui';
+import fastifyHelmet from '@fastify/helmet';
+import fastifyCompress from '@fastify/compress';
 
 import { swaggerOptions, swaggerUiOptions } from '../lib/openapi';
 import { requestLoggingMiddleware, securityMiddleware } from '../middleware';
 import { registerRoutes } from '../api/routes';
 import { config } from '../lib/config';
+import { logger } from '../lib/logger';
+
+// Create a server-specific logger
+const serverLogger = logger.child({ component: 'server' });
+
+// Global unhandled rejection handler
+process.on('unhandledRejection', (reason, promise) => {
+  serverLogger.error('Unhandled Rejection', reason as Error, {
+    promise: String(promise),
+  });
+  
+  // Report to Sentry in production
+  if (config.nodeEnv === 'production' && process.env.SENTRY_DSN) {
+    Sentry.captureException(reason);
+  }
+});
+
+// Global uncaught exception handler
+process.on('uncaughtException', (error) => {
+  serverLogger.fatal('Uncaught Exception', error);
+  
+  // Report to Sentry in production
+  if (config.nodeEnv === 'production' && process.env.SENTRY_DSN) {
+    Sentry.captureException(error);
+  }
+  
+  // Give Sentry time to send the error before exiting
+  setTimeout(() => {
+    process.exit(1);
+  }, 2000);
+});
 
 export async function buildServer(): Promise<FastifyInstance> {
   const app = fastify({
@@ -59,28 +92,58 @@ export async function buildServer(): Promise<FastifyInstance> {
       // Let Fastify handle the error response naturally
       reply.send(error);
     });
+  } else {
+    // Development/test error handler with logging
+    app.setErrorHandler((error, request, reply) => {
+      serverLogger.error('Request error', error, {
+        requestId: request.id,
+        method: request.method,
+        url: request.url,
+      });
+      reply.send(error);
+    });
   }
 
-  // Core plugins
-  await app.register(fastifyCors, {
-    origin: true,
-    methods: ['GET', 'POST'],
-    allowedHeaders: ['Content-Type', 'X-API-Key', 'Authorization'],
+  // Response compression (gzip/brotli)
+  await app.register(fastifyCompress, {
+    global: true,
+    encodings: ['gzip', 'deflate'],
   });
 
+  // Security headers via Helmet
+  await app.register(fastifyHelmet, {
+    contentSecurityPolicy: false, // Disable CSP for API
+    crossOriginEmbedderPolicy: false, // Required for Swagger UI
+    crossOriginResourcePolicy: { policy: 'cross-origin' }, // Allow cross-origin for API
+  });
+
+  // CORS configuration
+  const corsOrigins = config.corsOrigins;
+  await app.register(fastifyCors, {
+    origin: corsOrigins.length > 0 ? corsOrigins : true,
+    methods: ['GET', 'POST', 'OPTIONS'],
+    allowedHeaders: ['Content-Type', 'X-API-Key', 'Authorization', 'X-Request-ID'],
+    credentials: true,
+    maxAge: 86400, // Cache preflight for 24 hours
+  });
+
+  // Rate limiting
   await app.register(fastifyRateLimit, {
     max: config.rateLimitMax,
     timeWindow: config.rateLimitTimeWindow,
     // Exempt docs/spec from rate-limit, helpful in dev
     allowList: ['/docs', '/docs/json', '/docs/yaml', '/openapi.json'],
-  });
-
-  // Security headers
-  app.addHook('onRequest', async (_, reply) => {
-    reply.header('X-Content-Type-Options', 'nosniff');
-    reply.header('X-Frame-Options', 'DENY');
-    reply.header('X-XSS-Protection', '1; mode=block');
-    reply.header('Strict-Transport-Security', 'max-age=31536000; includeSubDomains');
+    addHeadersOnExceeding: {
+      'x-ratelimit-limit': true,
+      'x-ratelimit-remaining': true,
+      'x-ratelimit-reset': true,
+    },
+    addHeaders: {
+      'x-ratelimit-limit': true,
+      'x-ratelimit-remaining': true,
+      'x-ratelimit-reset': true,
+      'retry-after': true,
+    },
   });
 
   // Request logging + auth, but bypass docs/spec
@@ -98,14 +161,23 @@ export async function buildServer(): Promise<FastifyInstance> {
     await securityMiddleware(req, reply);
   });
 
-  // Add response logging
+  // Add response logging with structured logger
   app.addHook('onResponse', (request, reply, done) => {
     const startTime = (request as any).startTime;
     if (startTime) {
       const responseTime = Date.now() - startTime;
-      // Use the existing logging middleware for consistency
-      if (process.env.NODE_ENV === 'production' && process.env.SENTRY_DSN) {
-        const Sentry = require('@sentry/node');
+      
+      // Use structured logging for all environments
+      serverLogger.info('Request completed', {
+        requestId: request.id,
+        method: request.method,
+        url: request.url,
+        statusCode: reply.statusCode,
+        responseTime,
+      });
+      
+      // Add Sentry breadcrumb in production
+      if (config.nodeEnv === 'production' && process.env.SENTRY_DSN) {
         Sentry.addBreadcrumb({
           message: 'Request completed',
           category: 'http',
@@ -119,18 +191,20 @@ export async function buildServer(): Promise<FastifyInstance> {
           level: 'info',
         });
       }
-      // Keep console logging for development
-      if (process.env.NODE_ENV !== 'production') {
-        console.log('Request completed', {
-          requestId: request.id,
-          method: request.method,
-          url: request.url,
-          statusCode: reply.statusCode,
-          responseTime,
-        });
-      }
     }
     done();
+  });
+
+  // Add caching headers for static endpoints
+  app.addHook('onSend', async (request, reply, payload) => {
+    const url = request.url;
+    
+    // Cache introspection and OpenAPI specs for 1 hour
+    if (url === '/introspect' || url === '/openapi.json' || url === '/openapi.gpt.json') {
+      reply.header('Cache-Control', 'public, max-age=3600');
+    }
+    
+    return payload;
   });
 
   // Swagger documentation (available in all environments)
@@ -138,8 +212,12 @@ export async function buildServer(): Promise<FastifyInstance> {
   await app.register(fastifySwaggerUi, swaggerUiOptions);
 
   // Routes (works for dev & prod)
-  // If registerRoutes is async, await it
   await app.register(registerRoutes);
 
+  serverLogger.info('Server built successfully', {
+    environment: config.nodeEnv,
+    logLevel: config.logLevel,
+  });
+
   return app;
-} 
+}

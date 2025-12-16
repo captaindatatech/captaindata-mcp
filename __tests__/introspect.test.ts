@@ -17,7 +17,7 @@ describe('Introspect Endpoint', () => {
   });
 
   describe('GET /introspect', () => {
-    it('should return 5 tools in basic mode', async () => {
+    it('should return 5 tools in basic mode (subset)', async () => {
       const response = await server.inject({
         method: 'GET',
         url: '/introspect'
@@ -25,14 +25,14 @@ describe('Introspect Endpoint', () => {
 
       expect(response.statusCode).toBe(200);
       const data = JSON.parse(response.payload);
-      expect(data.tools).toHaveLength(5);
+      expect(data.tools).toHaveLength(5); // Basic mode returns first 5 tools
       expect(data.tools[0]).toHaveProperty('type', 'function');
       expect(data.tools[0]).toHaveProperty('function.name');
       expect(data.tools[0]).toHaveProperty('function.description');
       expect(data.tools[0]).toHaveProperty('function.parameters');
     });
 
-    it('should return 5 tools in full mode (until we add more)', async () => {
+    it('should return 8 tools in full mode', async () => {
       const response = await server.inject({
         method: 'GET',
         url: '/introspect?v=full'
@@ -40,7 +40,7 @@ describe('Introspect Endpoint', () => {
 
       expect(response.statusCode).toBe(200);
       const data = JSON.parse(response.payload);
-      expect(data.tools).toHaveLength(5);
+      expect(data.tools).toHaveLength(8);
     });
 
     it('should return valid tool structure', async () => {

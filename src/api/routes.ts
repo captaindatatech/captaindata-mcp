@@ -4,21 +4,27 @@ import introspectHandler from './handlers/introspect';
 import toolHandler from './handlers/tools';
 import authHandler from './handlers/auth';
 import healthHandler from './handlers/health';
-import { introspectSchema, authSchema } from './schemas';
-import { healthSchema } from './schemas/health';
+import { introspectSchema, authSchema, healthSchema } from './schemas';
 import { readFileSync } from 'fs';
 import { join } from 'path';
-import { TOOL_SCHEMAS } from '../lib/schemas';
-import { ToolAlias } from '../lib/alias';
-import { RESPONSE_SCHEMAS, ERROR_RESPONSES } from '../lib/responseSchemas';
+import { 
+  TOOL_SCHEMAS, 
+  RESPONSE_SCHEMAS, 
+  ERROR_RESPONSES,
+  ToolAlias 
+} from '../types';
 import { logError } from '../middleware';
+import { logger } from '../lib/logger';
+
+// Create a routes-specific logger
+const routesLogger = logger.child({ component: 'routes' });
 
 // Cache the OpenAPI spec at module load time for better serverless performance
-let cachedOpenApiSpec: any = null;
+let cachedOpenApiSpec: unknown = null;
 let openApiSpecError: string | null = null;
 
 // Cache the GPT-compatible OpenAPI spec at module load time
-let cachedGptOpenApiSpec: any = null;
+let cachedGptOpenApiSpec: unknown = null;
 let gptOpenApiSpecError: string | null = null;
 
 try {
@@ -27,7 +33,7 @@ try {
   cachedOpenApiSpec = JSON.parse(openapiContent);
 } catch (error) {
   openApiSpecError = error instanceof Error ? error.message : 'Unknown error';
-  console.error('Failed to load OpenAPI specification at startup:', error);
+  routesLogger.error('Failed to load OpenAPI specification at startup', error);
 }
 
 try {
@@ -36,7 +42,7 @@ try {
   cachedGptOpenApiSpec = JSON.parse(gptOpenapiContent);
 } catch (error) {
   gptOpenApiSpecError = error instanceof Error ? error.message : 'Unknown error';
-  console.error('Failed to load GPT-compatible OpenAPI specification at startup:', error);
+  routesLogger.error('Failed to load GPT-compatible OpenAPI specification at startup', error);
 }
 
 async function routes(app: FastifyInstance) {
@@ -114,65 +120,11 @@ async function routes(app: FastifyInstance) {
         ...request,
         params: { alias },
         headers: request.headers
-      } as any;
+      } as Parameters<typeof toolHandler>[0];
       return toolHandler(typedRequest, reply);
     });
   });
 
-  // Generic tool execution endpoint for unknown tools
-  app.post('/tools/:alias', {
-    schema: {
-      operationId: 'executeGenericTool',
-      tags: ['Tools'],
-      summary: 'Execute tool',
-      description: 'Execute a Captain Data tool by alias',
-      params: {
-        type: 'object',
-        properties: {
-          alias: { 
-            type: 'string', 
-            description: 'Tool alias',
-            minLength: 1
-          }
-        },
-        required: ['alias']
-      },
-      body: {
-        type: 'object',
-        description: 'Tool parameters',
-        properties: {
-          parameters: {
-            type: 'object',
-            description: 'Tool-specific parameters',
-            additionalProperties: true
-          }
-        },
-        additionalProperties: true
-      },
-      response: {
-        200: {
-          type: 'object',
-          description: 'Tool execution result',
-          properties: {
-            result: {
-              type: 'object',
-              description: 'Tool execution result data',
-              additionalProperties: true
-            },
-            success: {
-              type: 'boolean',
-              description: 'Whether the tool execution was successful'
-            }
-          },
-          additionalProperties: true
-        },
-        400: ERROR_RESPONSES[400],
-        401: ERROR_RESPONSES[401],
-        404: ERROR_RESPONSES[404],
-        500: ERROR_RESPONSES[500]
-      }
-    }
-  }, toolHandler);
 }
 
-export const registerRoutes = fp(routes); 
+export const registerRoutes = fp(routes);

@@ -21,9 +21,9 @@ describe('Authentication', () => {
     it('should return 401 when x-api-key header is missing for POST requests', async () => {
       const response = await server.inject({
         method: 'POST',
-        url: '/tools/enrich_people',
+        url: '/tools/enrich_person',
         payload: {
-          linkedin_profile_url: 'https://www.linkedin.com/in/test'
+          li_profile_url: 'https://www.linkedin.com/in/test'
         }
       });
 
@@ -54,12 +54,12 @@ describe('Authentication', () => {
     it('should accept requests with valid API key header', async () => {
       const response = await server.inject({
         method: 'POST',
-        url: '/tools/enrich_people',
+        url: '/tools/enrich_person',
         headers: {
           'x-api-key': 'test-api-key'
         },
         payload: {
-          linkedin_profile_url: 'https://www.linkedin.com/in/test'
+          li_profile_url: 'https://www.linkedin.com/in/test'
         }
       });
 
@@ -67,4 +67,4 @@ describe('Authentication', () => {
       expect(response.statusCode).not.toBe(401);
     });
   });
-}); 
+});

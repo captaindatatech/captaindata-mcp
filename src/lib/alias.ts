@@ -1,9 +1,12 @@
-export const ALIAS_TO_SLUG = {
-  enrich_people: "linkedin-extract-people",
-  enrich_company: "linkedin-extract-company",
-  search_people: "salesnavigator-search-people",
-  search_companies: "salesnavigator-search-companies",
-  search_company_employees: "salesnavigator-search-company-employees"
-} as const;
+/**
+ * Tool alias utilities
+ * 
+ * This module re-exports tool alias types from the centralized types module.
+ * For new code, import directly from '../types' instead.
+ */
 
-export type ToolAlias = keyof typeof ALIAS_TO_SLUG; 
+export { 
+  ALIAS_TO_PATH,
+  ToolAliasSchema,
+  type ToolAlias 
+} from '../types';

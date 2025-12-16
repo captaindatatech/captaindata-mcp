@@ -1,44 +1,15 @@
-// Schema for OpenAPI documentation
+import { IntrospectQuerySchema, IntrospectResponseSchema } from '../../types';
+
+/**
+ * Fastify schema for the /introspect endpoint
+ */
 export const introspectSchema = {
   operationId: 'getIntrospect',
   tags: ['Introspection'],
   summary: 'List available tools',
   description: 'Get metadata about available tools (MCP introspection)',
-  querystring: {
-    type: 'object',
-    properties: {
-      v: {
-        type: 'string',
-        description: 'Version parameter. Use "full" to get all tools',
-        enum: ['full']
-      }
-    }
-  },
+  querystring: IntrospectQuerySchema,
   response: {
-    200: {
-      type: 'object',
-      properties: {
-        tools: {
-          type: 'array',
-          items: {
-            type: 'object',
-            properties: {
-              type: { type: 'string' },
-              function: {
-                type: 'object',
-                properties: {
-                  name: { type: 'string' },
-                  description: { type: 'string' },
-                  parameters: { 
-                    type: 'object',
-                    additionalProperties: true
-                  }
-                }
-              }
-            }
-          }
-        }
-      }
-    }
+    200: IntrospectResponseSchema
   }
-}; 
+};

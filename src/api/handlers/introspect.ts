@@ -1,29 +1,32 @@
 import { FastifyRequest, FastifyReply } from 'fastify';
-import { TOOL_SCHEMAS } from "../../lib/schemas";
-import { logError } from "../../middleware";
+import { TOOL_SCHEMAS, IntrospectQuery, IntrospectResponse, ToolDefinition } from '../../types';
+import { logError } from '../../middleware';
 
-interface IntrospectQuery {
-  v?: string;
-}
-
-export default async function handler(req: FastifyRequest<{ Querystring: IntrospectQuery }>, reply: FastifyReply) {
+export default async function handler(
+  req: FastifyRequest<{ Querystring: IntrospectQuery }>,
+  reply: FastifyReply
+): Promise<FastifyReply> {
   try {
-    const wantFull = req.query.v === "full";
-    const aliases = wantFull ? Object.keys(TOOL_SCHEMAS) : Object.keys(TOOL_SCHEMAS).slice(0, 5);
+    const wantFull = req.query.v === 'full';
+    const aliases = wantFull 
+      ? Object.keys(TOOL_SCHEMAS) 
+      : Object.keys(TOOL_SCHEMAS).slice(0, 5);
     
-    const tools = aliases.map(a => {
-      const schema = TOOL_SCHEMAS[a as keyof typeof TOOL_SCHEMAS];
+    const tools: ToolDefinition[] = aliases.map(alias => {
+      const schema = TOOL_SCHEMAS[alias as keyof typeof TOOL_SCHEMAS];
       return {
-        type: "function",
+        type: 'function',
         function: { 
-          name: a, 
+          name: alias, 
           description: schema.description, 
           parameters: schema.parameters 
         }
       };
     });
     
-    return reply.send({ tools });
+    const response: IntrospectResponse = { tools };
+    
+    return reply.send(response);
   } catch (error) {
     logError('Failed to generate tool introspection', error, req, {
       endpoint: 'introspect'
@@ -33,4 +36,4 @@ export default async function handler(req: FastifyRequest<{ Querystring: Introsp
       message: 'Failed to generate tool introspection'
     });
   }
-} 
+}

@@ -1,8 +1,12 @@
 import { FastifyRequest, FastifyReply } from 'fastify';
 import { redisService } from '../../lib/redis';
 import { logError } from '../../middleware';
+import { HealthResponse, UnhealthyResponse } from '../../types';
 
-export default async function handler(req: FastifyRequest, reply: FastifyReply) {
+export default async function handler(
+  req: FastifyRequest,
+  reply: FastifyReply
+): Promise<FastifyReply> {
   const startTime = Date.now();
   const requestId = req.id || `req-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
 
@@ -11,7 +15,7 @@ export default async function handler(req: FastifyRequest, reply: FastifyReply) 
     const redisStatus = redisService.getStatus();
     const redisPing = await redisService.ping();
 
-    const response = {
+    const response: HealthResponse = {
       status: 'healthy',
       uptime: process.uptime(),
       timestamp: new Date().toISOString(),
@@ -37,12 +41,14 @@ export default async function handler(req: FastifyRequest, reply: FastifyReply) 
     });
 
     const executionTime = Date.now() - startTime;
-    return reply.status(500).send({
+    const unhealthyResponse: UnhealthyResponse = {
       status: 'unhealthy',
       error: 'Health check failed',
       requestId,
       timestamp: new Date().toISOString(),
       executionTime
-    });
+    };
+    
+    return reply.status(500).send(unhealthyResponse);
   }
-} 
+}

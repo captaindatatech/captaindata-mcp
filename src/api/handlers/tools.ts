@@ -1,19 +1,23 @@
 import { FastifyRequest, FastifyReply } from 'fastify';
-import { ALIAS_TO_SLUG, ToolAlias } from "../../lib/alias";
-import { toCaptainData } from "../../lib/translate";
-import { createErrorResponse, ERROR_CODES } from "../../lib/error";
-import { config } from "../../lib/config";
-import { extractApiKey, createAuthErrorResponse } from "../../lib/auth";
-import { logError, logInfo } from "../../middleware";
-
-interface ToolParams {
-  alias: string;
-}
+import { 
+  ALIAS_TO_PATH, 
+  ToolAlias, 
+  ToolParams,
+  createErrorResponse, 
+  ERROR_CODES 
+} from '../../types';
+import { toQueryParams } from '../../lib/translate';
+import { config } from '../../lib/config';
+import { extractApiKey, createAuthErrorResponse } from '../../lib/auth';
+import { logError, logInfo } from '../../middleware';
 
 // Configuration for timeouts and retries
 const API_TIMEOUT = config.apiTimeout;
 const MAX_RETRIES = config.maxRetries;
 const RETRY_DELAY = config.retryDelay;
+
+// Pagination headers to relay from upstream API
+const PAGINATION_HEADERS = ['x-pagination-previous', 'x-pagination-next'];
 
 // Helper function to delay execution
 const delay = (ms: number) => new Promise(resolve => setTimeout(resolve, ms));
@@ -48,21 +52,23 @@ async function makeCaptainDataRequest(url: string, options: RequestInit, retries
   }
 }
 
-export default async function handler(req: FastifyRequest<{ Params: ToolParams }>, reply: FastifyReply) {
+export default async function handler(
+  req: FastifyRequest<{ Params: ToolParams }>,
+  reply: FastifyReply
+): Promise<FastifyReply | void> {
   const startTime = Date.now();
   const requestId = req.id || `req-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
   
   // Declare variables outside try block for access in catch
   let alias: ToolAlias | undefined;
-  let body: any = {};
-  let cdBody: any = {};
+  let body: Record<string, unknown> = {};
   
   try {
     alias = req.params.alias as ToolAlias;
     
-    const slug = ALIAS_TO_SLUG[alias];
+    const pathTemplate = ALIAS_TO_PATH[alias];
     
-    if (!slug) {
+    if (!pathTemplate) {
       return reply.status(404).send(
         createErrorResponse(
           ERROR_CODES.UNKNOWN_TOOL,
@@ -72,46 +78,18 @@ export default async function handler(req: FastifyRequest<{ Params: ToolParams }
       );
     }
     
-    body = req.body as any;
+    body = (req.body as Record<string, unknown>) || {};
     
     // Extract API key from either direct header or session token
     let key: string;
     try {
-      // Debug logging for authentication
-      const authHeaders = Object.keys(req.headers).filter(key => 
-        key.toLowerCase().includes('auth') || 
-        key.toLowerCase().includes('api') || 
-        key.toLowerCase().includes('key')
-      );
-      
-      console.log(`[TOOLS DEBUG] Extracting API key for ${alias}:`, {
+      key = await extractApiKey(req.headers);
+    } catch (authError) {
+      logError('API key extraction failed', authError, req, {
+        endpoint: 'tools',
+        tool: alias,
         hasXApiKey: !!req.headers['x-api-key'],
         hasAuthHeader: !!req.headers['authorization'],
-        authHeaderLength: req.headers['authorization'] ? (req.headers['authorization'] as string).length : 0,
-        authHeaderPreview: req.headers['authorization'] ? 
-          ((req.headers['authorization'] as string).length > 50 ? 
-            (req.headers['authorization'] as string).substring(0, 50) + '...' : 
-            req.headers['authorization']) : null,
-        allAuthHeaders: authHeaders,
-        requestId
-      });
-      
-      key = await extractApiKey(req.headers);
-      
-      console.log(`[TOOLS DEBUG] API key extraction successful for ${alias}:`, {
-        keyLength: key.length,
-        keyPreview: key.substring(0, 8) + '...',
-        requestId
-      });
-    } catch (authError) {
-      console.error(`[TOOLS DEBUG] API key extraction failed for ${alias}:`, {
-        error: authError instanceof Error ? authError.message : 'Unknown error',
-        requestId,
-        headers: Object.keys(req.headers).filter(key => 
-          key.toLowerCase().includes('auth') || 
-          key.toLowerCase().includes('api') || 
-          key.toLowerCase().includes('key')
-        )
       });
       
       return reply.status(401).send(
@@ -119,52 +97,55 @@ export default async function handler(req: FastifyRequest<{ Params: ToolParams }
       );
     }
     
-    // Server-side validation for searchCompanyEmployees
+    // Server-side validation for search_company_employees
     if (alias === 'search_company_employees') {
-      if (!body.sales_navigator_company_url && !body.linkedin_company_id) {
+      if (!body.company_uid) {
         return reply.status(400).send(
           createErrorResponse(
             ERROR_CODES.MISSING_INPUT,
-            "Must provide either a company URL or ID",
+            "Must provide company_uid",
             requestId
           )
         );
       }
     }
     
-    cdBody = toCaptainData(alias, body);
-    const apiUrl = `${config.cdApiBase}/v4/actions/${slug}/run/live`;
+    // Translate to path and query params
+    const { path, queryParams } = toQueryParams(alias, body);
+    
+    // Build URL with query string
+    const queryString = new URLSearchParams(queryParams).toString();
+    const apiUrl = `${config.cdApiBase}/v1${path}${queryString ? '?' + queryString : ''}`;
 
     // Log the request (without sensitive data)
     logInfo('Executing Captain Data tool', req, {
       endpoint: 'tools',
       tool: alias,
-      slug,
+      path,
       hasApiKey: !!key,
       bodyKeys: Object.keys(body),
-      cdBody: JSON.stringify(cdBody),
+      queryParams,
       apiUrl
     });
 
     const cdRes = await makeCaptainDataRequest(apiUrl, {
-      method: "POST",
+      method: "GET",
       headers: { 
         "Content-Type": "application/json", 
         "X-API-Key": key 
-      },
-      body: JSON.stringify(cdBody)
+      }
     });
 
     // Parse response safely
-    let responseData;
+    let responseData: unknown;
     try {
       responseData = await cdRes.json();
       
       logInfo('Parsed response data', req, {
         endpoint: 'tools',
         tool: alias,
-        responseDataKeys: Object.keys(responseData),
-        responseData: JSON.stringify(responseData)
+        responseDataKeys: Array.isArray(responseData) ? ['array'] : Object.keys(responseData as object),
+        responseDataLength: Array.isArray(responseData) ? responseData.length : undefined
       });
     } catch (parseError) {
       logError('Failed to parse Captain Data response', parseError, req, {
@@ -189,15 +170,33 @@ export default async function handler(req: FastifyRequest<{ Params: ToolParams }
       return;
     }
 
-    // Add request metadata to successful responses only
-    const responseWithMetadata = {
-      ...responseData,
-      _metadata: {
-        requestId,
-        executionTime: Date.now() - startTime,
-        tool: alias
+    // Relay pagination headers from upstream API
+    for (const headerName of PAGINATION_HEADERS) {
+      const headerValue = cdRes.headers.get(headerName);
+      if (headerValue) {
+        reply.header(headerName, headerValue);
       }
-    };
+    }
+
+    // Add request metadata to successful responses only
+    const finalResponse = Array.isArray(responseData) 
+      ? {
+          data: responseData,
+          _metadata: {
+            requestId,
+            executionTime: Date.now() - startTime,
+            tool: alias,
+            count: responseData.length
+          }
+        }
+      : {
+          ...(responseData as object),
+          _metadata: {
+            requestId,
+            executionTime: Date.now() - startTime,
+            tool: alias
+          }
+        };
     
     // Log response details for debugging
     logInfo('Tool execution completed', req, {
@@ -205,19 +204,9 @@ export default async function handler(req: FastifyRequest<{ Params: ToolParams }
       tool: alias,
       status: cdRes.status,
       responseDataType: typeof responseData,
-      responseDataIsObject: typeof responseData === 'object',
-      finalResponseLength: JSON.stringify(responseWithMetadata).length,
-      finalResponseKeys: Object.keys(responseWithMetadata)
+      isArray: Array.isArray(responseData),
+      finalResponseKeys: Object.keys(finalResponse)
     });
-    
-    const finalResponse = {
-      ...responseData,
-      _metadata: {
-        requestId,
-        executionTime: Date.now() - startTime,
-        tool: alias
-      }
-    };
     
     reply.header('Content-Type', 'application/json');
     reply.raw.writeHead(cdRes.status, { 'Content-Type': 'application/json' });
@@ -228,8 +217,7 @@ export default async function handler(req: FastifyRequest<{ Params: ToolParams }
     logError('Tool execution failed', error, req, {
       endpoint: 'tools',
       tool: alias || 'unknown',
-      requestBody: body || {},
-      cdBody: cdBody || {}
+      requestBody: body || {}
     });
 
     // Handle specific error types
@@ -263,4 +251,4 @@ export default async function handler(req: FastifyRequest<{ Params: ToolParams }
       )
     );
   }
-} 
+}

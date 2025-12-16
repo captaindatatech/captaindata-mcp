@@ -1,83 +1,79 @@
-import { ALIAS_TO_SLUG, ToolAlias } from "./alias";
+import { ALIAS_TO_PATH, ToolAlias } from '../types';
 
-export function toCaptainData(alias: ToolAlias, body: any) {
-  const slug = ALIAS_TO_SLUG[alias];
+interface TranslationResult {
+  path: string;
+  queryParams: Record<string, string>;
+}
 
-  // Base structure with Captain Data specific fields
-  const basePayload = {
-    identity_mode: "managed",
-    identity_ids: []
-  };
+/**
+ * Translates tool alias and body to API path and query parameters
+ * for the new v1 GET-based API
+ */
+export function toQueryParams(alias: ToolAlias, body: Record<string, unknown>): TranslationResult {
+  let path: string = ALIAS_TO_PATH[alias];
+  const queryParams: Record<string, string> = {};
 
-  // Split user payload into input vs parameters based on action spec
   switch (alias) {
-    case 'enrich_people': {
-      const { linkedin_profile_url, sections, experiences, skills, highlights, ...rest } = body;
-      return {
-        ...basePayload,
-        input: { 
-          linkedin_profile_url,
-          custom_data: { source: "mcp" }
-        },
-        parameters: { sections, experiences, skills, highlights, ...rest }
-      };
+    case 'find_person': {
+      // Required: full_name, Optional: company_name
+      if (body.full_name) queryParams.full_name = String(body.full_name);
+      if (body.company_name) queryParams.company_name = String(body.company_name);
+      break;
     }
-    
-    case 'enrich_company': {
-      const { linkedin_company_url, ...rest } = body;
-      return {
-        ...basePayload,
-        input: { 
-          linkedin_company_url,
-          custom_data: { source: "mcp" }
-        },
-        parameters: { ...rest }
-      };
-    }
-    
+
     case 'search_people': {
-      const { search_url, ...rest } = body;
-      return {
-        ...basePayload,
-        input: { 
-          sales_navigator_profile_search_url: search_url,
-          custom_data: { source: "mcp" }
-        },
-        parameters: { ...rest }
-      };
+      // Required: query, Optional: page, page_size
+      if (body.query) queryParams.query = String(body.query);
+      if (body.page) queryParams.page = String(body.page);
+      if (body.page_size) queryParams.page_size = String(body.page_size);
+      break;
     }
-    
+
+    case 'enrich_person': {
+      // Required: li_profile_url, Optional: full_enrich
+      if (body.li_profile_url) queryParams.li_profile_url = String(body.li_profile_url);
+      if (body.full_enrich !== undefined) queryParams.full_enrich = String(body.full_enrich);
+      break;
+    }
+
+    case 'find_company': {
+      // Required: company_name
+      if (body.company_name) queryParams.company_name = String(body.company_name);
+      break;
+    }
+
     case 'search_companies': {
-      const { search_url, ...rest } = body;
-      return {
-        ...basePayload,
-        input: { 
-          sales_navigator_company_search_url: search_url,
-          custom_data: { source: "mcp" }
-        },
-        parameters: { ...rest }
-      };
+      // Required: query, Optional: page, page_size
+      if (body.query) queryParams.query = String(body.query);
+      if (body.page) queryParams.page = String(body.page);
+      if (body.page_size) queryParams.page_size = String(body.page_size);
+      break;
     }
-    
+
+    case 'enrich_company': {
+      // Required: li_company_url
+      if (body.li_company_url) queryParams.li_company_url = String(body.li_company_url);
+      break;
+    }
+
     case 'search_company_employees': {
-      const { sales_navigator_company_url, linkedin_company_id, ...rest } = body;
-      const input: any = {
-        custom_data: { source: "mcp" }
-      };
-      if (sales_navigator_company_url) {
-        input.sales_navigator_company_url = sales_navigator_company_url;
+      // Path param: company_uid, Optional: page, page_size
+      if (body.company_uid) {
+        path = path.replace('{company_uid}', String(body.company_uid));
       }
-      if (linkedin_company_id) {
-        input.linkedin_company_id = linkedin_company_id;
-      }
-      return {
-        ...basePayload,
-        input,
-        parameters: { ...rest }
-      };
+      if (body.page) queryParams.page = String(body.page);
+      if (body.page_size) queryParams.page_size = String(body.page_size);
+      break;
     }
-    
+
+    case 'get_quotas': {
+      // No parameters required
+      break;
+    }
+
     default:
       throw new Error(`Unknown tool alias: ${alias}`);
   }
-} 
+
+  return { path, queryParams };
+}

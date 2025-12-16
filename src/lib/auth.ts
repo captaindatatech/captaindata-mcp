@@ -1,14 +1,18 @@
-import { createErrorResponse, ERROR_CODES } from './error';
+import { createErrorResponse, ERROR_CODES, SessionData } from '../types';
 import { redisService } from './redis';
+import { logger } from './logger';
+
+// Create an auth-specific logger
+const authLogger = logger.child({ component: 'auth' });
 
 // In-memory storage for testing when Redis is not available
-const inMemoryStore = new Map<string, { apiKey: string; expiresAt: number }>();
+const inMemoryStore = new Map<string, SessionData>();
 
 // Cleanup expired tokens every 5 minutes
 const CLEANUP_INTERVAL = 5 * 60 * 1000; // 5 minutes
 const MAX_STORE_SIZE = 1000; // Prevent unlimited growth
 
-// Start cleanup interval
+// Start cleanup interval - unref() so it doesn't prevent process exit
 const cleanupTimer = setInterval(() => {
   const now = Date.now();
   let cleanedCount = 0;
@@ -21,7 +25,7 @@ const cleanupTimer = setInterval(() => {
   }
   
   if (cleanedCount > 0) {
-    console.log(`Cleaned up ${cleanedCount} expired session tokens from memory`);
+    authLogger.info('Cleaned up expired session tokens from memory', { cleanedCount });
   }
   
   // If store is getting too large, remove oldest entries
@@ -32,18 +36,12 @@ const cleanupTimer = setInterval(() => {
     const toRemove = entries.slice(0, Math.floor(MAX_STORE_SIZE * 0.2)); // Remove 20% of oldest
     toRemove.forEach(([token]) => inMemoryStore.delete(token));
     
-    console.log(`Removed ${toRemove.length} old session tokens to prevent memory overflow`);
+    authLogger.info('Removed old session tokens to prevent memory overflow', { removedCount: toRemove.length });
   }
 }, CLEANUP_INTERVAL);
 
-// Cleanup timer on process exit
-process.on('SIGINT', () => {
-  clearInterval(cleanupTimer);
-});
-
-process.on('SIGTERM', () => {
-  clearInterval(cleanupTimer);
-});
+// Allow process to exit even if timer is active
+cleanupTimer.unref();
 
 /**
  * Safely execute a Redis operation with fallback to in-memory storage
@@ -59,7 +57,7 @@ async function safeRedisOperation<T>(
   try {
     return await operation();
   } catch (error) {
-    console.warn('Redis operation failed, falling back to in-memory storage:', {
+    authLogger.warn('Redis operation failed, falling back to in-memory storage', {
       error: error instanceof Error ? error.message : 'Unknown error',
       storeSize: inMemoryStore.size,
     });
@@ -80,7 +78,7 @@ export async function storeSessionToken(token: string, apiKey: string, expiresIn
     () => {
       // Check if we're approaching the limit
       if (inMemoryStore.size >= MAX_STORE_SIZE) {
-        console.warn('In-memory session store is full, removing oldest entries');
+        authLogger.warn('In-memory session store is full, removing oldest entries', { storeSize: inMemoryStore.size });
         const entries = Array.from(inMemoryStore.entries());
         entries.sort((a, b) => a[1].expiresAt - b[1].expiresAt);
         const toRemove = entries.slice(0, Math.floor(MAX_STORE_SIZE * 0.1)); // Remove 10%
@@ -242,4 +240,4 @@ export function createAuthErrorResponse(error: Error, requestId: string) {
       suggestion: 'Check authentication configuration and try again'
     }
   );
-} 
+}

@@ -1,15 +1,18 @@
 import { FastifyRequest, FastifyReply } from 'fastify';
 import { randomUUID } from 'crypto';
-import { createErrorResponse, ERROR_CODES } from '../../lib/error';
+import { createErrorResponse, ERROR_CODES, AuthRequest, AuthResponse } from '../../types';
 import { config } from '../../lib/config';
-import { storeSessionToken, getSessionToken } from '../../lib/auth';
+import { storeSessionToken } from '../../lib/auth';
 import { logError, logInfo } from '../../middleware';
+import { logger } from '../../lib/logger';
 
-interface AuthRequestBody {
-  api_key: string;
-}
+// Create an auth handler-specific logger
+const authLogger = logger.child({ component: 'auth-handler' });
 
-export default async function handler(req: FastifyRequest<{ Body: AuthRequestBody }>, reply: FastifyReply) {
+export default async function handler(
+  req: FastifyRequest<{ Body: AuthRequest }>,
+  reply: FastifyReply
+): Promise<FastifyReply> {
   const startTime = Date.now();
   const requestId = req.id || `req-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
   
@@ -30,7 +33,7 @@ export default async function handler(req: FastifyRequest<{ Body: AuthRequestBod
     // Skip validation in test environment
     if (config.nodeEnv !== 'test') {
       try {
-        const testResponse = await fetch(`${config.cdApiBase}/v4/workspaces`, {
+        const testResponse = await fetch(`${config.cdApiBase}/v1/quotas`, {
           method: 'GET',
           headers: {
             'X-API-Key': api_key,
@@ -50,12 +53,10 @@ export default async function handler(req: FastifyRequest<{ Body: AuthRequestBod
       } catch (validationError) {
         // Log warning but continue with token generation
         // This allows for offline development and testing
-        if (process.env.NODE_ENV !== 'production') {
-          console.warn('API key validation failed, but proceeding with token generation', {
-            requestId,
-            error: validationError instanceof Error ? validationError.message : 'Unknown error'
-          });
-        }
+        authLogger.warn('API key validation failed, proceeding with token generation', {
+          requestId,
+          error: validationError instanceof Error ? validationError.message : 'Unknown error'
+        });
       }
     }
 
@@ -70,7 +71,7 @@ export default async function handler(req: FastifyRequest<{ Body: AuthRequestBod
       tokenGenerated: !!token
     });
 
-    const response = {
+    const response: AuthResponse = {
       session_token: token,
       expires_in: 86400, // 24 hours in seconds
       _metadata: {
@@ -95,4 +96,4 @@ export default async function handler(req: FastifyRequest<{ Body: AuthRequestBod
       )
     );
   }
-} 
+}

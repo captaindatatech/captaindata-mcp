@@ -10,6 +10,22 @@ interface Config {
   retryDelay: number;
   // Redis configuration for session management
   redisUrl?: string;
+  // CORS configuration
+  corsOrigins: string[];
+  // Sentry configuration
+  sentryDsn?: string;
+}
+
+/**
+ * Parse CORS origins from environment variable
+ * Supports comma-separated list of origins
+ */
+function parseCorsOrigins(envValue: string | undefined): string[] {
+  if (!envValue) return [];
+  return envValue
+    .split(',')
+    .map(origin => origin.trim())
+    .filter(origin => origin.length > 0);
 }
 
 function validateConfig(): Config {
@@ -19,7 +35,7 @@ function validateConfig(): Config {
       cdApiBase: process.env.CD_API_BASE || 'https://api.captaindata.com',
       nodeEnv: 'test',
       port: 3000,
-      logLevel: 'error',
+      logLevel: 'silent', // Suppress logs during tests
       rateLimitMax: 100,
       rateLimitTimeWindow: '1 minute',
       apiTimeout: 30000,
@@ -27,6 +43,9 @@ function validateConfig(): Config {
       retryDelay: 1000,
       // Redis configuration for test environment
       redisUrl: process.env.REDIS_URL,
+      // Allow all origins in test
+      corsOrigins: [],
+      sentryDsn: undefined,
     };
   }
 
@@ -50,6 +69,20 @@ function validateConfig(): Config {
     throw new Error('CD_API_BASE must be a valid URL');
   }
 
+  // Parse and validate CORS origins
+  const corsOrigins = parseCorsOrigins(process.env.CORS_ORIGINS);
+  
+  // Validate each origin is a valid URL (in production)
+  if (process.env.NODE_ENV === 'production' && corsOrigins.length > 0) {
+    for (const origin of corsOrigins) {
+      try {
+        new URL(origin);
+      } catch {
+        throw new Error(`Invalid CORS origin: ${origin}. Must be a valid URL.`);
+      }
+    }
+  }
+
   return {
     cdApiBase,
     nodeEnv: process.env.NODE_ENV || 'development',
@@ -62,8 +95,12 @@ function validateConfig(): Config {
     retryDelay: parseInt(process.env.RETRY_DELAY || '1000', 10),
     // Redis configuration (optional for development)
     redisUrl: process.env.REDIS_URL,
+    // CORS configuration (empty = allow all)
+    corsOrigins,
+    // Sentry configuration
+    sentryDsn: process.env.SENTRY_DSN,
   };
 }
 
 export const config = validateConfig();
-export type { Config }; 
+export type { Config };

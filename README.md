@@ -133,29 +133,62 @@ The API provides comprehensive monitoring capabilities:
 
 ## Available Tools
 
-### LinkedIn Profile Tools
+### Tool Naming Convention
 
-- **`enrich_people`** - Extract detailed profile information from LinkedIn URLs
-  - Perfect for lead research and candidate evaluation
-  - Returns comprehensive profile data including experience, skills, and contact info
+| Pattern | Usage | Examples |
+|---------|-------|----------|
+| `{action}_{singular}` | Single-item operations | `find_person`, `enrich_person`, `enrich_company` |
+| `{action}_{plural}` | List/search operations | `search_people`, `search_companies` |
+| `get_{noun}` | Simple retrieval | `get_quotas` |
 
-- **`enrich_company`** - Get comprehensive company data from LinkedIn company pages
-  - Ideal for market research and competitive analysis
-  - Provides company details, employee count, industry, and more
+### People Tools
 
-### Sales Navigator Search Tools
+- **`find_person`** - Find a person's LinkedIn profile by name
+  - Input: `full_name` (required), `company_name` (optional)
+  - Returns: LinkedIn profile URL, UID, and profile ID
 
 - **`search_people`** - Find prospects using Sales Navigator with advanced filtering
-  - Search by location, industry, company size, and other criteria
-  - Returns filtered lists of potential leads
+  - Input: `query` (Sales Navigator query param), `page`, `page_size`
+  - Returns: List of matching profiles with pagination
+
+- **`enrich_person`** - Extract detailed profile information from LinkedIn URLs
+  - Input: `li_profile_url` (required), `full_enrich` (optional boolean)
+  - Returns: Comprehensive profile data including experience, skills, and contact info
+
+### Company Tools
+
+- **`find_company`** - Find a company's LinkedIn page by name
+  - Input: `company_name` (required)
+  - Returns: LinkedIn company URL, UID, and company ID
 
 - **`search_companies`** - Discover target companies based on various criteria
-  - Filter by industry, size, location, and other parameters
-  - Perfect for B2B prospecting and market analysis
+  - Input: `query` (Sales Navigator query param), `page`, `page_size`
+  - Returns: List of matching companies with pagination
+
+- **`enrich_company`** - Get comprehensive company data from LinkedIn company pages
+  - Input: `li_company_url` (required)
+  - Returns: Company details, employee count, industry, locations, and more
 
 - **`search_company_employees`** - Identify key contacts within specific organizations
-  - Find employees by company URL or LinkedIn company ID
-  - Great for account-based marketing and sales outreach
+  - Input: `company_uid` (required), `page`, `page_size`
+  - Returns: List of employees with their profile information
+
+### Utility Tools
+
+- **`get_quotas`** - Get current workspace quota and billing information
+  - Input: None
+  - Returns: Credits remaining, credits used, plan name, billing cycle dates
+
+## Pagination
+
+Search endpoints return pagination headers for navigating through results:
+
+| Header | Description |
+|--------|-------------|
+| `X-Pagination-Previous` | Full URL to fetch the previous page |
+| `X-Pagination-Next` | Full URL to fetch the next page |
+
+Use the `page` parameter to manually paginate through results.
 
 ## Using with AI Assistants
 
@@ -177,7 +210,7 @@ vercel
 **Important**: Custom GPTs have limitations with authorization headers. To work around this, the API supports authentication via query parameters:
 
 ```
-POST /tools/enrich_people?session_token=your_session_token
+POST /tools/enrich_person?session_token=your_session_token
 ```
 
 **Note**: Query parameter authentication is provided as a workaround for Custom GPTs. For production applications, prefer header-based authentication for better security.
@@ -286,4 +319,4 @@ The API provides structured error responses with:
 
 ## License
 
-MIT License - see [LICENSE](LICENSE) file for details. 
+MIT License - see [LICENSE](LICENSE) file for details.

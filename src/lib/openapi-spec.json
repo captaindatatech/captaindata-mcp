@@ -1,0 +1,1626 @@
+{
+  "openapi": "3.1.0",
+  "info": {
+    "title": "Captain Data API",
+    "description": "This is the public API documentation for Captain Data.",
+    "version": "dev"
+  },
+  "components": {
+    "securitySchemes": {
+      "XApiKeyAuth": {
+        "type": "apiKey",
+        "in": "header",
+        "name": "X-API-Key"
+      }
+    },
+    "responses": {
+      "BadRequest": {
+        "description": "Bad Request",
+        "content": {
+          "application/json": {
+            "schema": {
+              "title": "APIError",
+              "description": "Represents an error returned by the API. This schema defines the standard structure of error messages to ensure consistent error handling across the application.",
+              "type": "object",
+              "properties": {
+                "error_label": {
+                  "type": "string",
+                  "nullable": true
+                },
+                "error_scope": {
+                  "type": "string",
+                  "enum": [
+                    "input",
+                    "integ",
+                    "param",
+                    "config"
+                  ],
+                  "nullable": true
+                },
+                "error_ref": {
+                  "type": "string",
+                  "examples": [
+                    "ERR-12345"
+                  ],
+                  "nullable": true
+                },
+                "message": {
+                  "type": "string"
+                },
+                "status_code": {
+                  "type": "integer",
+                  "nullable": true
+                },
+                "params": {
+                  "type": "object",
+                  "patternProperties": {
+                    "^[^_].*": {
+                      "type": "string"
+                    }
+                  },
+                  "additionalProperties": false,
+                  "nullable": true
+                },
+                "data": {
+                  "type": "object",
+                  "nullable": true,
+                  "additionalProperties": true,
+                  "description": "Additional data about the error"
+                }
+              },
+              "additionalProperties": false
+            }
+          }
+        }
+      },
+      "FailedDependency": {
+        "description": "Failed Dependency",
+        "content": {
+          "application/json": {
+            "schema": {
+              "title": "APIError",
+              "description": "Represents an error returned by the API. This schema defines the standard structure of error messages to ensure consistent error handling across the application.",
+              "type": "object",
+              "properties": {
+                "error_label": {
+                  "type": "string",
+                  "nullable": true
+                },
+                "error_scope": {
+                  "type": "string",
+                  "enum": [
+                    "input",
+                    "integ",
+                    "param",
+                    "config"
+                  ],
+                  "nullable": true
+                },
+                "error_ref": {
+                  "type": "string",
+                  "examples": [
+                    "ERR-12345"
+                  ],
+                  "nullable": true
+                },
+                "message": {
+                  "type": "string"
+                },
+                "status_code": {
+                  "type": "integer",
+                  "nullable": true
+                },
+                "params": {
+                  "type": "object",
+                  "patternProperties": {
+                    "^[^_].*": {
+                      "type": "string"
+                    }
+                  },
+                  "additionalProperties": false,
+                  "nullable": true
+                },
+                "data": {
+                  "type": "object",
+                  "nullable": true,
+                  "additionalProperties": true,
+                  "description": "Additional data about the error"
+                }
+              },
+              "additionalProperties": false
+            }
+          }
+        }
+      },
+      "InternalServerError": {
+        "description": "Internal Server Error",
+        "content": {
+          "application/json": {
+            "schema": {
+              "title": "APIError",
+              "description": "Represents an error returned by the API. This schema defines the standard structure of error messages to ensure consistent error handling across the application.",
+              "type": "object",
+              "properties": {
+                "error_label": {
+                  "type": "string",
+                  "nullable": true
+                },
+                "error_scope": {
+                  "type": "string",
+                  "enum": [
+                    "input",
+                    "integ",
+                    "param",
+                    "config"
+                  ],
+                  "nullable": true
+                },
+                "error_ref": {
+                  "type": "string",
+                  "examples": [
+                    "ERR-12345"
+                  ],
+                  "nullable": true
+                },
+                "message": {
+                  "type": "string"
+                },
+                "status_code": {
+                  "type": "integer",
+                  "nullable": true
+                },
+                "params": {
+                  "type": "object",
+                  "patternProperties": {
+                    "^[^_].*": {
+                      "type": "string"
+                    }
+                  },
+                  "additionalProperties": false,
+                  "nullable": true
+                },
+                "data": {
+                  "type": "object",
+                  "nullable": true,
+                  "additionalProperties": true,
+                  "description": "Additional data about the error"
+                }
+              },
+              "additionalProperties": false
+            }
+          }
+        }
+      }
+    },
+    "schemas": {
+      "def-0": {
+        "title": "APIError",
+        "description": "Represents an error returned by the API. This schema defines the standard structure of error messages to ensure consistent error handling across the application.",
+        "type": "object",
+        "properties": {
+          "error_label": {
+            "type": "string",
+            "nullable": true
+          },
+          "error_scope": {
+            "type": "string",
+            "enum": [
+              "input",
+              "integ",
+              "param",
+              "config"
+            ],
+            "nullable": true
+          },
+          "error_ref": {
+            "type": "string",
+            "nullable": true,
+            "example": "ERR-12345"
+          },
+          "message": {
+            "type": "string"
+          },
+          "status_code": {
+            "type": "integer",
+            "nullable": true
+          },
+          "params": {
+            "type": "object",
+            "additionalProperties": {
+              "type": "string"
+            },
+            "nullable": true
+          },
+          "data": {
+            "type": "object",
+            "nullable": true,
+            "additionalProperties": true,
+            "description": "Additional data about the error"
+          }
+        },
+        "additionalProperties": false
+      },
+      "APIError": {
+        "title": "APIError",
+        "description": "Represents an error returned by the API. This schema defines the standard structure of error messages to ensure consistent error handling across the application.",
+        "type": "object",
+        "properties": {
+          "error_label": {
+            "type": "string",
+            "nullable": true
+          },
+          "error_scope": {
+            "type": "string",
+            "enum": [
+              "input",
+              "integ",
+              "param",
+              "config"
+            ],
+            "nullable": true
+          },
+          "error_ref": {
+            "type": "string",
+            "examples": [
+              "ERR-12345"
+            ],
+            "nullable": true
+          },
+          "message": {
+            "type": "string"
+          },
+          "status_code": {
+            "type": "integer",
+            "nullable": true
+          },
+          "params": {
+            "type": "object",
+            "patternProperties": {
+              "^[^_].*": {
+                "type": "string"
+              }
+            },
+            "additionalProperties": false,
+            "nullable": true
+          },
+          "data": {
+            "type": "object",
+            "nullable": true,
+            "additionalProperties": true,
+            "description": "Additional data about the error"
+          }
+        },
+        "additionalProperties": false
+      },
+      "EmptyInput": {
+        "type": "object",
+        "properties": {
+
+        },
+        "additionalProperties": false,
+        "default": {
+
+        }
+      },
+      "CaptaindataPeopleFindInput": {
+        "type": "object",
+        "properties": {
+          "full_name": {
+            "description": "Full Name",
+            "type": "string"
+          },
+          "company_name": {
+            "description": "Company Name",
+            "type": "string"
+          },
+          "custom_data": {
+            "type": "object",
+            "additionalProperties": true,
+            "description": "Custom data (ex-metadata)"
+          }
+        },
+        "additionalProperties": false,
+        "required": [
+          "full_name"
+        ]
+      },
+      "CaptaindataPeopleFindOutput": {
+        "type": "object",
+        "properties": {
+          "li_profile_url": {
+            "type": "string",
+            "format": "url"
+          },
+          "uid": {
+            "type": "string"
+          },
+          "li_profile_id": {
+            "type": "number"
+          }
+        }
+      },
+      "CaptaindataPeopleSearchInput": {
+        "type": "object",
+        "properties": {
+          "query": {
+            "examples": [
+              "(keywords:\"Software Engineer\")"
+            ],
+            "type": "string",
+            "description": "A Sales Navigator People search compliant query param. Please copy the entire value of the query parameter from your Sales Navigator search URL (everything after ?query=) and paste it here.",
+            "x-primary": true,
+            "x-help": "A Sales Navigator People search compliant query param. Please copy the entire value of the query parameter from your Sales Navigator search URL (everything after ?query=) and paste it here."
+          },
+          "custom_data": {
+            "type": "object",
+            "additionalProperties": true,
+            "description": "Custom data (ex-metadata)"
+          }
+        },
+        "additionalProperties": false,
+        "required": [
+          "query"
+        ]
+      },
+      "CaptaindataPeopleSearchOutput": {
+        "type": "object",
+        "properties": {
+          "uid": {
+            "type": "string"
+          },
+          "full_name": {
+            "type": "string"
+          },
+          "first_name": {
+            "type": "string"
+          },
+          "last_name": {
+            "type": "string"
+          },
+          "job_title": {
+            "type": "string"
+          },
+          "company_name": {
+            "type": "string"
+          },
+          "headline": {
+            "type": "string"
+          },
+          "location": {
+            "type": "string"
+          },
+          "li_profile_id": {
+            "type": "integer"
+          },
+          "li_profile_url": {
+            "type": "string",
+            "format": "uri"
+          },
+          "li_profile_image_url": {
+            "type": "string"
+          },
+          "li_company_id": {
+            "type": "string"
+          },
+          "job_start": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "job_end": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "job_time_period": {
+            "type": "string"
+          },
+          "recently_hired": {
+            "type": "boolean"
+          },
+          "recently_promoted": {
+            "type": "boolean"
+          }
+        }
+      },
+      "CaptaindataPeopleEnrichInput": {
+        "type": "object",
+        "properties": {
+          "li_profile_url": {
+            "pattern": "/^https:\\/\\/(?:(www|[a-z]{2})\\.)?linkedin\\.com\\/(?:in|pub|sales\\/people|sales\\/lead)\\/[^\\s/]+/",
+            "type": "string",
+            "format": "uri",
+            "description": "A LinkedIn Profile URL should start with 'https://www.linkedin.com/sales/people/', 'https://www.linkedin.com/sales/lead/', 'https://www.linkedin.com/pub/' or 'https://www.linkedin.com/in/'",
+            "x-primary": true,
+            "x-placeholder": "LinkedIn People Profile URL",
+            "x-help": "A LinkedIn Profile URL should start with 'https://www.linkedin.com/sales/people/', 'https://www.linkedin.com/sales/lead/', 'https://www.linkedin.com/pub/' or 'https://www.linkedin.com/in/'"
+          },
+          "full_enrich": {
+            "type": "boolean",
+            "title": "Full Profile",
+            "default": false,
+            "description": "Extract experiences, skills and highlights.",
+            "x-display-widget": "checkbox"
+          },
+          "custom_data": {
+            "type": "object",
+            "additionalProperties": true,
+            "description": "Custom data (ex-metadata)"
+          }
+        },
+        "additionalProperties": false,
+        "required": [
+          "li_profile_url"
+        ]
+      },
+      "CaptaindataPeopleEnrichOutput": {
+        "type": "object",
+        "properties": {
+          "uid": {
+            "type": "string"
+          },
+          "li_profile_handle": {
+            "type": "string"
+          },
+          "first_name": {
+            "type": "string"
+          },
+          "last_name": {
+            "type": "string"
+          },
+          "full_name": {
+            "type": "string"
+          },
+          "birth_date": {
+            "type": "string"
+          },
+          "headline": {
+            "type": "string"
+          },
+          "summary": {
+            "type": "string"
+          },
+          "languages": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "skills": {
+            "type": "array",
+            "items": {
+              "additionalProperties": false,
+              "type": "object",
+              "properties": {
+                "name": {
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "li_profile_id": {
+            "type": "integer"
+          },
+          "li_profile_url": {
+            "type": "string",
+            "format": "uri"
+          },
+          "li_profile_country": {
+            "type": "string"
+          },
+          "li_profile_language": {
+            "type": "string"
+          },
+          "location": {
+            "type": "string"
+          },
+          "li_profile_image_url": {
+            "type": "string",
+            "format": "uri"
+          },
+          "job_title": {
+            "type": "string"
+          },
+          "education": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "additionalProperties": false,
+              "properties": {
+                "school_uid": {
+                  "type": "string"
+                },
+                "school_name": {
+                  "type": "string"
+                },
+                "li_school_url": {
+                  "type": "string"
+                },
+                "date": {
+                  "type": "string"
+                },
+                "li_school_id": {
+                  "type": "string"
+                },
+                "degree_name": {
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "school_name": {
+            "type": "string"
+          },
+          "li_school_url": {
+            "type": "string",
+            "format": "uri"
+          },
+          "volunteer_experiences": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "additionalProperties": true
+            }
+          },
+          "li_number_connections": {
+            "type": "number"
+          },
+          "experiences": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "additionalProperties": false,
+              "properties": {
+                "title": {
+                  "type": "string"
+                },
+                "company_uid": {
+                  "type": "string"
+                },
+                "company_name": {
+                  "type": "string"
+                },
+                "company_description": {
+                  "type": "string"
+                },
+                "li_company_url": {
+                  "type": "string",
+                  "format": "uri"
+                },
+                "location": {
+                  "type": "string"
+                },
+                "li_company_id": {
+                  "type": "string"
+                },
+                "date": {
+                  "type": "string"
+                },
+                "job_time_period": {
+                  "type": "string"
+                },
+                "company_logo_url": {
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "company_uid": {
+            "type": "string"
+          },
+          "company_name": {
+            "type": "string"
+          },
+          "li_company_url": {
+            "type": "string",
+            "format": "uri"
+          },
+          "li_company_id": {
+            "type": "string"
+          },
+          "li_number_followers": {
+            "type": "number"
+          },
+          "li_people_post_search_url": {
+            "type": "string",
+            "format": "uri"
+          },
+          "open_to_work": {
+            "type": "boolean"
+          },
+          "past_company_uid": {
+            "type": "string"
+          },
+          "past_company_name": {
+            "type": "string"
+          },
+          "past_job_title": {
+            "type": "string"
+          },
+          "past_li_company_id": {
+            "type": "string"
+          },
+          "past_li_company_url": {
+            "type": "string",
+            "format": "uri"
+          }
+        }
+      },
+      "CaptaindataCompaniesSearchInput": {
+        "type": "object",
+        "properties": {
+          "query": {
+            "type": "string",
+            "description": "A Sales Navigator Company search compliant query param",
+            "x-primary": true,
+            "x-help": "A Sales Navigator Company search compliant query param"
+          },
+          "custom_data": {
+            "type": "object",
+            "additionalProperties": true,
+            "description": "Custom data (ex-metadata)"
+          }
+        },
+        "additionalProperties": false,
+        "required": [
+          "query"
+        ]
+      },
+      "CaptaindataCompaniesSearchOutput": {
+        "type": "object",
+        "properties": {
+          "uid": {
+            "type": "string"
+          },
+          "company_name": {
+            "type": "string"
+          },
+          "description": {
+            "type": "string"
+          },
+          "li_company_url": {
+            "type": "string",
+            "format": "uri"
+          },
+          "li_company_id": {
+            "type": "string"
+          },
+          "sn_company_url": {
+            "type": "string",
+            "format": "uri"
+          },
+          "category": {
+            "type": "string"
+          },
+          "number_employees": {
+            "type": "string"
+          }
+        }
+      },
+      "CaptaindataCompaniesEnrichInput": {
+        "type": "object",
+        "properties": {
+          "li_company_url": {
+            "pattern": "/^https:\\/\\/(?:(www|[a-z]{2})\\.)?linkedin\\.com\\/(?:sales\\/)?(?:school|pub|company|showcase)\\/[\\w%-]+(?:\\/(?:\\w+)?)?/i",
+            "type": "string",
+            "format": "uri",
+            "description": "A LinkedIn Company URL should start with 'https://www.linkedin.com/sales/company', 'https://www.linkedin/showcase' 'https://www.linkedin.com/company' or 'https://www.linkedin.com/school'\"",
+            "x-primary": true,
+            "x-placeholder": "LinkedIn Company URL",
+            "x-help": "A LinkedIn Company URL should start with 'https://www.linkedin.com/sales/company', 'https://www.linkedin/showcase' 'https://www.linkedin.com/company' or 'https://www.linkedin.com/school'\"",
+            "x-variations": [
+              "url",
+              "company_url",
+              "current_company_url",
+              "link"
+            ]
+          },
+          "custom_data": {
+            "type": "object",
+            "additionalProperties": true,
+            "description": "Custom data (ex-metadata)"
+          }
+        },
+        "additionalProperties": false,
+        "required": [
+          "li_company_url"
+        ]
+      },
+      "CaptaindataCompaniesEnrichOutput": {
+        "type": "object",
+        "properties": {
+          "uid": {
+            "type": "string"
+          },
+          "company_name": {
+            "type": "string"
+          },
+          "specialties": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "tagline": {
+            "type": "string"
+          },
+          "li_company_id": {
+            "type": "number"
+          },
+          "description": {
+            "type": "string"
+          },
+          "type": {
+            "type": "string"
+          },
+          "founded_on": {
+            "type": "number"
+          },
+          "li_company_url": {
+            "type": "string",
+            "format": "uri"
+          },
+          "website": {
+            "type": "string",
+            "format": "uri"
+          },
+          "li_company_phone": {
+            "type": "string"
+          },
+          "sn_company_url": {
+            "type": "string",
+            "format": "uri"
+          },
+          "industries": {
+            "type": "array",
+            "description": "Industries taxonomy (v2)",
+            "items": {
+              "type": "string"
+            }
+          },
+          "industry": {
+            "type": "string"
+          },
+          "li_job_search_url": {
+            "type": "string",
+            "format": "uri"
+          },
+          "li_followers_count": {
+            "type": "integer"
+          },
+          "number_employees": {
+            "type": "number"
+          },
+          "employees_range": {
+            "type": "string"
+          },
+          "li_employees_url": {
+            "type": "string",
+            "format": "uri"
+          },
+          "country": {
+            "type": "string"
+          },
+          "geographic_area": {
+            "type": "string"
+          },
+          "city": {
+            "type": "string"
+          },
+          "postal_code": {
+            "type": "string"
+          },
+          "headquarters": {
+            "type": "string"
+          },
+          "locations": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "additionalProperties": true,
+              "properties": {
+                "address": {
+                  "type": "string"
+                },
+                "geographic_area": {
+                  "type": "string"
+                },
+                "street": {
+                  "type": "string"
+                },
+                "postal_code": {
+                  "type": "string"
+                },
+                "city": {
+                  "type": "string"
+                },
+                "country": {
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "number_of_locations": {
+            "type": "number"
+          },
+          "last_funding_investors": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "additionalProperties": true,
+              "properties": {
+                "name": {
+                  "type": "string"
+                },
+                "crunchbase_company_url": {
+                  "type": "string",
+                  "format": "uri"
+                }
+              }
+            }
+          },
+          "crunchbase_company_url": {
+            "type": "string",
+            "format": "uri"
+          },
+          "last_funding_date": {
+            "type": "string",
+            "format": "date"
+          },
+          "last_funding_type": {
+            "type": "string"
+          },
+          "last_funding_raised": {
+            "type": "number"
+          },
+          "last_funding_currency": {
+            "type": "string"
+          },
+          "logo_url": {
+            "type": "string",
+            "format": "uri"
+          },
+          "domain": {
+            "type": "string"
+          },
+          "location": {
+            "type": "string"
+          },
+          "school_uid": {
+            "type": "string"
+          },
+          "li_school_id": {
+            "type": "number"
+          },
+          "li_page_claimed": {
+            "type": "boolean"
+          },
+          "updated_at": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "affiliates": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "additionalProperties": false,
+              "properties": {
+                "company_uid": {
+                  "type": "string"
+                },
+                "company_name": {
+                  "type": "string"
+                },
+                "li_company_id": {
+                  "type": "number"
+                },
+                "followers_count": {
+                  "type": "integer"
+                },
+                "industry": {
+                  "type": "string"
+                },
+                "li_company_url": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        }
+      },
+      "CaptaindataCompaniesFindInput": {
+        "type": "object",
+        "properties": {
+          "company_name": {
+            "description": "Company Name",
+            "type": "string"
+          },
+          "custom_data": {
+            "type": "object",
+            "additionalProperties": true,
+            "description": "Custom data (ex-metadata)"
+          }
+        },
+        "additionalProperties": false,
+        "required": [
+          "company_name"
+        ]
+      },
+      "CaptaindataCompaniesFindOutput": {
+        "type": "object",
+        "properties": {
+          "li_company_url": {
+            "type": "string",
+            "format": "url"
+          },
+          "uid": {
+            "type": "string"
+          },
+          "li_company_id": {
+            "type": "string"
+          }
+        }
+      },
+      "CaptaindataCompaniesEmployeesInput": {
+        "type": "object",
+        "properties": {
+          "company_uid": {
+            "type": "string",
+            "in": "params",
+            "pattern": "^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$|^\\d+$",
+            "x-primary": true,
+            "x-placeholder": "The Captain data uid of the company.",
+            "x-in": "params"
+          },
+          "custom_data": {
+            "type": "object",
+            "additionalProperties": true,
+            "description": "Custom data (ex-metadata)"
+          }
+        },
+        "additionalProperties": false,
+        "required": [
+          "company_uid"
+        ]
+      },
+      "CaptaindataCompaniesEmployeesOutput": {
+        "type": "object",
+        "properties": {
+          "uid": {
+            "type": "string"
+          },
+          "full_name": {
+            "type": "string"
+          },
+          "headline": {
+            "type": "string"
+          },
+          "location": {
+            "type": "string"
+          },
+          "li_profile_url": {
+            "type": "string",
+            "format": "uri"
+          },
+          "li_profile_id": {
+            "type": "integer"
+          },
+          "job_title": {
+            "type": "string"
+          },
+          "company_name": {
+            "type": "string"
+          },
+          "current_company": {
+            "type": "string"
+          },
+          "li_profile_image_url": {
+            "type": "string",
+            "format": "uri"
+          },
+          "first_name": {
+            "type": "string"
+          },
+          "last_name": {
+            "type": "string"
+          },
+          "current_title": {
+            "type": "string"
+          },
+          "li_profile_handle": {
+            "type": "string"
+          },
+          "li_company_id": {
+            "type": "string"
+          },
+          "li_company_url": {
+            "type": "string",
+            "format": "uri"
+          }
+        }
+      },
+      "WorkspaceQuotaResponse": {
+        "type": "object",
+        "properties": {
+          "uid": {
+            "type": "string",
+            "format": "uuid",
+            "description": "UUID of the workspace"
+          },
+          "name": {
+            "type": "string",
+            "maxLength": 55,
+            "description": "The name of the workspace (maximum 55 characters)"
+          },
+          "credits_left": {
+            "type": "number",
+            "default": 0,
+            "description": "Remaining credits"
+          },
+          "credits_max": {
+            "type": "integer",
+            "default": 0,
+            "description": "Maximum credits allowed"
+          },
+          "credits_used": {
+            "type": "number",
+            "default": 0,
+            "description": "Credits consumed"
+          },
+          "plan_name": {
+            "type": "string",
+            "nullable": true,
+            "description": "Current plan name"
+          },
+          "current_month_start": {
+            "type": "string",
+            "format": "date-time",
+            "nullable": true,
+            "description": "Start of current billing period"
+          },
+          "current_month_end": {
+            "type": "string",
+            "format": "date-time",
+            "nullable": true,
+            "description": "End of current billing period"
+          }
+        },
+        "required": ["name"],
+        "additionalProperties": true
+      }
+    }
+  },
+  "paths": {
+    "/people/find": {
+      "get": {
+        "operationId": "getCaptaindataPeopleFind",
+        "summary": "Get data from captaindata people find",
+        "tags": [
+          "public / live"
+        ],
+        "parameters": [
+          {
+            "name": "full_name",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "description": "Full Name",
+              "type": "string",
+              "in": "query"
+            },
+            "description": "Full Name"
+          },
+          {
+            "name": "company_name",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "description": "Company Name",
+              "type": "string",
+              "in": "query"
+            },
+            "description": "Company Name"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CaptaindataPeopleFindOutput"
+                }
+              }
+            },
+            "headers": {
+
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/BadRequest"
+          },
+          "424": {
+            "$ref": "#/components/responses/FailedDependency"
+          },
+          "500": {
+            "$ref": "#/components/responses/InternalServerError"
+          }
+        }
+      }
+    },
+    "/people/search": {
+      "get": {
+        "operationId": "getCaptaindataPeopleSearch",
+        "summary": "Get data from captaindata people search",
+        "tags": [
+          "public / live"
+        ],
+        "parameters": [
+          {
+            "name": "page",
+            "in": "query",
+            "required": false,
+            "description": "Page index for manual pagination, starting at 1; increase sequentially (page=1, page=2, etc.) until the response returns an empty data array.",
+            "schema": {
+              "type": "integer",
+              "default": 1
+            }
+          },
+          {
+            "name": "page_size",
+            "in": "query",
+            "required": false,
+            "description": "Maximum number of results per page (read-only; defined by the endpoint, actual count may be lower in some cases like throttling or internal limits).",
+            "schema": {
+              "type": "integer",
+              "default": 25,
+              "minimum": 25,
+              "maximum": 25
+            }
+          },
+          {
+            "name": "query",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "examples": [
+                "(keywords:\"Software Engineer\")"
+              ],
+              "type": "string",
+              "description": "A Sales Navigator People search compliant query param. Please copy the entire value of the query parameter from your Sales Navigator search URL (everything after ?query=) and paste it here.",
+              "x-primary": true,
+              "x-help": "A Sales Navigator People search compliant query param. Please copy the entire value of the query parameter from your Sales Navigator search URL (everything after ?query=) and paste it here.",
+              "in": "query"
+            },
+            "description": "A Sales Navigator People search compliant query param. Please copy the entire value of the query parameter from your Sales Navigator search URL (everything after ?query=) and paste it here."
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/CaptaindataPeopleSearchOutput"
+                  }
+                }
+              }
+            },
+            "headers": {
+              "X-Pagination-Previous": {
+                "schema": {
+                  "type": "string",
+                  "format": "uri"
+                },
+                "description": "Full URL to fetch the previous page of results, when available."
+              },
+              "X-Pagination-Next": {
+                "schema": {
+                  "type": "string",
+                  "format": "uri"
+                },
+                "description": "Full URL to fetch the next page of results, when available."
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/BadRequest"
+          },
+          "424": {
+            "$ref": "#/components/responses/FailedDependency"
+          },
+          "500": {
+            "$ref": "#/components/responses/InternalServerError"
+          }
+        }
+      }
+    },
+    "/people/enrich": {
+      "get": {
+        "operationId": "getCaptaindataPeopleEnrich",
+        "summary": "Get data from captaindata people enrich",
+        "tags": [
+          "public / live"
+        ],
+        "parameters": [
+          {
+            "name": "li_profile_url",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "pattern": "/^https:\\/\\/(?:(www|[a-z]{2})\\.)?linkedin\\.com\\/(?:in|pub|sales\\/people|sales\\/lead)\\/[^\\s/]+/",
+              "type": "string",
+              "format": "uri",
+              "description": "A LinkedIn Profile URL should start with 'https://www.linkedin.com/sales/people/', 'https://www.linkedin.com/sales/lead/', 'https://www.linkedin.com/pub/' or 'https://www.linkedin.com/in/'",
+              "x-primary": true,
+              "x-placeholder": "LinkedIn People Profile URL",
+              "x-help": "A LinkedIn Profile URL should start with 'https://www.linkedin.com/sales/people/', 'https://www.linkedin.com/sales/lead/', 'https://www.linkedin.com/pub/' or 'https://www.linkedin.com/in/'",
+              "in": "query"
+            },
+            "description": "A LinkedIn Profile URL should start with 'https://www.linkedin.com/sales/people/', 'https://www.linkedin.com/sales/lead/', 'https://www.linkedin.com/pub/' or 'https://www.linkedin.com/in/'"
+          },
+          {
+            "name": "full_enrich",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "boolean",
+              "title": "Full Profile",
+              "default": false,
+              "description": "Extract experiences, skills and highlights.",
+              "x-display-widget": "checkbox",
+              "in": "query"
+            },
+            "description": "Full Profile"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CaptaindataPeopleEnrichOutput"
+                }
+              }
+            },
+            "headers": {
+
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/BadRequest"
+          },
+          "424": {
+            "$ref": "#/components/responses/FailedDependency"
+          },
+          "500": {
+            "$ref": "#/components/responses/InternalServerError"
+          }
+        }
+      }
+    },
+    "/companies/search": {
+      "get": {
+        "operationId": "getCaptaindataCompaniesSearch",
+        "summary": "Get data from captaindata companies search",
+        "tags": [
+          "public / live"
+        ],
+        "parameters": [
+          {
+            "name": "page",
+            "in": "query",
+            "required": false,
+            "description": "Page index for manual pagination, starting at 1; increase sequentially (page=1, page=2, etc.) until the response returns an empty data array.",
+            "schema": {
+              "type": "integer",
+              "default": 1
+            }
+          },
+          {
+            "name": "page_size",
+            "in": "query",
+            "required": false,
+            "description": "Maximum number of results per page (read-only; defined by the endpoint, actual count may be lower in some cases like throttling or internal limits).",
+            "schema": {
+              "type": "integer",
+              "default": 25,
+              "minimum": 25,
+              "maximum": 25
+            }
+          },
+          {
+            "name": "query",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "description": "A Sales Navigator Company search compliant query param",
+              "x-primary": true,
+              "x-help": "A Sales Navigator Company search compliant query param",
+              "in": "query"
+            },
+            "description": "A Sales Navigator Company search compliant query param"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/CaptaindataCompaniesSearchOutput"
+                  }
+                }
+              }
+            },
+            "headers": {
+              "X-Pagination-Previous": {
+                "schema": {
+                  "type": "string",
+                  "format": "uri"
+                },
+                "description": "Full URL to fetch the previous page of results, when available."
+              },
+              "X-Pagination-Next": {
+                "schema": {
+                  "type": "string",
+                  "format": "uri"
+                },
+                "description": "Full URL to fetch the next page of results, when available."
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/BadRequest"
+          },
+          "424": {
+            "$ref": "#/components/responses/FailedDependency"
+          },
+          "500": {
+            "$ref": "#/components/responses/InternalServerError"
+          }
+        }
+      }
+    },
+    "/companies/enrich": {
+      "get": {
+        "operationId": "getCaptaindataCompaniesEnrich",
+        "summary": "Get data from captaindata companies enrich",
+        "tags": [
+          "public / live"
+        ],
+        "parameters": [
+          {
+            "name": "li_company_url",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "pattern": "/^https:\\/\\/(?:(www|[a-z]{2})\\.)?linkedin\\.com\\/(?:sales\\/)?(?:school|pub|company|showcase)\\/[\\w%-]+(?:\\/(?:\\w+)?)?/i",
+              "type": "string",
+              "format": "uri",
+              "description": "A LinkedIn Company URL should start with 'https://www.linkedin.com/sales/company', 'https://www.linkedin/showcase' 'https://www.linkedin.com/company' or 'https://www.linkedin.com/school'\"",
+              "x-primary": true,
+              "x-placeholder": "LinkedIn Company URL",
+              "x-help": "A LinkedIn Company URL should start with 'https://www.linkedin.com/sales/company', 'https://www.linkedin/showcase' 'https://www.linkedin.com/company' or 'https://www.linkedin.com/school'\"",
+              "x-variations": [
+                "url",
+                "company_url",
+                "current_company_url",
+                "link"
+              ],
+              "in": "query"
+            },
+            "description": "A LinkedIn Company URL should start with 'https://www.linkedin.com/sales/company', 'https://www.linkedin/showcase' 'https://www.linkedin.com/company' or 'https://www.linkedin.com/school'\""
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CaptaindataCompaniesEnrichOutput"
+                }
+              }
+            },
+            "headers": {
+
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/BadRequest"
+          },
+          "424": {
+            "$ref": "#/components/responses/FailedDependency"
+          },
+          "500": {
+            "$ref": "#/components/responses/InternalServerError"
+          }
+        }
+      }
+    },
+    "/companies/find": {
+      "get": {
+        "operationId": "getCaptaindataCompaniesFind",
+        "summary": "Get data from captaindata companies find",
+        "tags": [
+          "public / live"
+        ],
+        "parameters": [
+          {
+            "name": "company_name",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "description": "Company Name",
+              "type": "string",
+              "in": "query"
+            },
+            "description": "Company Name"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CaptaindataCompaniesFindOutput"
+                }
+              }
+            },
+            "headers": {
+
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/BadRequest"
+          },
+          "424": {
+            "$ref": "#/components/responses/FailedDependency"
+          },
+          "500": {
+            "$ref": "#/components/responses/InternalServerError"
+          }
+        }
+      }
+    },
+    "/companies/{company_uid}/employees": {
+      "get": {
+        "operationId": "getCaptaindataCompaniesEmployees",
+        "summary": "Get data from captaindata companies employees",
+        "tags": [
+          "public / live"
+        ],
+        "parameters": [
+          {
+            "name": "page",
+            "in": "query",
+            "required": false,
+            "description": "Page index for manual pagination, starting at 1; increase sequentially (page=1, page=2, etc.) until the response returns an empty data array.",
+            "schema": {
+              "type": "integer",
+              "default": 1
+            }
+          },
+          {
+            "name": "page_size",
+            "in": "query",
+            "required": false,
+            "description": "Maximum number of results per page (read-only; defined by the endpoint, actual count may be lower in some cases like throttling or internal limits).",
+            "schema": {
+              "type": "integer",
+              "default": 10,
+              "minimum": 10,
+              "maximum": 10
+            }
+          },
+          {
+            "name": "company_uid",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "in": "path",
+              "pattern": "^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$|^\\d+$",
+              "x-primary": true,
+              "x-placeholder": "The Captain data uid of the company.",
+              "x-in": "params"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/CaptaindataCompaniesEmployeesOutput"
+                  }
+                }
+              }
+            },
+            "headers": {
+              "X-Pagination-Previous": {
+                "schema": {
+                  "type": "string",
+                  "format": "uri"
+                },
+                "description": "Full URL to fetch the previous page of results, when available."
+              },
+              "X-Pagination-Next": {
+                "schema": {
+                  "type": "string",
+                  "format": "uri"
+                },
+                "description": "Full URL to fetch the next page of results, when available."
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/BadRequest"
+          },
+          "424": {
+            "$ref": "#/components/responses/FailedDependency"
+          },
+          "500": {
+            "$ref": "#/components/responses/InternalServerError"
+          }
+        }
+      }
+    },
+    "/quotas": {
+      "get": {
+        "operationId": "getQuotas",
+        "summary": "Get current workspace quota and billing information",
+        "tags": [
+          "public / core"
+        ],
+        "responses": {
+          "200": {
+            "description": "Successfully retrieved the current workspace quota",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/WorkspaceQuotaResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/BadRequest"
+          },
+          "404": {
+            "description": "Workspace not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/def-0"
+                }
+              }
+            }
+          },
+          "500": {
+            "$ref": "#/components/responses/InternalServerError"
+          }
+        }
+      }
+    }
+  },
+  "servers": [
+    {
+      "url": "https://api.captaindata.com/v1"
+    }
+  ],
+  "security": [
+    {
+      "XApiKeyAuth": []
+    }
+  ]
+}
