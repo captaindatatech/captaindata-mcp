@@ -24,7 +24,7 @@ describe('OpenAPI Documentation', () => {
     it('should serve OpenAPI documentation', async () => {
       const response = await server.inject({
         method: 'GET',
-        url: '/docs'
+        url: '/docs',
       });
 
       // Swagger UI serves the HTML page directly
@@ -35,12 +35,12 @@ describe('OpenAPI Documentation', () => {
     it('should serve OpenAPI JSON spec', async () => {
       const response = await server.inject({
         method: 'GET',
-        url: '/docs/json'
+        url: '/docs/json',
       });
 
       expect(response.statusCode).toBe(200);
       expect(response.headers['content-type']).toContain('application/json');
-      
+
       const spec = JSON.parse(response.payload);
       expect(spec.openapi).toBeDefined();
       expect(spec.info.title).toBe('Captain Data MCP API');
@@ -50,7 +50,7 @@ describe('OpenAPI Documentation', () => {
     it('should include health endpoint in docs', async () => {
       const response = await server.inject({
         method: 'GET',
-        url: '/docs/json'
+        url: '/docs/json',
       });
 
       const spec = JSON.parse(response.payload);
@@ -61,7 +61,7 @@ describe('OpenAPI Documentation', () => {
     it('should include introspect endpoint in docs', async () => {
       const response = await server.inject({
         method: 'GET',
-        url: '/docs/json'
+        url: '/docs/json',
       });
 
       const spec = JSON.parse(response.payload);
@@ -69,4 +69,4 @@ describe('OpenAPI Documentation', () => {
       expect(spec.paths['/introspect'].get.tags).toContain('Introspection');
     });
   });
-}); 
+});

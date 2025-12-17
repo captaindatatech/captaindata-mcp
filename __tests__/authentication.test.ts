@@ -23,20 +23,22 @@ describe('Authentication', () => {
         method: 'POST',
         url: '/tools/enrich_person',
         payload: {
-          li_profile_url: 'https://www.linkedin.com/in/test'
-        }
+          li_profile_url: 'https://www.linkedin.com/in/test',
+        },
       });
 
       expect(response.statusCode).toBe(401);
       const data = JSON.parse(response.payload);
       expect(data.code).toBe('missing_api_key');
-      expect(data.message).toBe('Provide Captain Data key in x-api-key header, session token in Authorization header, or session_token query parameter');
+      expect(data.message).toBe(
+        'Provide Captain Data key in x-api-key header, session token in Authorization header, or session_token query parameter'
+      );
     });
 
     it('should allow GET requests without API key', async () => {
       const response = await server.inject({
         method: 'GET',
-        url: '/introspect'
+        url: '/introspect',
       });
 
       expect(response.statusCode).toBe(200);
@@ -45,7 +47,7 @@ describe('Authentication', () => {
     it('should allow health check without API key', async () => {
       const response = await server.inject({
         method: 'GET',
-        url: '/health'
+        url: '/health',
       });
 
       expect(response.statusCode).toBe(200);
@@ -56,11 +58,11 @@ describe('Authentication', () => {
         method: 'POST',
         url: '/tools/enrich_person',
         headers: {
-          'x-api-key': 'test-api-key'
+          'x-api-key': 'test-api-key',
         },
         payload: {
-          li_profile_url: 'https://www.linkedin.com/in/test'
-        }
+          li_profile_url: 'https://www.linkedin.com/in/test',
+        },
       });
 
       // Should not return 401 (authentication error)

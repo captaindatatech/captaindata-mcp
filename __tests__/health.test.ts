@@ -20,7 +20,7 @@ describe('Health Check Endpoint', () => {
     it('should return health status', async () => {
       const response = await server.inject({
         method: 'GET',
-        url: '/health'
+        url: '/health',
       });
 
       expect(response.statusCode).toBe(200);
@@ -36,4 +36,4 @@ describe('Health Check Endpoint', () => {
       expect(data.redis.ping).toBeDefined();
     });
   });
-}); 
+});

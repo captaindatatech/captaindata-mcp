@@ -15,7 +15,7 @@ export const ToolAliasSchema = Type.Union([
   Type.Literal('search_companies'),
   Type.Literal('enrich_company'),
   Type.Literal('search_company_employees'),
-  Type.Literal('get_quotas')
+  Type.Literal('get_quotas'),
 ]);
 
 export type ToolAlias = Static<typeof ToolAliasSchema>;
@@ -24,14 +24,14 @@ export type ToolAlias = Static<typeof ToolAliasSchema>;
  * Mapping of tool aliases to API paths
  */
 export const ALIAS_TO_PATH = {
-  find_person: "/people/find",
-  search_people: "/people/search",
-  enrich_person: "/people/enrich",
-  find_company: "/companies/find",
-  search_companies: "/companies/search",
-  enrich_company: "/companies/enrich",
-  search_company_employees: "/companies/{company_uid}/employees",
-  get_quotas: "/quotas"
+  find_person: '/people/find',
+  search_people: '/people/search',
+  enrich_person: '/people/enrich',
+  find_company: '/companies/find',
+  search_companies: '/companies/search',
+  enrich_company: '/companies/enrich',
+  search_company_employees: '/companies/{company_uid}/employees',
+  get_quotas: '/quotas',
 } as const;
 
 // ============================================================================
@@ -42,10 +42,10 @@ export const ALIAS_TO_PATH = {
  * URL parameters for tool endpoints
  */
 export const ToolParamsSchema = Type.Object({
-  alias: Type.String({ 
+  alias: Type.String({
     description: 'Tool alias',
-    minLength: 1
-  })
+    minLength: 1,
+  }),
 });
 
 export type ToolParams = Static<typeof ToolParamsSchema>;
@@ -58,9 +58,11 @@ export type ToolParams = Static<typeof ToolParamsSchema>;
  * Introspect query parameters
  */
 export const IntrospectQuerySchema = Type.Object({
-  v: Type.Optional(Type.Union([
-    Type.Literal('full')
-  ], { description: 'Version parameter. Use "full" to get all tools' }))
+  v: Type.Optional(
+    Type.Union([Type.Literal('full')], {
+      description: 'Version parameter. Use "full" to get all tools',
+    })
+  ),
 });
 
 export type IntrospectQuery = Static<typeof IntrospectQuerySchema>;
@@ -71,7 +73,7 @@ export type IntrospectQuery = Static<typeof IntrospectQuerySchema>;
 export const ToolFunctionSchema = Type.Object({
   name: Type.String(),
   description: Type.String(),
-  parameters: Type.Any()
+  parameters: Type.Any(),
 });
 
 export type ToolFunction = Static<typeof ToolFunctionSchema>;
@@ -81,7 +83,7 @@ export type ToolFunction = Static<typeof ToolFunctionSchema>;
  */
 export const ToolDefinitionSchema = Type.Object({
   type: Type.Literal('function'),
-  function: ToolFunctionSchema
+  function: ToolFunctionSchema,
 });
 
 export type ToolDefinition = Static<typeof ToolDefinitionSchema>;
@@ -90,7 +92,7 @@ export type ToolDefinition = Static<typeof ToolDefinitionSchema>;
  * Introspect response schema
  */
 export const IntrospectResponseSchema = Type.Object({
-  tools: Type.Array(ToolDefinitionSchema)
+  tools: Type.Array(ToolDefinitionSchema),
 });
 
 export type IntrospectResponse = Static<typeof IntrospectResponseSchema>;
@@ -109,7 +111,6 @@ export const introspectRouteSchema = {
   description: 'Get metadata about available tools (MCP introspection)',
   querystring: IntrospectQuerySchema,
   response: {
-    200: IntrospectResponseSchema
-  }
+    200: IntrospectResponseSchema,
+  },
 };
-

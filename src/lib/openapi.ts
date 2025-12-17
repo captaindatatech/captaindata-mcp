@@ -14,8 +14,8 @@ export const swaggerOptions: FastifyDynamicSwaggerOptions = {
     servers: [
       {
         url: 'https://mcp.captaindata.com',
-        description: 'Production server'
-      }
+        description: 'Production server',
+      },
     ],
     components: {
       securitySchemes: {
@@ -23,21 +23,18 @@ export const swaggerOptions: FastifyDynamicSwaggerOptions = {
           type: 'apiKey',
           name: 'X-API-Key',
           in: 'header',
-          description: 'Direct Captain Data API key for authentication'
+          description: 'Direct Captain Data API key for authentication',
         },
         bearerAuth: {
           type: 'http',
           scheme: 'bearer',
           bearerFormat: 'JWT',
-          description: 'Session token obtained from /auth endpoint'
-        }
-      }
+          description: 'Session token obtained from /auth endpoint',
+        },
+      },
     },
-    security: [
-      { bearerAuth: [] },
-      { apiKey: [] }
-    ]
-  }
+    security: [{ bearerAuth: [] }, { apiKey: [] }],
+  },
 };
 
 export const swaggerUiOptions: FastifySwaggerUiOptions = {
@@ -48,16 +45,16 @@ export const swaggerUiOptions: FastifySwaggerUiOptions = {
   },
   uiHooks: {
     onRequest: function (request, reply, next) {
-      next()
+      next();
     },
     preHandler: function (request, reply, next) {
-      next()
+      next();
     },
   },
   staticCSP: true,
   transformStaticCSP: (header) => header,
   transformSpecification: (swaggerObject) => {
-    return swaggerObject
+    return swaggerObject;
   },
   transformSpecificationClone: true,
 };

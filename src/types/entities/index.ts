@@ -19,7 +19,7 @@ export {
   type SearchPeopleItem,
   type SearchPeopleResponse,
   type EnrichPersonInput,
-  type EnrichPersonResponse
+  type EnrichPersonResponse,
 } from './person';
 
 // Company types and schemas
@@ -43,7 +43,7 @@ export {
   type SearchCompaniesItem,
   type SearchCompaniesResponse,
   type EnrichCompanyInput,
-  type EnrichCompanyResponse
+  type EnrichCompanyResponse,
 } from './company';
 
 // Employee types and schemas
@@ -54,7 +54,7 @@ export {
   searchCompanyEmployeesToolSchema,
   type SearchCompanyEmployeesInput,
   type SearchCompanyEmployeesResponse,
-  type Employee
+  type Employee,
 } from './employee';
 
 // Quotas types and schemas
@@ -63,6 +63,5 @@ export {
   GetQuotasResponseSchema,
   getQuotasToolSchema,
   type GetQuotasInput,
-  type GetQuotasResponse
+  type GetQuotasResponse,
 } from './quotas';
-

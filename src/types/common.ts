@@ -9,7 +9,7 @@ import { Type, Static } from '@sinclair/typebox';
  */
 export const MetadataSchema = Type.Object({
   requestId: Type.String({ description: 'Unique request identifier for tracking' }),
-  executionTime: Type.Number({ description: 'Request execution time in milliseconds' })
+  executionTime: Type.Number({ description: 'Request execution time in milliseconds' }),
 });
 
 export type Metadata = Static<typeof MetadataSchema>;
@@ -21,7 +21,9 @@ export const ToolMetadataSchema = Type.Object({
   requestId: Type.String({ description: 'Unique request identifier for tracking' }),
   executionTime: Type.Number({ description: 'Request execution time in milliseconds' }),
   tool: Type.String({ description: 'Tool alias that was executed' }),
-  count: Type.Optional(Type.Number({ description: 'Number of items returned (for array responses)' }))
+  count: Type.Optional(
+    Type.Number({ description: 'Number of items returned (for array responses)' })
+  ),
 });
 
 export type ToolMetadata = Static<typeof ToolMetadataSchema>;
@@ -38,7 +40,7 @@ export const ErrorScopeSchema = Type.Union([
   Type.Literal('integ'),
   Type.Literal('param'),
   Type.Literal('config'),
-  Type.Null()
+  Type.Null(),
 ]);
 
 export type ErrorScope = Static<typeof ErrorScopeSchema>;
@@ -57,10 +59,7 @@ export const ErrorResponseSchema = Type.Object({
   error_scope: Type.Optional(ErrorScopeSchema),
   error_ref: Type.Optional(Type.Union([Type.String(), Type.Null()])),
   status_code: Type.Optional(Type.Union([Type.Integer(), Type.Null()])),
-  params: Type.Optional(Type.Union([
-    Type.Record(Type.String(), Type.String()),
-    Type.Null()
-  ]))
+  params: Type.Optional(Type.Union([Type.Record(Type.String(), Type.String()), Type.Null()])),
 });
 
 export type ErrorResponse = Static<typeof ErrorResponseSchema>;
@@ -73,17 +72,21 @@ export type ErrorResponse = Static<typeof ErrorResponseSchema>;
  * Pagination input parameters
  */
 export const PaginationInputSchema = Type.Object({
-  page: Type.Optional(Type.Integer({ 
-    minimum: 1, 
-    default: 1,
-    description: 'Page number for paginated results' 
-  })),
-  page_size: Type.Optional(Type.Integer({ 
-    minimum: 1, 
-    maximum: 100, 
-    default: 25,
-    description: 'Number of results per page' 
-  }))
+  page: Type.Optional(
+    Type.Integer({
+      minimum: 1,
+      default: 1,
+      description: 'Page number for paginated results',
+    })
+  ),
+  page_size: Type.Optional(
+    Type.Integer({
+      minimum: 1,
+      maximum: 100,
+      default: 25,
+      description: 'Number of results per page',
+    })
+  ),
 });
 
 export type PaginationInput = Static<typeof PaginationInputSchema>;
@@ -107,10 +110,10 @@ export const ERROR_CODES = {
   SERVICE_UNAVAILABLE: 'service_unavailable',
   INVALID_RESPONSE: 'invalid_response',
   INTERNAL_ERROR: 'internal_error',
-  RATE_LIMITED: 'rate_limited'
+  RATE_LIMITED: 'rate_limited',
 } as const;
 
-export type ErrorCode = typeof ERROR_CODES[keyof typeof ERROR_CODES];
+export type ErrorCode = (typeof ERROR_CODES)[keyof typeof ERROR_CODES];
 
 // ============================================================================
 // HELPER FUNCTIONS
@@ -129,23 +132,22 @@ export function createErrorResponse(
     code,
     message,
     requestId,
-    timestamp: new Date().toISOString()
+    timestamp: new Date().toISOString(),
   };
-  
+
   if (details !== undefined) {
     response.details = details;
   }
-  
+
   return response;
 }
 
 /**
  * Creates a Response object for error responses (legacy support)
  */
-export function jsonErrorResponse(msg: string, code: string = "mcp_error", status: number = 500) {
+export function jsonErrorResponse(msg: string, code: string = 'mcp_error', status: number = 500) {
   return new Response(JSON.stringify({ code, message: msg }), {
     status,
-    headers: { 'Content-Type': 'application/json' }
+    headers: { 'Content-Type': 'application/json' },
   });
 }
-

@@ -28,16 +28,15 @@ export default async function handler(
       },
       _metadata: {
         requestId,
-        executionTime: Date.now() - startTime
-      }
+        executionTime: Date.now() - startTime,
+      },
     };
 
     reply.header('Content-Type', 'application/json');
     return reply.status(200).send(response);
-
   } catch (error) {
     logError('Health check failed', error, req, {
-      endpoint: 'health'
+      endpoint: 'health',
     });
 
     const executionTime = Date.now() - startTime;
@@ -46,9 +45,9 @@ export default async function handler(
       error: 'Health check failed',
       requestId,
       timestamp: new Date().toISOString(),
-      executionTime
+      executionTime,
     };
-    
+
     return reply.status(500).send(unhealthyResponse);
   }
 }

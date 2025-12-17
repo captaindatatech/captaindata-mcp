@@ -10,6 +10,6 @@ export const healthSchema = {
   description: 'Check if the API is running',
   response: {
     200: HealthResponseSchema,
-    500: UnhealthyResponseSchema
-  }
+    500: UnhealthyResponseSchema,
+  },
 };

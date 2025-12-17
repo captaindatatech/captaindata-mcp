@@ -22,7 +22,7 @@ describe('Authentication System', () => {
       const response = await server.inject({
         method: 'POST',
         url: '/auth',
-        payload: {}
+        payload: {},
       });
 
       expect(response.statusCode).toBe(400);
@@ -35,7 +35,7 @@ describe('Authentication System', () => {
       const response = await server.inject({
         method: 'POST',
         url: '/auth',
-        payload: { api_key: '' }
+        payload: { api_key: '' },
       });
 
       expect(response.statusCode).toBe(400);
@@ -48,7 +48,7 @@ describe('Authentication System', () => {
       const response = await server.inject({
         method: 'POST',
         url: '/auth',
-        payload: { api_key: 'test-api-key-123' }
+        payload: { api_key: 'test-api-key-123' },
       });
 
       expect(response.statusCode).toBe(200);
@@ -70,7 +70,7 @@ describe('Authentication System', () => {
       const authResponse = await server.inject({
         method: 'POST',
         url: '/auth',
-        payload: { api_key: 'test-api-key-123' }
+        payload: { api_key: 'test-api-key-123' },
       });
       const authData = JSON.parse(authResponse.payload);
       sessionToken = authData.session_token;
@@ -81,11 +81,11 @@ describe('Authentication System', () => {
         method: 'POST',
         url: '/tools/enrich_person',
         headers: {
-          'Authorization': `Bearer ${sessionToken}`
+          Authorization: `Bearer ${sessionToken}`,
         },
         payload: {
-          li_profile_url: 'https://www.linkedin.com/in/test'
-        }
+          li_profile_url: 'https://www.linkedin.com/in/test',
+        },
       });
 
       // Should not return 401 (authentication error)
@@ -97,11 +97,11 @@ describe('Authentication System', () => {
         method: 'POST',
         url: '/tools/enrich_person',
         headers: {
-          'Authorization': 'Bearer invalid-token'
+          Authorization: 'Bearer invalid-token',
         },
         payload: {
-          li_profile_url: 'https://www.linkedin.com/in/test'
-        }
+          li_profile_url: 'https://www.linkedin.com/in/test',
+        },
       });
 
       expect(response.statusCode).toBe(401);
@@ -115,11 +115,11 @@ describe('Authentication System', () => {
         method: 'POST',
         url: '/tools/enrich_person',
         headers: {
-          'Authorization': 'InvalidFormat token'
+          Authorization: 'InvalidFormat token',
         },
         payload: {
-          li_profile_url: 'https://www.linkedin.com/in/test'
-        }
+          li_profile_url: 'https://www.linkedin.com/in/test',
+        },
       });
 
       expect(response.statusCode).toBe(401);
@@ -135,11 +135,11 @@ describe('Authentication System', () => {
         method: 'POST',
         url: '/tools/enrich_person',
         headers: {
-          'x-api-key': 'test-api-key-123'
+          'x-api-key': 'test-api-key-123',
         },
         payload: {
-          li_profile_url: 'https://www.linkedin.com/in/test'
-        }
+          li_profile_url: 'https://www.linkedin.com/in/test',
+        },
       });
 
       // Should not return 401 (authentication error)
@@ -152,11 +152,11 @@ describe('Authentication System', () => {
         url: '/tools/enrich_person',
         headers: {
           'x-api-key': 'test-api-key-123',
-          'Authorization': 'Bearer invalid-token'
+          Authorization: 'Bearer invalid-token',
         },
         payload: {
-          li_profile_url: 'https://www.linkedin.com/in/test'
-        }
+          li_profile_url: 'https://www.linkedin.com/in/test',
+        },
       });
 
       // Should not return 401 (authentication error) because X-API-Key is present
@@ -169,7 +169,7 @@ describe('Authentication System', () => {
       const response = await server.inject({
         method: 'POST',
         url: '/auth',
-        payload: { api_key: 'test-api-key-123' }
+        payload: { api_key: 'test-api-key-123' },
       });
 
       expect(response.statusCode).toBe(200);
@@ -178,7 +178,7 @@ describe('Authentication System', () => {
     it('should allow access to /health without authentication', async () => {
       const response = await server.inject({
         method: 'GET',
-        url: '/health'
+        url: '/health',
       });
 
       expect(response.statusCode).toBe(200);
@@ -187,7 +187,7 @@ describe('Authentication System', () => {
     it('should allow access to /introspect without authentication', async () => {
       const response = await server.inject({
         method: 'GET',
-        url: '/introspect'
+        url: '/introspect',
       });
 
       expect(response.statusCode).toBe(200);

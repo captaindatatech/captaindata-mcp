@@ -3,7 +3,7 @@ import { config } from './config';
 
 /**
  * Centralized logging service for the Captain Data MCP API
- * 
+ *
  * Features:
  * - Structured JSON logging with Pino
  * - Respects LOG_LEVEL configuration
@@ -28,11 +28,11 @@ const SENSITIVE_KEYS = [
  */
 function redactSensitive(obj: Record<string, unknown>): Record<string, unknown> {
   const redacted: Record<string, unknown> = {};
-  
+
   for (const [key, value] of Object.entries(obj)) {
     const lowerKey = key.toLowerCase();
-    
-    if (SENSITIVE_KEYS.some(sensitive => lowerKey.includes(sensitive))) {
+
+    if (SENSITIVE_KEYS.some((sensitive) => lowerKey.includes(sensitive))) {
       redacted[key] = '[REDACTED]';
     } else if (value && typeof value === 'object' && !Array.isArray(value)) {
       redacted[key] = redactSensitive(value as Record<string, unknown>);
@@ -40,7 +40,7 @@ function redactSensitive(obj: Record<string, unknown>): Record<string, unknown> 
       redacted[key] = value;
     }
   }
-  
+
   return redacted;
 }
 
@@ -50,29 +50,32 @@ function redactSensitive(obj: Record<string, unknown>): Record<string, unknown> 
 function createBaseLogger(): PinoLogger {
   const isProduction = config.nodeEnv === 'production';
   const isTest = config.nodeEnv === 'test';
-  
+
   return pino({
     level: isTest ? 'silent' : config.logLevel,
-    
+
     // Use pretty printing in development
-    transport: !isProduction && !isTest ? {
-      target: 'pino-pretty',
-      options: {
-        colorize: true,
-        translateTime: 'SYS:standard',
-        ignore: 'pid,hostname',
-      },
-    } : undefined,
-    
+    transport:
+      !isProduction && !isTest
+        ? {
+            target: 'pino-pretty',
+            options: {
+              colorize: true,
+              translateTime: 'SYS:standard',
+              ignore: 'pid,hostname',
+            },
+          }
+        : undefined,
+
     // Base context for all logs
     base: {
       env: config.nodeEnv,
       service: 'captaindata-mcp',
     },
-    
+
     // Timestamp format
     timestamp: pino.stdTimeFunctions.isoTime,
-    
+
     // Custom serializers
     serializers: {
       err: pino.stdSerializers.err,
@@ -128,40 +131,36 @@ class Logger {
    * Log at error level
    */
   error(message: string, error?: Error | unknown, data?: Record<string, unknown>): void {
-    const errorData = error instanceof Error 
-      ? { 
-          err: error,
-          errorMessage: error.message,
-          stack: error.stack,
-        }
-      : error 
-        ? { error: String(error) }
-        : {};
-    
-    this.logger.error(
-      { ...redactSensitive(data || {}), ...errorData },
-      message
-    );
+    const errorData =
+      error instanceof Error
+        ? {
+            err: error,
+            errorMessage: error.message,
+            stack: error.stack,
+          }
+        : error
+          ? { error: String(error) }
+          : {};
+
+    this.logger.error({ ...redactSensitive(data || {}), ...errorData }, message);
   }
 
   /**
    * Log at fatal level
    */
   fatal(message: string, error?: Error | unknown, data?: Record<string, unknown>): void {
-    const errorData = error instanceof Error 
-      ? { 
-          err: error,
-          errorMessage: error.message,
-          stack: error.stack,
-        }
-      : error 
-        ? { error: String(error) }
-        : {};
-    
-    this.logger.fatal(
-      { ...redactSensitive(data || {}), ...errorData },
-      message
-    );
+    const errorData =
+      error instanceof Error
+        ? {
+            err: error,
+            errorMessage: error.message,
+            stack: error.stack,
+          }
+        : error
+          ? { error: String(error) }
+          : {};
+
+    this.logger.fatal({ ...redactSensitive(data || {}), ...errorData }, message);
   }
 
   /**
@@ -184,7 +183,10 @@ export type { PinoLogger };
 /**
  * Create a request-scoped logger
  */
-export function createRequestLogger(requestId: string, additionalContext?: Record<string, unknown>): Logger {
+export function createRequestLogger(
+  requestId: string,
+  additionalContext?: Record<string, unknown>
+): Logger {
   return new Logger({
     requestId,
     ...additionalContext,
@@ -195,5 +197,4 @@ export function createRequestLogger(requestId: string, additionalContext?: Recor
  * Log levels for external configuration
  */
 export const LOG_LEVELS = ['fatal', 'error', 'warn', 'info', 'debug', 'trace', 'silent'] as const;
-export type LogLevel = typeof LOG_LEVELS[number];
-
+export type LogLevel = (typeof LOG_LEVELS)[number];

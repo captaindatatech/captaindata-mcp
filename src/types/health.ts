@@ -13,7 +13,7 @@ export const RedisStatusSchema = Type.Object({
   connected: Type.Boolean({ description: 'Whether Redis is connected' }),
   healthy: Type.Boolean({ description: 'Whether Redis is healthy' }),
   connectionAttempts: Type.Number({ description: 'Number of connection attempts' }),
-  ping: Type.Union([Type.String(), Type.Null()], { description: 'Redis ping response' })
+  ping: Type.Union([Type.String(), Type.Null()], { description: 'Redis ping response' }),
 });
 
 export type RedisStatus = Static<typeof RedisStatusSchema>;
@@ -30,7 +30,7 @@ export const HealthResponseSchema = Type.Object({
   uptime: Type.Number({ description: 'Server uptime in seconds' }),
   timestamp: Type.String({ format: 'date-time' }),
   redis: RedisStatusSchema,
-  _metadata: MetadataSchema
+  _metadata: MetadataSchema,
 });
 
 export type HealthResponse = Static<typeof HealthResponseSchema>;
@@ -43,7 +43,7 @@ export const UnhealthyResponseSchema = Type.Object({
   error: Type.String(),
   requestId: Type.String(),
   timestamp: Type.String({ format: 'date-time' }),
-  executionTime: Type.Number()
+  executionTime: Type.Number(),
 });
 
 export type UnhealthyResponse = Static<typeof UnhealthyResponseSchema>;
@@ -62,7 +62,6 @@ export const healthRouteSchema = {
   description: 'Check if the API is running',
   response: {
     200: HealthResponseSchema,
-    500: UnhealthyResponseSchema
-  }
+    500: UnhealthyResponseSchema,
+  },
 };
-

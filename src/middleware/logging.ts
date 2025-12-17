@@ -9,7 +9,7 @@ interface RequestWithTiming extends FastifyRequest {
 export async function requestLoggingMiddleware(request: FastifyRequest, _reply: FastifyReply) {
   const startTime = Date.now();
   const requestId = request.id;
-  
+
   // Log incoming request
   request.log.info({
     requestId,
@@ -17,7 +17,7 @@ export async function requestLoggingMiddleware(request: FastifyRequest, _reply: 
     url: request.url,
     userAgent: request.headers['user-agent'],
     ip: request.ip,
-    message: 'Incoming request'
+    message: 'Incoming request',
   });
 
   // Add Sentry breadcrumb for request tracking
@@ -49,9 +49,7 @@ export function logError(
 ): void {
   const requestId = request.id;
   const reqWithTiming = request as RequestWithTiming;
-  const executionTime = reqWithTiming.startTime 
-    ? Date.now() - reqWithTiming.startTime 
-    : undefined;
+  const executionTime = reqWithTiming.startTime ? Date.now() - reqWithTiming.startTime : undefined;
 
   // Log to application logs
   request.log.error({
@@ -60,7 +58,7 @@ export function logError(
     stack: error instanceof Error ? error.stack : undefined,
     executionTime,
     ...context,
-    message
+    message,
   });
 
   // Report to Sentry in production
@@ -90,11 +88,11 @@ export function logError(
         authorization: '[REDACTED]',
         'x-api-key': '[REDACTED]',
       };
-      
+
       scope.setExtra('headers', safeHeaders);
       scope.setExtra('method', request.method);
       scope.setExtra('url', request.url);
-      
+
       // Add custom context
       Object.entries(context).forEach(([key, value]) => {
         if (key !== 'endpoint' && key !== 'tool') {
@@ -119,7 +117,7 @@ export function logInfo(
   request.log.info({
     requestId: request.id,
     ...context,
-    message
+    message,
   });
 
   // Add Sentry breadcrumb
@@ -131,4 +129,4 @@ export function logInfo(
       level: 'info',
     });
   }
-} 
+}

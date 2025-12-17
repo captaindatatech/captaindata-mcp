@@ -9,10 +9,10 @@ import { MetadataSchema } from './common';
  * Authentication request body schema
  */
 export const AuthRequestSchema = Type.Object({
-  api_key: Type.String({ 
+  api_key: Type.String({
     description: 'Your Captain Data API key',
-    minLength: 1
-  })
+    minLength: 1,
+  }),
 });
 
 export type AuthRequest = Static<typeof AuthRequestSchema>;
@@ -25,14 +25,14 @@ export type AuthRequest = Static<typeof AuthRequestSchema>;
  * Successful authentication response schema
  */
 export const AuthResponseSchema = Type.Object({
-  session_token: Type.String({ 
-    description: 'Session token to use in Authorization header for subsequent requests' 
+  session_token: Type.String({
+    description: 'Session token to use in Authorization header for subsequent requests',
   }),
-  expires_in: Type.Number({ 
+  expires_in: Type.Number({
     description: 'Token expiration time in seconds',
-    default: 86400
+    default: 86400,
   }),
-  _metadata: MetadataSchema
+  _metadata: MetadataSchema,
 });
 
 export type AuthResponse = Static<typeof AuthResponseSchema>;
@@ -46,7 +46,7 @@ export type AuthResponse = Static<typeof AuthResponseSchema>;
  */
 export const SessionDataSchema = Type.Object({
   apiKey: Type.String({ description: 'The Captain Data API key associated with this session' }),
-  expiresAt: Type.Number({ description: 'Timestamp when the session expires (milliseconds)' })
+  expiresAt: Type.Number({ description: 'Timestamp when the session expires (milliseconds)' }),
 });
 
 export type SessionData = Static<typeof SessionDataSchema>;
@@ -62,10 +62,10 @@ export const authRouteSchema = {
   operationId: 'authenticate',
   summary: 'Authenticate with your Captain Data API key',
   tags: ['Authentication'],
-  description: 'Exchange your Captain Data API key for a session token that can be used for subsequent requests',
+  description:
+    'Exchange your Captain Data API key for a session token that can be used for subsequent requests',
   body: AuthRequestSchema,
   response: {
-    200: AuthResponseSchema
-  }
+    200: AuthResponseSchema,
+  },
 };
-

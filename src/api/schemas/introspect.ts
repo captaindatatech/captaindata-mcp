@@ -10,6 +10,6 @@ export const introspectSchema = {
   description: 'Get metadata about available tools (MCP introspection)',
   querystring: IntrospectQuerySchema,
   response: {
-    200: IntrospectResponseSchema
-  }
+    200: IntrospectResponseSchema,
+  },
 };

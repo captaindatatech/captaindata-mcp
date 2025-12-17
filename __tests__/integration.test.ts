@@ -22,29 +22,29 @@ describe('Integration Tests', () => {
       // Step 1: Check health
       const healthResponse = await server.inject({
         method: 'GET',
-        url: '/health'
+        url: '/health',
       });
       expect(healthResponse.statusCode).toBe(200);
 
       // Step 2: Get available tools
       const introspectResponse = await server.inject({
         method: 'GET',
-        url: '/introspect'
+        url: '/introspect',
       });
       expect(introspectResponse.statusCode).toBe(200);
       const tools = JSON.parse(introspectResponse.payload).tools;
       expect(tools).toHaveLength(5); // Basic mode returns first 5 tools
-      
+
       // Verify enrich_person tool is available
       const enrichPersonTool = tools.find((t: any) => t.function.name === 'enrich_person');
       expect(enrichPersonTool).toBeDefined();
 
       // Step 3: Execute the tool
-      const mockData = { 
+      const mockData = {
         uid: '123',
         full_name: 'John Doe',
         headline: 'Software Engineer',
-        location: 'San Francisco, CA'
+        location: 'San Francisco, CA',
       };
       const originalFetch = mockFetchResponse(mockData);
 
@@ -52,11 +52,11 @@ describe('Integration Tests', () => {
         method: 'POST',
         url: '/tools/enrich_person',
         headers: {
-          'x-api-key': 'test-api-key'
+          'x-api-key': 'test-api-key',
         },
         payload: {
-          li_profile_url: 'https://www.linkedin.com/in/johndoe'
-        }
+          li_profile_url: 'https://www.linkedin.com/in/johndoe',
+        },
       });
 
       expect(toolResponse.statusCode).toBe(200);
@@ -68,10 +68,10 @@ describe('Integration Tests', () => {
 
     it('should handle find then enrich workflow', async () => {
       // Step 1: Find person
-      const findMockData = { 
+      const findMockData = {
         li_profile_url: 'https://www.linkedin.com/in/johndoe',
         uid: '123',
-        li_profile_id: 12345
+        li_profile_id: 12345,
       };
       let originalFetch = mockFetchResponse(findMockData);
 
@@ -79,12 +79,12 @@ describe('Integration Tests', () => {
         method: 'POST',
         url: '/tools/find_person',
         headers: {
-          'x-api-key': 'test-api-key'
+          'x-api-key': 'test-api-key',
         },
         payload: {
           full_name: 'John Doe',
-          company_name: 'Tech Corp'
-        }
+          company_name: 'Tech Corp',
+        },
       });
 
       expect(findResponse.statusCode).toBe(200);
@@ -94,11 +94,11 @@ describe('Integration Tests', () => {
       restoreFetch(originalFetch);
 
       // Step 2: Enrich person with found URL
-      const enrichMockData = { 
+      const enrichMockData = {
         uid: '123',
         full_name: 'John Doe',
         headline: 'Software Engineer',
-        company_name: 'Tech Corp'
+        company_name: 'Tech Corp',
       };
       originalFetch = mockFetchResponse(enrichMockData);
 
@@ -106,11 +106,11 @@ describe('Integration Tests', () => {
         method: 'POST',
         url: '/tools/enrich_person',
         headers: {
-          'x-api-key': 'test-api-key'
+          'x-api-key': 'test-api-key',
         },
         payload: {
-          li_profile_url: findResult.li_profile_url
-        }
+          li_profile_url: findResult.li_profile_url,
+        },
       });
 
       expect(enrichResponse.statusCode).toBe(200);
@@ -123,10 +123,10 @@ describe('Integration Tests', () => {
 
     it('should handle company employees workflow', async () => {
       // Step 1: Find company
-      const findMockData = { 
+      const findMockData = {
         li_company_url: 'https://www.linkedin.com/company/techcorp',
         uid: '456',
-        li_company_id: '67890'
+        li_company_id: '67890',
       };
       let originalFetch = mockFetchResponse(findMockData);
 
@@ -134,11 +134,11 @@ describe('Integration Tests', () => {
         method: 'POST',
         url: '/tools/find_company',
         headers: {
-          'x-api-key': 'test-api-key'
+          'x-api-key': 'test-api-key',
         },
         payload: {
-          company_name: 'Tech Corp'
-        }
+          company_name: 'Tech Corp',
+        },
       });
 
       expect(findResponse.statusCode).toBe(200);
@@ -150,7 +150,7 @@ describe('Integration Tests', () => {
       // Step 2: Get employees using company_uid
       const employeesMockData = [
         { uid: '1', full_name: 'Employee One', job_title: 'Engineer' },
-        { uid: '2', full_name: 'Employee Two', job_title: 'Manager' }
+        { uid: '2', full_name: 'Employee Two', job_title: 'Manager' },
       ];
       originalFetch = mockFetchResponse(employeesMockData);
 
@@ -158,11 +158,11 @@ describe('Integration Tests', () => {
         method: 'POST',
         url: '/tools/search_company_employees',
         headers: {
-          'x-api-key': 'test-api-key'
+          'x-api-key': 'test-api-key',
         },
         payload: {
-          company_uid: findResult.uid
-        }
+          company_uid: findResult.uid,
+        },
       });
 
       expect(employeesResponse.statusCode).toBe(200);
@@ -178,8 +178,8 @@ describe('Integration Tests', () => {
         method: 'POST',
         url: '/tools/enrich_person',
         payload: {
-          li_profile_url: 'https://www.linkedin.com/in/test'
-        }
+          li_profile_url: 'https://www.linkedin.com/in/test',
+        },
       });
       expect(noKeyResponse.statusCode).toBe(401);
 
@@ -188,9 +188,9 @@ describe('Integration Tests', () => {
         method: 'POST',
         url: '/tools/nonexistent_tool',
         headers: {
-          'x-api-key': 'test-api-key'
+          'x-api-key': 'test-api-key',
         },
-        payload: {}
+        payload: {},
       });
       expect(unknownToolResponse.statusCode).toBe(404);
     });

@@ -24,8 +24,8 @@ function parseCorsOrigins(envValue: string | undefined): string[] {
   if (!envValue) return [];
   return envValue
     .split(',')
-    .map(origin => origin.trim())
-    .filter(origin => origin.length > 0);
+    .map((origin) => origin.trim())
+    .filter((origin) => origin.length > 0);
 }
 
 function validateConfig(): Config {
@@ -71,7 +71,7 @@ function validateConfig(): Config {
 
   // Parse and validate CORS origins
   const corsOrigins = parseCorsOrigins(process.env.CORS_ORIGINS);
-  
+
   // Validate each origin is a valid URL (in production)
   if (process.env.NODE_ENV === 'production' && corsOrigins.length > 0) {
     for (const origin of corsOrigins) {

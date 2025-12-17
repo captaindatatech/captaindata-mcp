@@ -35,7 +35,7 @@ class RedisService {
       keepAlive: 30000,
       family: 4, // IPv4
     };
-    
+
     this.initialize();
   }
 
@@ -134,9 +134,12 @@ class RedisService {
         attempt: this.connectionAttempts,
         error: error instanceof Error ? error.message : 'Unknown error',
       });
-      
+
       if (this.connectionAttempts >= this.maxConnectionAttempts) {
-        redisLogger.error('Max connection attempts reached, falling back to in-memory storage', error);
+        redisLogger.error(
+          'Max connection attempts reached, falling back to in-memory storage',
+          error
+        );
         this.client = null;
       }
     }
@@ -156,7 +159,7 @@ class RedisService {
         }
       }
     }, 30000); // Check every 30 seconds
-    
+
     // Allow process to exit even if health check is active
     this.healthCheckInterval.unref();
   }
@@ -251,7 +254,7 @@ class RedisService {
 
   public disconnect(): void {
     this.stopHealthCheck();
-    
+
     if (this.client) {
       this.client.disconnect();
       this.client = null;

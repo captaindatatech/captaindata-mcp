@@ -1,6 +1,6 @@
 /**
  * Tool input schemas
- * 
+ *
  * This module re-exports tool schemas from the centralized types module.
  * For new code, import directly from '../../types' instead.
  */
@@ -18,10 +18,10 @@ export function validateToolSchema(schema: { description: string; parameters: TS
   if (!schema.description || typeof schema.description !== 'string') {
     throw new Error('Schema must have a description string');
   }
-  
+
   if (!schema.parameters || typeof schema.parameters !== 'object') {
     throw new Error('Schema must have parameters object');
   }
-  
+
   return true;
 }

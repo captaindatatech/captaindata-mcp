@@ -29,7 +29,7 @@ export {
   type ErrorCode,
   // Functions
   createErrorResponse,
-  jsonErrorResponse
+  jsonErrorResponse,
 } from './common';
 
 // ============================================================================
@@ -45,7 +45,7 @@ export {
   type AuthResponse,
   type SessionData,
   // Route schemas
-  authRouteSchema
+  authRouteSchema,
 } from './auth';
 
 // ============================================================================
@@ -61,7 +61,7 @@ export {
   type HealthResponse,
   type UnhealthyResponse,
   // Route schemas
-  healthRouteSchema
+  healthRouteSchema,
 } from './health';
 
 // ============================================================================
@@ -85,7 +85,7 @@ export {
   // Constants
   ALIAS_TO_PATH,
   // Route schemas
-  introspectRouteSchema
+  introspectRouteSchema,
 } from './tools';
 
 // ============================================================================
@@ -113,7 +113,7 @@ import {
   SearchCompaniesResponseSchema,
   EnrichCompanyResponseSchema,
   SearchCompanyEmployeesResponseSchema,
-  GetQuotasResponseSchema
+  GetQuotasResponseSchema,
 } from './entities';
 import { TSchema } from '@sinclair/typebox';
 
@@ -128,7 +128,7 @@ export const TOOL_SCHEMAS: Record<ToolAlias, { description: string; parameters: 
   search_companies: searchCompaniesToolSchema,
   enrich_company: enrichCompanyToolSchema,
   search_company_employees: searchCompanyEmployeesToolSchema,
-  get_quotas: getQuotasToolSchema
+  get_quotas: getQuotasToolSchema,
 };
 
 /**
@@ -142,7 +142,7 @@ export const RESPONSE_SCHEMAS: Record<ToolAlias, TSchema> = {
   search_companies: SearchCompaniesResponseSchema,
   enrich_company: EnrichCompanyResponseSchema,
   search_company_employees: SearchCompanyEmployeesResponseSchema,
-  get_quotas: GetQuotasResponseSchema
+  get_quotas: GetQuotasResponseSchema,
 };
 
 /**
@@ -155,6 +155,5 @@ export const ERROR_RESPONSES = {
   404: ErrorResponseSchema,
   408: ErrorResponseSchema,
   500: ErrorResponseSchema,
-  503: ErrorResponseSchema
+  503: ErrorResponseSchema,
 };
-

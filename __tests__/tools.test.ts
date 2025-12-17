@@ -20,13 +20,19 @@ describe('Tool Execution', () => {
   describe('POST /tools/:alias', () => {
     // People Tools
     it('should handle find_person tool with valid API key', async () => {
-      const mockData = { li_profile_url: 'https://www.linkedin.com/in/guillaumeodier', uid: '123', li_profile_id: 12345 };
+      const mockData = {
+        li_profile_url: 'https://www.linkedin.com/in/guillaumeodier',
+        uid: '123',
+        li_profile_id: 12345,
+      };
       const originalFetch = mockFetchResponse(mockData);
 
-      const response = await server.inject(createTestPayload('find_person', {
-        full_name: 'Guillaume Odier',
-        company_name: 'Captain Data'
-      }));
+      const response = await server.inject(
+        createTestPayload('find_person', {
+          full_name: 'Guillaume Odier',
+          company_name: 'Captain Data',
+        })
+      );
 
       expect(response.statusCode).toBe(200);
       const data = JSON.parse(response.payload);
@@ -39,9 +45,11 @@ describe('Tool Execution', () => {
       const mockData = { full_name: 'Guillaume Odier', headline: 'CEO at Captain Data' };
       const originalFetch = mockFetchResponse(mockData);
 
-      const response = await server.inject(createTestPayload('enrich_person', {
-        li_profile_url: 'https://www.linkedin.com/in/guillaumeodier'
-      }));
+      const response = await server.inject(
+        createTestPayload('enrich_person', {
+          li_profile_url: 'https://www.linkedin.com/in/guillaumeodier',
+        })
+      );
 
       expect(response.statusCode).toBe(200);
       const data = JSON.parse(response.payload);
@@ -54,10 +62,12 @@ describe('Tool Execution', () => {
       const mockData = { full_name: 'Guillaume Odier', experiences: [], skills: [] };
       const originalFetch = mockFetchResponse(mockData);
 
-      const response = await server.inject(createTestPayload('enrich_person', {
-        li_profile_url: 'https://www.linkedin.com/in/guillaumeodier',
-        full_enrich: true
-      }));
+      const response = await server.inject(
+        createTestPayload('enrich_person', {
+          li_profile_url: 'https://www.linkedin.com/in/guillaumeodier',
+          full_enrich: true,
+        })
+      );
 
       expect(response.statusCode).toBe(200);
       const data = JSON.parse(response.payload);
@@ -67,12 +77,17 @@ describe('Tool Execution', () => {
     });
 
     it('should handle search_people tool', async () => {
-      const mockData = [{ uid: '1', full_name: 'John Doe' }, { uid: '2', full_name: 'Jane Doe' }];
+      const mockData = [
+        { uid: '1', full_name: 'John Doe' },
+        { uid: '2', full_name: 'Jane Doe' },
+      ];
       const originalFetch = mockFetchResponse(mockData);
 
-      const response = await server.inject(createTestPayload('search_people', {
-        query: '(keywords:"Software Engineer")'
-      }));
+      const response = await server.inject(
+        createTestPayload('search_people', {
+          query: '(keywords:"Software Engineer")',
+        })
+      );
 
       expect(response.statusCode).toBe(200);
       const data = JSON.parse(response.payload);
@@ -83,12 +98,18 @@ describe('Tool Execution', () => {
 
     // Company Tools
     it('should handle find_company tool', async () => {
-      const mockData = { li_company_url: 'https://www.linkedin.com/company/captaindata', uid: '456', li_company_id: '67890' };
+      const mockData = {
+        li_company_url: 'https://www.linkedin.com/company/captaindata',
+        uid: '456',
+        li_company_id: '67890',
+      };
       const originalFetch = mockFetchResponse(mockData);
 
-      const response = await server.inject(createTestPayload('find_company', {
-        company_name: 'Captain Data'
-      }));
+      const response = await server.inject(
+        createTestPayload('find_company', {
+          company_name: 'Captain Data',
+        })
+      );
 
       expect(response.statusCode).toBe(200);
       const data = JSON.parse(response.payload);
@@ -101,9 +122,11 @@ describe('Tool Execution', () => {
       const mockData = { company_name: 'Captain Data', industry: 'Technology' };
       const originalFetch = mockFetchResponse(mockData);
 
-      const response = await server.inject(createTestPayload('enrich_company', {
-        li_company_url: 'https://www.linkedin.com/company/captaindata'
-      }));
+      const response = await server.inject(
+        createTestPayload('enrich_company', {
+          li_company_url: 'https://www.linkedin.com/company/captaindata',
+        })
+      );
 
       expect(response.statusCode).toBe(200);
       const data = JSON.parse(response.payload);
@@ -116,9 +139,11 @@ describe('Tool Execution', () => {
       const mockData = [{ uid: '1', company_name: 'Tech Corp' }];
       const originalFetch = mockFetchResponse(mockData);
 
-      const response = await server.inject(createTestPayload('search_companies', {
-        query: '(keywords:"technology")'
-      }));
+      const response = await server.inject(
+        createTestPayload('search_companies', {
+          query: '(keywords:"technology")',
+        })
+      );
 
       expect(response.statusCode).toBe(200);
       const data = JSON.parse(response.payload);
@@ -131,9 +156,11 @@ describe('Tool Execution', () => {
       const mockData = [{ uid: '1', full_name: 'Employee One' }];
       const originalFetch = mockFetchResponse(mockData);
 
-      const response = await server.inject(createTestPayload('search_company_employees', {
-        company_uid: '123e4567-e89b-12d3-a456-426614174000'
-      }));
+      const response = await server.inject(
+        createTestPayload('search_company_employees', {
+          company_uid: '123e4567-e89b-12d3-a456-426614174000',
+        })
+      );
 
       expect(response.statusCode).toBe(200);
       const data = JSON.parse(response.payload);
@@ -153,13 +180,13 @@ describe('Tool Execution', () => {
 
     // Utility Tools
     it('should handle get_quotas tool', async () => {
-      const mockData = { 
+      const mockData = {
         uid: '123e4567-e89b-12d3-a456-426614174000',
         name: 'Test Workspace',
         credits_left: 500,
         credits_max: 1000,
         credits_used: 500,
-        plan_name: 'Growth'
+        plan_name: 'Growth',
       };
       const originalFetch = mockFetchResponse(mockData);
 
@@ -188,9 +215,11 @@ describe('Tool Execution', () => {
       const mockData = { error: 'Invalid API key', code: 'invalid_key' };
       const originalFetch = mockFetchResponse(mockData, 401);
 
-      const response = await server.inject(createTestPayload('enrich_person', {
-        li_profile_url: 'https://www.linkedin.com/in/test'
-      }));
+      const response = await server.inject(
+        createTestPayload('enrich_person', {
+          li_profile_url: 'https://www.linkedin.com/in/test',
+        })
+      );
 
       expect(response.statusCode).toBe(401);
       const data = JSON.parse(response.payload);
@@ -203,7 +232,7 @@ describe('Tool Execution', () => {
     // Timeout and network error handling
     it('should handle request timeout', async () => {
       const originalFetch = global.fetch;
-      
+
       // Mock fetch to simulate timeout via AbortError
       global.fetch = jest.fn().mockImplementation(() => {
         const error = new Error('The operation was aborted');
@@ -211,9 +240,11 @@ describe('Tool Execution', () => {
         return Promise.reject(error);
       });
 
-      const response = await server.inject(createTestPayload('enrich_person', {
-        li_profile_url: 'https://www.linkedin.com/in/test'
-      }));
+      const response = await server.inject(
+        createTestPayload('enrich_person', {
+          li_profile_url: 'https://www.linkedin.com/in/test',
+        })
+      );
 
       expect(response.statusCode).toBe(408);
       const data = JSON.parse(response.payload);
@@ -225,7 +256,7 @@ describe('Tool Execution', () => {
 
     it('should handle network errors with service unavailable response', async () => {
       const originalFetch = global.fetch;
-      
+
       // Mock fetch to simulate network error after retries
       let callCount = 0;
       global.fetch = jest.fn().mockImplementation(() => {
@@ -234,9 +265,11 @@ describe('Tool Execution', () => {
         return Promise.reject(new TypeError('Failed to fetch'));
       });
 
-      const response = await server.inject(createTestPayload('enrich_person', {
-        li_profile_url: 'https://www.linkedin.com/in/test'
-      }));
+      const response = await server.inject(
+        createTestPayload('enrich_person', {
+          li_profile_url: 'https://www.linkedin.com/in/test',
+        })
+      );
 
       expect(response.statusCode).toBe(503);
       const data = JSON.parse(response.payload);
@@ -250,7 +283,7 @@ describe('Tool Execution', () => {
 
     it('should handle malformed JSON response from API', async () => {
       const originalFetch = global.fetch;
-      
+
       // Mock fetch to return invalid JSON
       global.fetch = jest.fn().mockResolvedValue({
         status: 200,
@@ -258,13 +291,15 @@ describe('Tool Execution', () => {
         json: () => Promise.reject(new SyntaxError('Unexpected token')),
         text: () => Promise.resolve('not valid json'),
         headers: {
-          get: () => null
-        }
+          get: () => null,
+        },
       });
 
-      const response = await server.inject(createTestPayload('enrich_person', {
-        li_profile_url: 'https://www.linkedin.com/in/test'
-      }));
+      const response = await server.inject(
+        createTestPayload('enrich_person', {
+          li_profile_url: 'https://www.linkedin.com/in/test',
+        })
+      );
 
       expect(response.statusCode).toBe(500);
       const data = JSON.parse(response.payload);

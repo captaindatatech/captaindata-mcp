@@ -23,6 +23,7 @@
     "format": "prettier --write \"src/**/*.ts\" \"__tests__/**/*.ts\"",
     "format:check": "prettier --check \"src/**/*.ts\" \"__tests__/**/*.ts\"",
     "type-check": "tsc --noEmit",
+    "ci": "npm run format:check && npm run lint && npm run type-check",
     "prestart": "npm run type-check",
     "generate:openapi": "ts-node scripts/generate-openapi.ts",
     "generate:openapi:gpt": "ts-node scripts/generate-openapi-gpt.ts"

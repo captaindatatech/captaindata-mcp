@@ -14,8 +14,8 @@ export async function startDevServer() {
   const addr = app.server.address();
   const port = typeof addr === 'string' ? config.port : addr?.port;
   app.log.info(`🚀 Server listening on ${port}`);
-  
+
   if ('swagger' in app) {
     app.log.info(`📚 Docs at http://localhost:${port}/docs`);
   }
-} 
+}

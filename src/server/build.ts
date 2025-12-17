@@ -26,7 +26,7 @@ process.on('unhandledRejection', (reason, promise) => {
   serverLogger.error('Unhandled Rejection', reason as Error, {
     promise: String(promise),
   });
-  
+
   // Report to Sentry in production
   if (config.nodeEnv === 'production' && process.env.SENTRY_DSN) {
     Sentry.captureException(reason);
@@ -36,12 +36,12 @@ process.on('unhandledRejection', (reason, promise) => {
 // Global uncaught exception handler
 process.on('uncaughtException', (error) => {
   serverLogger.fatal('Uncaught Exception', error);
-  
+
   // Report to Sentry in production
   if (config.nodeEnv === 'production' && process.env.SENTRY_DSN) {
     Sentry.captureException(error);
   }
-  
+
   // Give Sentry time to send the error before exiting
   setTimeout(() => {
     process.exit(1);
@@ -74,7 +74,7 @@ export async function buildServer(): Promise<FastifyInstance> {
   // Sentry error handler (prod only)
   if (config.nodeEnv === 'production' && process.env.SENTRY_DSN) {
     Sentry.setupFastifyErrorHandler(app);
-    
+
     // Add Sentry error capture without interfering with status codes
     app.setErrorHandler((error, request, reply) => {
       // Capture error in Sentry with additional context
@@ -93,7 +93,7 @@ export async function buildServer(): Promise<FastifyInstance> {
         });
         Sentry.captureException(error);
       });
-      
+
       // Let Fastify handle the error response naturally
       reply.send(error);
     });
@@ -171,7 +171,7 @@ export async function buildServer(): Promise<FastifyInstance> {
     const startTime = (request as RequestWithTiming).startTime;
     if (startTime) {
       const responseTime = Date.now() - startTime;
-      
+
       // Use structured logging for all environments
       serverLogger.info('Request completed', {
         requestId: request.id,
@@ -180,7 +180,7 @@ export async function buildServer(): Promise<FastifyInstance> {
         statusCode: reply.statusCode,
         responseTime,
       });
-      
+
       // Add Sentry breadcrumb in production
       if (config.nodeEnv === 'production' && process.env.SENTRY_DSN) {
         Sentry.addBreadcrumb({
@@ -203,12 +203,12 @@ export async function buildServer(): Promise<FastifyInstance> {
   // Add caching headers for static endpoints
   app.addHook('onSend', async (request, reply, payload) => {
     const url = request.url;
-    
+
     // Cache introspection and OpenAPI specs for 1 hour
     if (url === '/introspect' || url === '/openapi.json' || url === '/openapi.gpt.json') {
       reply.header('Cache-Control', 'public, max-age=3600');
     }
-    
+
     return payload;
   });
 

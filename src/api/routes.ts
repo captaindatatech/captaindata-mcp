@@ -7,12 +7,7 @@ import healthHandler from './handlers/health';
 import { introspectSchema, authSchema, healthSchema } from './schemas';
 import { readFileSync } from 'fs';
 import { join } from 'path';
-import { 
-  TOOL_SCHEMAS, 
-  RESPONSE_SCHEMAS, 
-  ERROR_RESPONSES,
-  ToolAlias 
-} from '../types';
+import { TOOL_SCHEMAS, RESPONSE_SCHEMAS, ERROR_RESPONSES, ToolAlias } from '../types';
 import { logError } from '../middleware';
 import { logger } from '../lib/logger';
 
@@ -47,22 +42,26 @@ try {
 
 async function routes(app: FastifyInstance) {
   // Health check endpoint
-  app.get('/health', {
-    schema: healthSchema
-  }, healthHandler);
+  app.get(
+    '/health',
+    {
+      schema: healthSchema,
+    },
+    healthHandler
+  );
 
   // OpenAPI specification endpoint
   app.get('/openapi.json', async (request, reply) => {
     if (openApiSpecError) {
       logError('OpenAPI specification not available', new Error(openApiSpecError), request, {
-        endpoint: 'openapi'
+        endpoint: 'openapi',
       });
-      return reply.status(500).send({ 
+      return reply.status(500).send({
         error: 'OpenAPI specification not available',
-        message: 'Internal server error'
+        message: 'Internal server error',
       });
     }
-    
+
     reply.header('Content-Type', 'application/json');
     return cachedOpenApiSpec;
   });
@@ -70,61 +69,77 @@ async function routes(app: FastifyInstance) {
   // GPT-compatible OpenAPI specification endpoint
   app.get('/openapi.gpt.json', async (request, reply) => {
     if (gptOpenApiSpecError) {
-      logError('GPT-compatible OpenAPI specification not available', new Error(gptOpenApiSpecError), request, {
-        endpoint: 'openapi.gpt'
-      });
-      return reply.status(500).send({ 
+      logError(
+        'GPT-compatible OpenAPI specification not available',
+        new Error(gptOpenApiSpecError),
+        request,
+        {
+          endpoint: 'openapi.gpt',
+        }
+      );
+      return reply.status(500).send({
         error: 'GPT-compatible OpenAPI specification not available',
-        message: 'Internal server error'
+        message: 'Internal server error',
       });
     }
-    
+
     reply.header('Content-Type', 'application/json');
     return cachedGptOpenApiSpec;
   });
 
   // Authentication endpoint
-  app.post('/auth', {
-    schema: authSchema
-  }, authHandler);
+  app.post(
+    '/auth',
+    {
+      schema: authSchema,
+    },
+    authHandler
+  );
 
   // Introspect endpoint
-  app.get('/introspect', {
-    schema: introspectSchema
-  }, introspectHandler);
+  app.get(
+    '/introspect',
+    {
+      schema: introspectSchema,
+    },
+    introspectHandler
+  );
 
   // Dynamic tool endpoints for ChatGPT Actions
   Object.keys(TOOL_SCHEMAS).forEach((toolAlias) => {
     const alias = toolAlias as ToolAlias;
     const schema = TOOL_SCHEMAS[alias];
-    
-    // Register specific endpoint for each tool with dynamic schema
-    app.post(`/tools/${alias}`, {
-      schema: {
-        operationId: alias.replace(/_([a-z])/g, (_, letter) => letter.toUpperCase()),
-        summary: `Execute ${alias} tool`,
-        tags: ['Tools'],
-        description: schema.description,
-        body: schema.parameters,
-        response: {
-          200: RESPONSE_SCHEMAS[alias],
-          400: ERROR_RESPONSES[400],
-          401: ERROR_RESPONSES[401],
-          404: ERROR_RESPONSES[404],
-          500: ERROR_RESPONSES[500]
-        }
-      }
-    }, async (request, reply) => {
-      // Create a properly typed request object for the tool handler
-      const typedRequest = {
-        ...request,
-        params: { alias },
-        headers: request.headers
-      } as Parameters<typeof toolHandler>[0];
-      return toolHandler(typedRequest, reply);
-    });
-  });
 
+    // Register specific endpoint for each tool with dynamic schema
+    app.post(
+      `/tools/${alias}`,
+      {
+        schema: {
+          operationId: alias.replace(/_([a-z])/g, (_, letter) => letter.toUpperCase()),
+          summary: `Execute ${alias} tool`,
+          tags: ['Tools'],
+          description: schema.description,
+          body: schema.parameters,
+          response: {
+            200: RESPONSE_SCHEMAS[alias],
+            400: ERROR_RESPONSES[400],
+            401: ERROR_RESPONSES[401],
+            404: ERROR_RESPONSES[404],
+            500: ERROR_RESPONSES[500],
+          },
+        },
+      },
+      async (request, reply) => {
+        // Create a properly typed request object for the tool handler
+        const typedRequest = {
+          ...request,
+          params: { alias },
+          headers: request.headers,
+        } as Parameters<typeof toolHandler>[0];
+        return toolHandler(typedRequest, reply);
+      }
+    );
+  });
 }
 
 export const registerRoutes = fp(routes);
