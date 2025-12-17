@@ -110,9 +110,19 @@ export async function buildServer(): Promise<FastifyInstance> {
   }
 
   // Response compression (gzip/brotli)
+  // Note: SSE endpoints handle their own response headers and bypass compression
   await app.register(fastifyCompress, {
     global: true,
     encodings: ['gzip', 'deflate'],
+  });
+
+  // Disable compression for SSE endpoints by setting x-no-compression header
+  app.addHook('onRequest', async (request, reply) => {
+    const url = request.url;
+    if (url === '/sse' || url.startsWith('/sse?')) {
+      // SSE requires uncompressed streaming - set header to bypass compression
+      reply.header('x-no-compression', 'true');
+    }
   });
 
   // Security headers via Helmet
@@ -136,8 +146,9 @@ export async function buildServer(): Promise<FastifyInstance> {
   await app.register(fastifyRateLimit, {
     max: config.rateLimitMax,
     timeWindow: config.rateLimitTimeWindow,
-    // Exempt docs/spec from rate-limit, helpful in dev
-    allowList: ['/docs', '/docs/json', '/docs/yaml', '/openapi.json'],
+    // Exempt docs/spec and SSE from rate-limit
+    // SSE connections are long-lived and should not be rate-limited
+    allowList: ['/docs', '/docs/json', '/docs/yaml', '/openapi.json', '/sse'],
     addHeadersOnExceeding: {
       'x-ratelimit-limit': true,
       'x-ratelimit-remaining': true,

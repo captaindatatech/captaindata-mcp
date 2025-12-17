@@ -4,6 +4,8 @@ import introspectHandler from './handlers/introspect';
 import toolHandler from './handlers/tools';
 import authHandler from './handlers/auth';
 import healthHandler from './handlers/health';
+import sseHandler from './handlers/sse';
+import mcpMessageHandler from './handlers/mcp-message';
 import { introspectSchema, authSchema, healthSchema } from './schemas';
 import { readFileSync } from 'fs';
 import { join } from 'path';
@@ -104,6 +106,20 @@ async function routes(app: FastifyInstance) {
     },
     introspectHandler
   );
+
+  // ============================================================================
+  // MCP SSE Transport Endpoints
+  // ============================================================================
+
+  // SSE endpoint for MCP clients (Claude Desktop, Cursor, etc.)
+  app.get('/sse', { schema: { hide: true } }, sseHandler);
+
+  // Message endpoint for MCP protocol messages
+  app.post('/mcp', { schema: { hide: true } }, mcpMessageHandler);
+
+  // ============================================================================
+  // REST API Tool Endpoints (ChatGPT Actions)
+  // ============================================================================
 
   // Dynamic tool endpoints for ChatGPT Actions
   Object.keys(TOOL_SCHEMAS).forEach((toolAlias) => {
