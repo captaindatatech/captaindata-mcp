@@ -159,7 +159,7 @@ export async function extractApiKey(headers: Record<string, string | string[] | 
         throw new Error(`Invalid or expired session token: ${token.substring(0, 8)}...`);
       }
       return apiKey;
-    } catch (redisError) {
+    } catch {
       // If Redis fails, fall back to in-memory store
       const apiKey = await getSessionToken(token);
       if (!apiKey) {

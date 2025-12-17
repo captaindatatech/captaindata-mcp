@@ -1,4 +1,4 @@
-import fastify, { FastifyInstance } from 'fastify';
+import fastify, { FastifyInstance, FastifyRequest } from 'fastify';
 import * as Sentry from '@sentry/node';
 import fastifyCors from '@fastify/cors';
 import fastifyRateLimit from '@fastify/rate-limit';
@@ -12,6 +12,11 @@ import { requestLoggingMiddleware, securityMiddleware } from '../middleware';
 import { registerRoutes } from '../api/routes';
 import { config } from '../lib/config';
 import { logger } from '../lib/logger';
+
+// Extend FastifyRequest to include our custom properties
+interface RequestWithTiming extends FastifyRequest {
+  startTime?: number;
+}
 
 // Create a server-specific logger
 const serverLogger = logger.child({ component: 'server' });
@@ -163,7 +168,7 @@ export async function buildServer(): Promise<FastifyInstance> {
 
   // Add response logging with structured logger
   app.addHook('onResponse', (request, reply, done) => {
-    const startTime = (request as any).startTime;
+    const startTime = (request as RequestWithTiming).startTime;
     if (startTime) {
       const responseTime = Date.now() - startTime;
       

@@ -6,7 +6,7 @@ export async function startDevServer() {
   await app.ready();
 
   // Generate spec AFTER ready, only if swagger registered
-  if ((app as any).swagger) {
+  if ('swagger' in app && typeof app.swagger === 'function') {
     app.swagger();
   }
 
@@ -15,7 +15,7 @@ export async function startDevServer() {
   const port = typeof addr === 'string' ? config.port : addr?.port;
   app.log.info(`🚀 Server listening on ${port}`);
   
-  if ((app as any).swagger) {
+  if ('swagger' in app) {
     app.log.info(`📚 Docs at http://localhost:${port}/docs`);
   }
 } 

@@ -55,7 +55,7 @@ class RedisService {
   private validateConnectionString(): void {
     try {
       new URL(this.config.url);
-    } catch (error) {
+    } catch {
       throw new Error(`Invalid Redis URL: ${this.config.url}`);
     }
   }

@@ -15,7 +15,7 @@ const PUBLIC_ROUTES = [
 export async function securityMiddleware(req: FastifyRequest, reply: FastifyReply) {
   const apiKey = req.headers['x-api-key'];
   const authHeader = req.headers['authorization'];
-  const sessionToken = (req.query as any)?.session_token;
+  const sessionToken = (req.query as Record<string, unknown>)?.session_token as string | undefined;
   
   // Get the pathname from the URL (remove query parameters)
   const pathname = req.url.split('?')[0];

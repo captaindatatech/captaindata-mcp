@@ -1,7 +1,12 @@
 import { FastifyRequest, FastifyReply } from 'fastify';
 import * as Sentry from '@sentry/node';
 
-export async function requestLoggingMiddleware(request: FastifyRequest, reply: FastifyReply) {
+// Extend FastifyRequest to include our custom properties
+interface RequestWithTiming extends FastifyRequest {
+  startTime?: number;
+}
+
+export async function requestLoggingMiddleware(request: FastifyRequest, _reply: FastifyReply) {
   const startTime = Date.now();
   const requestId = request.id;
   
@@ -30,7 +35,7 @@ export async function requestLoggingMiddleware(request: FastifyRequest, reply: F
   }
 
   // Store start time for response logging
-  (request as any).startTime = startTime;
+  (request as RequestWithTiming).startTime = startTime;
 }
 
 /**
@@ -40,11 +45,12 @@ export function logError(
   message: string,
   error: Error | unknown,
   request: FastifyRequest,
-  context: Record<string, any> = {}
+  context: Record<string, unknown> = {}
 ): void {
   const requestId = request.id;
-  const executionTime = (request as any).startTime 
-    ? Date.now() - (request as any).startTime 
+  const reqWithTiming = request as RequestWithTiming;
+  const executionTime = reqWithTiming.startTime 
+    ? Date.now() - reqWithTiming.startTime 
     : undefined;
 
   // Log to application logs
@@ -66,10 +72,10 @@ export function logError(
         scope.setTag('executionTime', executionTime.toString());
       }
       if (context.endpoint) {
-        scope.setTag('endpoint', context.endpoint);
+        scope.setTag('endpoint', String(context.endpoint));
       }
       if (context.tool) {
-        scope.setTag('tool', context.tool);
+        scope.setTag('tool', String(context.tool));
       }
 
       // Set user context
@@ -107,7 +113,7 @@ export function logError(
 export function logInfo(
   message: string,
   request: FastifyRequest,
-  context: Record<string, any> = {}
+  context: Record<string, unknown> = {}
 ): void {
   // Log to application logs
   request.log.info({
@@ -120,8 +126,8 @@ export function logInfo(
   if (process.env.NODE_ENV === 'production' && process.env.SENTRY_DSN) {
     Sentry.addBreadcrumb({
       message,
-      category: context.endpoint || 'default',
-      data: context,
+      category: context.endpoint ? String(context.endpoint) : 'default',
+      data: context as Record<string, string>,
       level: 'info',
     });
   }
