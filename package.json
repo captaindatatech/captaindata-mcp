@@ -61,7 +61,7 @@
     "@sentry/node": "^10.2.0",
     "@sinclair/typebox": "^0.34.41",
     "@types/json-schema": "^7.0.15",
-    "axios": "^1.6.2",
+    "axios": "^1.13.5",
     "dotenv": "^16.3.1",
     "fastify": "^5.4.0",
     "fastify-plugin": "^5.0.1",
