@@ -47,8 +47,11 @@ cleanupTimer.unref();
 
 /**
  * Safely execute a Redis operation with fallback to in-memory storage
+ * Calls ensureConnected() first for lazy init - Redis connects on first use
  */
 async function safeRedisOperation<T>(operation: () => Promise<T>, fallback: () => T): Promise<T> {
+  await redisService.ensureConnected();
+
   if (!redisService.isAvailable()) {
     return fallback();
   }
@@ -166,6 +169,7 @@ export async function extractApiKey(
   }
 
   // Look up the API key in Redis storage or in-memory store
+  await redisService.ensureConnected();
   if (redisService.isAvailable()) {
     try {
       const apiKey = await redisService.get(`session:${token}`);
